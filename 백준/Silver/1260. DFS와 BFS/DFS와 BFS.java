@@ -1,17 +1,19 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.StringTokenizer;
 
 public class Main {
     static int N, M, V;
-    static int[][] graph;
+    static ArrayList<ArrayList<Integer>> graph;
     static boolean[] visited;
     static StringBuilder sb;
 
     static void putEdges(int x, int y) {
-        graph[x][y] = 1;
-        graph[y][x] = 1;
+        graph.get(x).add(y);
+        graph.get(y).add(x);
     }
 
     static void BFS(int v) {
@@ -23,10 +25,12 @@ public class Main {
             int current = dq.poll();
             sb.append(current).append(" ");
 
-            for (int i = 1; i <= N; i++) {
-                if (graph[current][i] == 1 && !visited[i]) {
-                    dq.offer(i);
-                    visited[i] = true;
+            Collections.sort(graph.get(current));
+
+            for (int x : graph.get(current)) {
+                if (!visited[x]) {
+                    dq.offer(x);
+                    visited[x] = true;
                 }
             }
         }
@@ -35,9 +39,12 @@ public class Main {
     static void DFS(int v) {
         visited[v] = true;
         sb.append(v).append(" ");
-        for (int i = 1; i <= N; i++) {
-            if (graph[v][i] == 1 && !visited[i]) {
-                DFS(i);
+
+        Collections.sort(graph.get(v));
+
+        for (int x : graph.get(v)) {
+            if (!visited[x]) {
+                DFS(x);
             }
         }
     }
@@ -49,7 +56,10 @@ public class Main {
         M = Integer.parseInt(st.nextToken()); // 간선의 개수
         V = Integer.parseInt(st.nextToken()); // 탐색을 시작할 정점의 번호 V
 
-        graph = new int[N + 1][N + 1];
+        graph = new ArrayList<>();
+        for (int i = 0; i < N + 1; i++) {
+            graph.add(new ArrayList<>());
+        }
         visited = new boolean[N + 1];
 
         for (int i = 0; i < M; i++) {
@@ -62,6 +72,7 @@ public class Main {
         sb = new StringBuilder();
         DFS(V);
         sb.append("\n");
+
         visited = new boolean[N + 1];
         BFS(V);
         System.out.println(sb.toString());
