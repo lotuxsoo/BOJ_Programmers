@@ -5,13 +5,13 @@ import java.util.StringTokenizer;
 public class Main {
     static int N, M;
     static boolean[] visited;
-    static int[] arr;
+    static int[] result;
     static StringBuilder sb;
 
-    static void DFS(int L, int cur) {
-        if (L == M) {
+    static void DFS(int depth, int cur) {
+        if (depth == M) {
             for (int i = 0; i < M; i++) {
-                sb.append(arr[i]).append(" ");
+                sb.append(result[i]).append(" ");
             }
             sb.append("\n");
             return;
@@ -20,12 +20,11 @@ public class Main {
         for (int i = cur; i <= N; i++) {
             if (!visited[i]) {
                 visited[i] = true;
-                arr[L] = i;
-                DFS(L + 1, i + 1);
+                result[depth] = i;
+                DFS(depth + 1, i + 1);
                 visited[i] = false;
             }
         }
-
     }
 
     public static void main(String[] args) throws Exception {
@@ -34,7 +33,7 @@ public class Main {
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
         visited = new boolean[N + 1];
-        arr = new int[M];
+        result = new int[M];
         sb = new StringBuilder();
 
         DFS(0, 1);
