@@ -1,11 +1,5 @@
 class Solution {
-    public static int gcd(int a, int b) {
-         if (b > a) {
-            int temp = a;
-            a = b;
-            b = temp;
-        }
-        
+    public static int gcd(int a, int b) {        
         while (b != 0) {
             int mod = a % b;
             a = b;
