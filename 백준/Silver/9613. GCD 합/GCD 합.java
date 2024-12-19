@@ -17,7 +17,6 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int T = Integer.parseInt(br.readLine());
         StringTokenizer st;
-        StringBuilder sb = new StringBuilder();
         while (T-- > 0) {
             st = new StringTokenizer(br.readLine());
             int t = Integer.parseInt(st.nextToken());
@@ -31,8 +30,7 @@ public class Main {
                     sum += gcd(list.get(i), list.get(j));
                 }
             }
-            sb.append(sum).append("\n");
+            System.out.println(sum);
         }
-        System.out.println(sb.substring(0, sb.length() - 1).toString());
     }
 }
