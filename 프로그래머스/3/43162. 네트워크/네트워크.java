@@ -1,26 +1,31 @@
+import java.util.*;
+
 class Solution {
-    static boolean[] check;
     
-    static void DFS(int i, int[][] computers, int n) {
-        check[i] = true;
-        for (int j=0; j<n; j++) {
-            if (!check[j] && computers[i][j]==1) {
-                DFS(j, computers, n);
-            }
+    static boolean[] visited;
+    
+    static void DFS(int x, int[][] computers) {
+        for (int i=0; i<computers[x].length; i++) {
+            if (!visited[i] && computers[x][i]==1) {
+                visited[i] = true;
+                DFS(i, computers);
+            }    
         }
     }
     
     public int solution(int n, int[][] computers) {
         int answer = 0;
-        check = new boolean[n];
+
+        visited = new boolean[n];
         
         for (int i=0; i<n; i++) {
-            if (!check[i]) { // 아직 방문되지 않은 컴퓨터가 있으면
-                answer++; // 새로운 네트워크 발견
-                DFS(i, computers, n); // 해당 네트워크에 속한 모든 컴퓨터 탐색
+            if (!visited[i]) {
+                visited[i] = true;
+                DFS(i, computers);
+                answer++;
             }
         }
-
+        
         return answer;
     }
 }
