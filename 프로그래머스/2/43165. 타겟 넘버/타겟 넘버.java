@@ -3,34 +3,26 @@ import java.util.*;
 class Solution {
     
     static int n;
-    static ArrayList<ArrayList<Integer>> adjList = new ArrayList<>();
     static int ans = 0;
+    static boolean[] visited;
     
-    static void DFS(int x, int sum, int target) {
+    static void DFS(int x, int sum, int[] numbers, int target) {
         if (x == n) {
             if (sum == target) ans++;
             return;
         }
-        
-        for (int next : adjList.get(x)) {
-            DFS(x+1, sum+next, target);
-        }
+    
+        DFS(x+1, sum+numbers[x], numbers, target);
+        DFS(x+1, sum-numbers[x], numbers, target);            
     }
     
     public int solution(int[] numbers, int target) {
         int answer = 0;
         
-        for (int i=0; i<numbers.length; i++) {
-            adjList.add(new ArrayList<>());
-        }
-        for (int i=0; i<numbers.length; i++) {
-            adjList.get(i).add(numbers[i]);
-            adjList.get(i).add(numbers[i]*-1);
-        }
-        
         n = numbers.length;
+        visited = new boolean[n];
         
-        DFS(0, 0, target);
+        DFS(0, 0, numbers, target);
         
         answer = ans;
         
