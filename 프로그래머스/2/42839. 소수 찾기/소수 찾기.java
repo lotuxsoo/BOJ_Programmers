@@ -2,41 +2,45 @@ import java.util.*;
 
 class Solution {
     
-    static Set<Integer> set = new HashSet<>();
+    static ArrayList<String> list = new ArrayList<>();
     static boolean[] visited;
-    static String string;
+    static Set<Integer> ans = new HashSet<>();
     
-    static boolean isPrime(int x) {
-        if (x <= 1) return false;
-        for (int i=2; i<x; i++) {
-            if (x%i == 0) return false;
+    static void DFS(String str) {
+        if (str != "" && isPrime(str)) {
+            ans.add(Integer.parseInt(str));
+        }
+        
+        for (int i=0; i<list.size(); i++) {
+            String s = list.get(i);
+            if (!visited[i]) {
+                visited[i] = true;
+                DFS(str + s);
+                visited[i] =  false;
+            }
+        }   
+    }
+    
+    static boolean isPrime(String s) {
+        int num = Integer.parseInt(s);
+        if (num <= 1) return false;
+        for (int i=2; i<num; i++) {
+            if (num%i == 0) return false;
         }
         return true;
     }
     
-    static void permute(String current) {
-        if (current != "") {
-            set.add(Integer.parseInt(current));
-        }
-        
-        for (int i=0; i<string.length(); i++) {
-            if (visited[i]) continue;
-            visited[i] = true;
-            permute(current + string.charAt(i));
-            visited[i] = false;
-        }
-    }
-    
     public int solution(String numbers) {
         int answer = 0;
-        string = numbers;
-        visited = new boolean[string.length()];
         
-        permute("");
-        
-        for (int i : set) {
-            if (isPrime(i)) answer++;
+        for (String s : numbers.split("")) {
+            list.add(s);
         }
+        visited = new boolean[list.size()];
+        
+        DFS("");
+        
+        answer = ans.size();
         
         return answer;
     }
