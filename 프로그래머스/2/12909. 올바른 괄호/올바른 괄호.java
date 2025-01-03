@@ -4,26 +4,20 @@ class Solution {
     boolean solution(String s) {
         boolean answer = true;
         
-        Deque<String> que = new ArrayDeque<>();
-        for (String str : s.split("")) {
-            if (!que.isEmpty()) {
-                if (str.equals("(")) {
-                    que.push("(");
-                } else {
-                    if (que.peek().equals("(")) {
-                        que.pop();
-                    }
-                }
-            } else {
-                if (str.equals(")")) {
-                    return false;
-                } else {
-                    que.push("(");
-                }
+        Map<Character,Character> table = new HashMap<>();
+        table.put(')', '('); // 닫는괄호, 여는괄호
+        
+        Deque<Character> stack = new ArrayDeque<>();
+        
+        for (int i=0; i<s.length(); i++) {      
+            if (!table.containsKey(s.charAt(i))) { // 여는괄호
+                stack.push(s.charAt(i));
+            } else if (stack.isEmpty() || table.get(s.charAt(i)) != stack.pop()) {
+                return false;
             }
         }
         
-        if (que.size() > 0) return false;
+        answer = stack.size() == 0;
 
         return answer;
     }
