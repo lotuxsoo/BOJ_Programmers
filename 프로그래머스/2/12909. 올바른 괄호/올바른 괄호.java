@@ -4,20 +4,26 @@ class Solution {
     boolean solution(String s) {
         boolean answer = true;
         
-        int openCount = 0;
-        
-        for (char c : s.toCharArray()) {
-            if (c == '(') {
-                openCount++;
-            } else {
-                openCount--;
-                if (openCount < 0) {
-                    return false;
+        Deque<String> que = new ArrayDeque<>();
+        for (String str : s.split("")) {
+            if (!que.isEmpty()) {
+                if (str.equals("(")) {
+                    que.push("(");
+                } else {
+                    if (que.peek().equals("(")) {
+                        que.pop();
+                    }
                 }
-            }   
+            } else {
+                if (str.equals(")")) {
+                    return false;
+                } else {
+                    que.push("(");
+                }
+            }
         }
         
-        if (openCount > 0) return false;
+        if (que.size() > 0) return false;
 
         return answer;
     }
