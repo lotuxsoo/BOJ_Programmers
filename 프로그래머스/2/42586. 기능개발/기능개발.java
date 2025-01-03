@@ -4,35 +4,28 @@ class Solution {
     public int[] solution(int[] progresses, int[] speeds) {
         int[] answer = {};
         
-        int[] arr = new int[progresses.length];
+        int[] days = new int[progresses.length];
         for (int i=0; i<progresses.length; i++) {
-            int days = (100-progresses[i])/speeds[i];
+            int day = (100-progresses[i])/speeds[i];
             if ((100-progresses[i])%speeds[i] != 0) {
-                days += 1;
+                day += 1;
             }
-            arr[i] = days;
+            days[i] = day;
         }
         
-        // 큐에 작업 넣기
-        Queue<Integer> que = new ArrayDeque<>();
+        int baseTime = days[0];
+        int cnt = 0;
         ArrayList<Integer> result = new ArrayList<>();
-        for (int i : arr) {
-            if (!que.isEmpty()) {
-                if (que.peek() >= i) {
-                    que.add(i); // 이전 작업에 추가
-                } else {
-                    result.add(que.size()); // 이전 작업 개수
-                    que.clear(); // 초기화 
-                    que.add(i); // 작업 추가
-                }
+        for (int day : days) {
+            if (day <= baseTime) {
+                cnt++;
             } else {
-                que.add(i);
+                result.add(cnt);
+                baseTime = day;
+                cnt = 1;
             }
         }
-        
-        if (que.size() > 0) {
-            result.add(que.size());
-        }
+        result.add(cnt);
         
         answer = new int[result.size()];
         for (int i=0; i<answer.length; i++) {
