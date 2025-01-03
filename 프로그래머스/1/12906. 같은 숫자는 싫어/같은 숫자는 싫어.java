@@ -4,7 +4,7 @@ public class Solution {
     public int[] solution(int []arr) {
         int[] answer = {};
         
-        Stack<Integer> stack = new Stack<>();
+        Deque<Integer> stack = new ArrayDeque<>();
         
         for (int i : arr) {
             if (stack.size() > 0 && i == stack.peek()) {
