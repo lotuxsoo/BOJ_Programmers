@@ -2,18 +2,16 @@ import java.util.*;
 
 class Solution {
     
-    static int N;
+    static int MAX_VAL = Integer.MIN_VALUE;
     static boolean[] visited;
-    static int max = 0;
     
-    static void DFS(int k, int[][] dungeons, int step) {
-        max = Math.max(max, step);
-        
-        for (int i=0; i<N; i++) {
-            int[] dungeon = dungeons[i];
-            if (!visited[i] && k >= dungeon[0]) {
+    static void permute(int cnt, int k, int[][] dungeons) {
+        MAX_VAL = Math.max(MAX_VAL, cnt);
+
+        for (int i=0; i<dungeons.length; i++) {
+            if (!visited[i] && k >= dungeons[i][0]) {
                 visited[i] = true;
-                DFS(k-dungeon[1], dungeons, step+1);
+                permute(cnt+1, k - dungeons[i][1], dungeons);
                 visited[i] = false;
             }
         }
@@ -22,13 +20,11 @@ class Solution {
     public int solution(int k, int[][] dungeons) {
         int answer = -1;
         
-        N = dungeons.length;
-        visited = new boolean[N];
-        int step = 0;
-    
-        DFS(k, dungeons, step);
+        visited = new boolean[dungeons.length];
         
-        answer = max;
+        permute(0, k, dungeons);
+        
+        answer = MAX_VAL;
         
         return answer;
     }
