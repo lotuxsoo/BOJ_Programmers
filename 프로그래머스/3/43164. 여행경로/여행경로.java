@@ -1,38 +1,32 @@
 import java.util.*;
 
 class Solution {
-    
-    static ArrayList<String> ansList = new ArrayList<>();
     static Map<String, PriorityQueue<String>> map = new HashMap<>();
-    
-    static void DFS(String x) {
-        PriorityQueue<String> pq = map.get(x);
-        
-        while (pq != null && !pq.isEmpty()) {
-            String next = pq.poll();
-            DFS(next);                    
-        }
-        
-        ansList.add(x);
-    }
     
     public String[] solution(String[][] tickets) {
         String[] answer = {};
         
         for (String[] ticket : tickets) {
-            String from = ticket[0];
-            String to = ticket[1];
-            map.putIfAbsent(from, new PriorityQueue<>());
-            map.get(from).add(to);
+            map.putIfAbsent(ticket[0], new PriorityQueue<>());
+            map.get(ticket[0]).add(ticket[1]);
         }
         
-        DFS("ICN");
+        Deque<String> stack = new ArrayDeque<>();
+        stack.push("ICN");
         
-        Collections.reverse(ansList);
-        answer = new String[ansList.size()];
-        for (int i=0; i<answer.length; i++) {
-            answer[i] = ansList.get(i);
+        List<String> list = new ArrayList<>();
+        
+        while (!stack.isEmpty()) {
+            
+            while (map.containsKey(stack.peek()) && !map.get(stack.peek()).isEmpty()) {
+                String next = map.get(stack.peek()).poll();
+                stack.push(next);
+            }
+            
+            list.add(0, stack.pop());
         }
+        
+        answer = list.toArray(new String[0]);
         
         return answer;
     }
