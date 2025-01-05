@@ -1,32 +1,39 @@
-import java.util.*;
-
 class Solution {
-    
-    static int MAX = 5;
     static String[] moeum = {"A","E","I","O","U"};
-    static List<String> list = new ArrayList<>();
+    static String word;
+    static int count = 0;
+    static boolean found = false;
     
-    static void DFS(String current, String word) {
-        list.add(current);
+    static void DFS(String s, int len) {
+        if (found) return;
         
-        if (current.length() == MAX || current.equals(word)) {
+        count++;
+        
+        if (s.equals(word)) {
+            found = true;
             return;
         }
-
+        
+        if (len == 5) {
+            return;
+        }
+        
         for (int i=0; i<moeum.length; i++) {
-            DFS(current+moeum[i], word);
+            DFS(s + moeum[i], len + 1);
         }
     }
     
     public int solution(String word) {
         int answer = 0;
+        this.word = word;
         
-        DFS("", word);
-        
-        for (String s : list) {
-            if (s.equals(word)) break;
-            answer++;
+        for (int i=0; i<moeum.length; i++) {
+            DFS(moeum[i], 1);
+            
+            if (found) break;
         }
+        
+        answer = count;
         
         return answer;
     }
