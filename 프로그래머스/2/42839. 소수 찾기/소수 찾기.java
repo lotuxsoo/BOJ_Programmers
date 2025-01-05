@@ -2,45 +2,52 @@ import java.util.*;
 
 class Solution {
     
-    static ArrayList<String> list = new ArrayList<>();
+    static Set<Integer> result = new HashSet<>();
     static boolean[] visited;
-    static Set<Integer> ans = new HashSet<>();
     
-    static void DFS(String str) {
-        if (str != "" && isPrime(str)) {
-            ans.add(Integer.parseInt(str));
-        }
+    static boolean isPrime(String str) {
+        int num = Integer.parseInt(str);
         
-        for (int i=0; i<list.size(); i++) {
-            String s = list.get(i);
-            if (!visited[i]) {
-                visited[i] = true;
-                DFS(str + s);
-                visited[i] =  false;
-            }
-        }   
-    }
-    
-    static boolean isPrime(String s) {
-        int num = Integer.parseInt(s);
         if (num <= 1) return false;
+        
         for (int i=2; i<num; i++) {
-            if (num%i == 0) return false;
+            if (num % i == 0) return false;
         }
         return true;
+    }
+    
+    static void permute(String[] splits, String s, int r) {
+        if (r == splits.length) {
+            return;
+        }
+        
+        for (int i=0; i<splits.length; i++) {            
+            if (!visited[i]) {
+                visited[i] = true;
+                s += splits[i];
+
+                if (isPrime(s)) {
+                    result.add(Integer.parseInt(s));
+                }
+                
+                permute(splits, s, r+1);
+                visited[i] = false;
+                s = s.substring(0, s.length()-1);
+            }
+        }
     }
     
     public int solution(String numbers) {
         int answer = 0;
         
-        for (String s : numbers.split("")) {
-            list.add(s);
-        }
-        visited = new boolean[list.size()];
+        String[] splits = numbers.split("");
         
-        DFS("");
+        visited = new boolean[numbers.length()];
+            
+        //순열 만들기
+        permute(splits, "", 0);
         
-        answer = ans.size();
+        answer = result.size();
         
         return answer;
     }
