@@ -1,20 +1,18 @@
-import java.util.*;
-
 class Solution {
     public int solution(int[][] sizes) {
         int answer = 0;
         
-        TreeSet<Integer> widths = new TreeSet<>(Collections.reverseOrder());
-        TreeSet<Integer> heights = new TreeSet<>(Collections.reverseOrder());
+        int maxRow = Integer.MIN_VALUE;
+        int maxCol = Integer.MIN_VALUE;
         
         for (int[] size : sizes) {
-            int width = Math.max(size[0], size[1]);
-            int height = Math.min(size[0], size[1]);
-            widths.add(width);
-            heights.add(height);
+            int row = Math.max(size[0], size[1]);
+            int col = Math.min(size[0], size[1]);
+            maxRow = Math.max(maxRow, row);
+            maxCol = Math.max(maxCol, col);
         }
         
-        answer = widths.first() * heights.first();
+        answer = maxRow * maxCol;
         
         return answer;
     }
