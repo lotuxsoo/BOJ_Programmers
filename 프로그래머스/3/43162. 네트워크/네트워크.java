@@ -1,48 +1,31 @@
-import java.io.*;
 import java.util.*;
 
 class Solution {
-    static int[] parent;
+    static boolean[] visited;
+    static int[][] computers;
     
-    static int find(int x) {
-        if (x != parent[x]) {
-            parent[x] = find(parent[x]);
-        }
-        return parent[x];
-    }
-    
-    static void union(int a, int b) {
-        int r1 = parent[a];
-        int r2 = parent[b];
-        if (r1 != r2) {
-            parent[r1] = r2;
+    static void DFS(int x) {
+        visited[x] = true;
+        
+        for (int i=0; i<computers[x].length; i++) {
+            if (x!=i && !visited[i] && computers[x][i]==1) {
+                DFS(i);
+            }
         }
     }
     
     public int solution(int n, int[][] computers) {
         int answer = 0;
+        this.computers = computers;
         
-        parent = new int[n];
-        for (int i=0; i<n; i++) {
-            parent[i] = i;
-        }
+        visited = new boolean[computers.length];
         
-        for (int i=0; i<n; i++) {
-            for (int j=0; j<n; j++) {
-                if (computers[i][j] == 1) {
-                    if (find(i) != find(j)) {
-                        union(i, j);
-                    }
-                }
+        for (int i=0; i<computers.length; i++) {
+            if (!visited[i]) {
+                DFS(i);
+                answer++;
             }
         }
-        
-        Set<Integer> set = new HashSet<>();
-        for (int i=0; i<n; i++) {
-            set.add(find(i));
-        }
-        
-        answer = set.size();
         
         return answer;
     }
