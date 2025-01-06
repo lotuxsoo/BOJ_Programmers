@@ -1,30 +1,30 @@
 import java.util.*;
 
 class Solution {
+    static int cnt = 0;
+    static int[] numbers;
+    static int target;
     
-    static int n;
-    static int ans = 0;
-    static boolean[] visited;
-    
-    static void DFS(int x, int sum, int[] numbers, int target) {
-        if (x == n) {
-            if (sum == target) ans++;
+    static void DFS(int start, int sum) {
+        if (start == numbers.length) {
+            if (sum == target) {
+                cnt++;
+            }
             return;
         }
-    
-        DFS(x+1, sum+numbers[x], numbers, target);
-        DFS(x+1, sum-numbers[x], numbers, target);            
+        
+        DFS(start+1, sum + numbers[start]);
+        DFS(start+1, sum - numbers[start]);
     }
     
     public int solution(int[] numbers, int target) {
         int answer = 0;
+        this.numbers = numbers;
+        this.target = target;
         
-        n = numbers.length;
-        visited = new boolean[n];
+        DFS(0, 0);
         
-        DFS(0, 0, numbers, target);
-        
-        answer = ans;
+        answer = cnt;
         
         return answer;
     }
