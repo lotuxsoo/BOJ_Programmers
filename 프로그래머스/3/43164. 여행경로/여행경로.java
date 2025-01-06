@@ -11,25 +11,24 @@ class Solution {
     }
     
     static boolean[] visited;
-    static ArrayList<ArrayList<String>> ansList = new ArrayList<>();
+    static ArrayList<String> ansList = new ArrayList<>();
     
-    static void DFS(int depth, String start, ArrayList<String> list, ArrayList<Ticket> ticketList) {
+    static void DFS(int depth, String start, StringBuilder sb, ArrayList<Ticket> ticketList) {
         if (depth == ticketList.size()) {
-            ansList.add(new ArrayList<>(list));
+            ansList.add(sb.toString());
             return;
         }
         
         for (int i=0; i<ticketList.size(); i++) {
             if (!visited[i] && ticketList.get(i).start.equals(start)) {
                 visited[i] = true;
-                list.add(ticketList.get(i).end); // 목적지 추가
-                DFS(depth+1, ticketList.get(i).end, list, ticketList);
-                list.remove(list.size()-1); // 백트래킹
+                StringBuilder nsb = new StringBuilder(sb);
+                nsb.append(ticketList.get(i).end).append(" ");
+                DFS(depth+1, ticketList.get(i).end, nsb, ticketList);
                 visited[i] = false;
             }
         }
     }
-    
 
     public String[] solution(String[][] tickets) {
         String[] answer = {};
@@ -39,30 +38,17 @@ class Solution {
             ticketList.add(new Ticket(ticket[0],ticket[1]));
         }
         
-        Collections.sort(ticketList, (o1, o2) -> {
-            if (o1.start.equals(o2.start)) {
-                return o1.end.compareTo(o2.end);
-            }
-            return o1.start.compareTo(o2.start);
-        });
+        // 티켓 도착지 이름순 정렬 
+        Collections.sort(ticketList, (o1,o2) -> o1.end.compareTo(o2.end));
         
         visited = new boolean[ticketList.size()];
         
-        ArrayList<String> list = new ArrayList<>();
+        DFS(0, "ICN", new StringBuilder("ICN").append(" "), ticketList);
         
-        list.add("ICN");
+        // 정답 문자열 배열 이름순 정렬
+        Collections.sort(ansList);
         
-        DFS(0, "ICN", list, ticketList);
-        
-        Collections.sort(ansList, (a, b) -> {
-            for (int i = 0; i < a.size(); i++) {
-                int cmp = a.get(i).compareTo(b.get(i));
-                if (cmp != 0) return cmp; // 사전순으로 앞서면 음수, 뒤면 양수 반환
-            }
-            return 0; // 모든 요소가 같으면 0 반환
-        });
-        
-        answer = ansList.get(0).toArray(new String[0]);
+        answer = ansList.get(0).split(" ");
         
         return answer;
     }
