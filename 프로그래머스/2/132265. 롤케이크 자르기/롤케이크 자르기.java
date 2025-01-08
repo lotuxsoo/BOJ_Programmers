@@ -1,28 +1,24 @@
 import java.util.*;
 
 class Solution {
-
     public int solution(int[] topping) {
         int answer = 0;
         
-        Map<Integer, Integer> rightMap = new HashMap<>();
-        Map<Integer, Integer> leftMap = new HashMap<>();
-        
-        for (int i=0; i<topping.length; i++) { // n번
-            rightMap.put(topping[i], rightMap.getOrDefault(topping[i],0)+1);
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i=0; i<topping.length; i++) {
+            map.put(topping[i], map.getOrDefault(topping[i],0)+1);
         }
         
+        Set<Integer> set = new HashSet<>();
         for (int i=0; i<topping.length; i++) {
-            int now = topping[i];
-            if (rightMap.containsKey(now)) {
-                rightMap.put(now, rightMap.get(now)-1);
-                if (rightMap.get(now) <= 0) {
-                    rightMap.remove(now);
+            set.add(topping[i]);
+            if (map.containsKey(topping[i])) {
+                map.put(topping[i], map.get(topping[i])-1);
+                if (map.get(topping[i]) < 1) {
+                    map.remove(topping[i]);
                 }
             }
-            
-            leftMap.put(now, leftMap.getOrDefault(now,0)+1);
-            if (leftMap.size() == rightMap.size()) answer ++;
+            if (set.size() == map.size()) answer++;
         }
         
         return answer;
