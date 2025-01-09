@@ -18,24 +18,24 @@ public class Main {
         Deque<Integer> stack = new ArrayDeque<>();
         ArrayList<Character> list = new ArrayList<>();
 
-        int number = 1;
+        int num = 1;
         boolean flag = false;
 
         for (int i = 0; i < n; i++) {
-            if (number <= A[i]) {
-                while (number <= A[i]) {
-                    stack.push(number++);
+            if (num <= A[i]) {
+                while (num <= A[i]) {
+                    stack.push(num++);
                     list.add('+');
                 }
-                stack.pop(); // 마지막 한번만 pop
+                stack.pop();
                 list.add('-');
             } else {
-                if (stack.isEmpty() || stack.peek() != A[i]) {
-                    flag = true;
-                    break;
-                } else {
+                if (!stack.isEmpty() && stack.peek() == A[i]) {
                     stack.pop();
                     list.add('-');
+                } else {
+                    flag = true;
+                    break;
                 }
             }
         }
