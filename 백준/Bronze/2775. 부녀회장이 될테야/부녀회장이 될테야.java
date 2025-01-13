@@ -9,6 +9,7 @@ public class Main {
         int[][] D = new int[15][15];
         for (int i = 0; i <= 14; i++) {
             D[0][i] = i;
+            D[i][1] = 1;
         }
 
         for (int i = 1; i <= 14; i++) {
