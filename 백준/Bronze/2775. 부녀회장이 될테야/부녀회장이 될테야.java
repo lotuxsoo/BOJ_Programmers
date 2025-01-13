@@ -13,7 +13,7 @@ public class Main {
         }
 
         for (int i = 1; i <= 14; i++) {
-            for (int j = 1; j <= 14; j++) {
+            for (int j = 2; j <= 14; j++) {
                 D[i][j] = D[i][j - 1] + D[i - 1][j];
             }
         }
