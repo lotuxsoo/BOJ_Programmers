@@ -11,13 +11,13 @@ public class Main {
         int n = Integer.parseInt(st.nextToken());
         int m = Integer.parseInt(st.nextToken());
 
-        long[][] D = new long[1001][1001];
-        long MAX_VAL = Long.MIN_VALUE;
+        int[][] D = new int[1001][1001];
+        int MAX_VAL = Integer.MIN_VALUE;
 
         for (int i = 0; i < n; i++) {
             String line = br.readLine();
             for (int j = 0; j < m; j++) {
-                D[i][j] = Long.parseLong(String.valueOf(line.charAt(j)));
+                D[i][j] = Integer.parseInt(String.valueOf(line.charAt(j)));
                 if (D[i][j] == 1 && i > 0 && j > 0) {
                     D[i][j] = Math.min(D[i - 1][j - 1], Math.min(D[i][j - 1], D[i - 1][j])) + 1;
                 }
