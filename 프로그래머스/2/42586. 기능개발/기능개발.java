@@ -3,33 +3,34 @@ import java.util.*;
 class Solution {
     public int[] solution(int[] progresses, int[] speeds) {
         int[] answer = {};
+
+        int N = progresses.length;
+        int[] days = new int[N];
         
-        int[] days = new int[progresses.length];
-        for (int i=0; i<progresses.length; i++) {
-            int day = (100-progresses[i])/speeds[i];
-            if ((100-progresses[i])%speeds[i] != 0) {
-                day += 1;
-            }
-            days[i] = day;
+        for (int i=0; i<N; i++) {
+            int x = (int) Math.ceil((100.0-progresses[i])/speeds[i]);
+            days[i] = x;
         }
         
-        int baseTime = days[0];
+        ArrayList<Integer> list = new ArrayList<>();
+        
+        int maxDay = days[0];
+        
         int cnt = 0;
-        ArrayList<Integer> result = new ArrayList<>();
-        for (int day : days) {
-            if (day <= baseTime) {
+        for (int i=0; i<N; i++) {
+            if (days[i] <= maxDay) {
                 cnt++;
             } else {
-                result.add(cnt);
-                baseTime = day;
+                list.add(cnt);
                 cnt = 1;
+                maxDay = days[i];
             }
         }
-        result.add(cnt);
+        list.add(cnt);
         
-        answer = new int[result.size()];
-        for (int i=0; i<answer.length; i++) {
-            answer[i] = result.get(i);
+        answer = new int[list.size()];
+        for (int i=0; i<list.size(); i++) {
+            answer[i] = list.get(i);
         }
         
         return answer;
