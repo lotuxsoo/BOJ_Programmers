@@ -4,24 +4,23 @@ class Solution {
     public int[] solution(int[] prices) {
         int[] answer = {};
         
-        Deque<Integer> stack = new ArrayDeque<>();
+        int index = 0;
+        answer = new int[prices.length];
         
-        int[] result = new int[prices.length];
+        Deque<int[]> stack = new ArrayDeque<>();
         
         for (int i=0; i<prices.length; i++) {
-            while (!stack.isEmpty() && prices[i] < prices[stack.peek()]) {
-                int last = stack.pop();
-                result[last] = i - last;
+            while (!stack.isEmpty() && prices[i] < stack.peek()[1]) {
+                answer[stack.peek()[0]] = index - stack.pop()[0];
             }
-            stack.push(i); // 현재 인덱스 푸시
+            stack.push(new int[]{i, prices[i]});
+            
+            if (i != prices.length-1) index++;
         }
         
         while (!stack.isEmpty()) {
-            int last = stack.pop();
-            result[last] = prices.length-1-last;
+            answer[stack.peek()[0]] = index - stack.pop()[0];
         }
-        
-        answer = Arrays.copyOf(result, result.length);
         
         return answer;
     }
