@@ -4,22 +4,20 @@ class Solution {
     public int[] solution(int[] prices) {
         int[] answer = {};
         
-        int index = 0;
-        answer = new int[prices.length];
+        Deque<Integer> stack = new ArrayDeque<>();
         
-        Deque<int[]> stack = new ArrayDeque<>();
+        int n = prices.length;
+        answer = new int[n];
         
-        for (int i=0; i<prices.length; i++) {
-            while (!stack.isEmpty() && prices[i] < stack.peek()[1]) {
-                answer[stack.peek()[0]] = index - stack.pop()[0];
+        for (int i=0; i<n; i++) {
+            while (!stack.isEmpty() && prices[stack.peek()] > prices[i]) {
+                answer[stack.peek()] = i - stack.pop();
             }
-            stack.push(new int[]{i, prices[i]});
-            
-            if (i != prices.length-1) index++;
+            stack.push(i);
         }
         
         while (!stack.isEmpty()) {
-            answer[stack.peek()[0]] = index - stack.pop()[0];
+            answer[stack.peek()] = n-1-stack.pop();
         }
         
         return answer;
