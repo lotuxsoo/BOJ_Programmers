@@ -5,20 +5,20 @@ public class Solution {
         int[] answer = {};
         
         Deque<Integer> stack = new ArrayDeque<>();
-        
-        for (int i=0; i<arr.length; i++) {
-            
-            if (!stack.isEmpty() && stack.peek() == arr[i]) {
+        for (int x : arr) {
+            if (!stack.isEmpty() && stack.peek() == x) {
                 stack.pop();
             }
-            stack.push(arr[i]);
-            
+            stack.push(x);
         }
         
-        answer = new int[stack.size()];
-        for (int i=stack.size()-1; i>=0; i--) {
-            answer[i] = stack.pop();
-        }
+        List<Integer> list = new ArrayList<>(stack);
+        
+        int i = list.size()-1;
+        answer = new int[list.size()];
+        for (int x : list) {
+            answer[i--] = x;
+         }
         
         return answer;
     }
