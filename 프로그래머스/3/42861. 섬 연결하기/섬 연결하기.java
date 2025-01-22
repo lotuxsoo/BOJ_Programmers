@@ -35,13 +35,11 @@ class Solution {
         }
         
         for (int[] edge : costs) {
-            // 경로 연결
-            if (isFinish()) break;
+
             if (find(edge[0]) != find(edge[1])) {
                 union(edge[0], edge[1]);
                 answer += edge[2];
             }
-
         }
         
         return answer;
