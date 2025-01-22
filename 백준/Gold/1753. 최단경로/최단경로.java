@@ -16,20 +16,18 @@ public class Main {
         }
     }
 
-    static ArrayList<Node>[] A;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         int V = Integer.parseInt(st.nextToken());
         int E = Integer.parseInt(st.nextToken());
+        int K = Integer.parseInt(br.readLine());
 
-        A = new ArrayList[V + 1];
+        ArrayList<Node>[] A = new ArrayList[V + 1]; // 1~V까지 사용
         for (int i = 0; i < V + 1; i++) {
             A[i] = new ArrayList<>();
         }
 
-        int K = Integer.parseInt(br.readLine());
         for (int i = 0; i < E; i++) {
             st = new StringTokenizer(br.readLine());
             int s = Integer.parseInt(st.nextToken());
@@ -40,14 +38,20 @@ public class Main {
 
         int[] dist = new int[V + 1];
         Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[K] = 0;
 
-        dist[K] = 0; // 출발 노드 지정
+        boolean[] visited = new boolean[V + 1];
 
         PriorityQueue<Node> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.v, o2.v));
-        pq.add(new Node(K, 0));
+        pq.add(new Node(K, 0)); // 시작점 추가
 
         while (!pq.isEmpty()) {
             Node cur = pq.poll();
+
+            if (visited[cur.e]) {
+                continue;
+            }
+            visited[cur.e] = true;
 
             for (Node next : A[cur.e]) {
 
