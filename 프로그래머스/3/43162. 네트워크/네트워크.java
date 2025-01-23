@@ -1,30 +1,41 @@
-import java.util.*;
-
 class Solution {
-    static boolean[] visited;
-    static int[][] computers;
+    static int[] parent;
     
-    static void DFS(int x) {
-        visited[x] = true;
-        
-        for (int i=0; i<computers[x].length; i++) {
-            if (x!=i && !visited[i] && computers[x][i]==1) {
-                DFS(i);
-            }
+    static int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+    
+    static void union(int x, int y) {
+        int root1 = parent[x];
+        int root2 = parent[y];
+        if (root1 != root2) {
+            parent[root1] = root2;
         }
     }
     
     public int solution(int n, int[][] computers) {
         int answer = 0;
-        this.computers = computers;
         
-        visited = new boolean[computers.length];
+        parent = new int[n];
+        for (int i=0; i<n; i++) {
+            parent[i] = i;
+        }
         
-        for (int i=0; i<computers.length; i++) {
-            if (!visited[i]) {
-                DFS(i);
-                answer++;
+        for (int i=0; i<n; i++) {
+            for (int j=0; j<n; j++) {
+                if (computers[i][j] == 1) {
+                    if (find(i) != find(j)) {
+                        union(i, j);
+                    }
+                }
             }
+        }
+        
+        for (int i=0; i<n; i++) {
+            if (i == parent[i]) answer++;    
         }
         
         return answer;
