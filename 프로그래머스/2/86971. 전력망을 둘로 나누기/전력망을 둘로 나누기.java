@@ -1,53 +1,54 @@
 import java.util.*;
 
 class Solution {
-    static int[][] wires;
-    static int n;
-    static int[][] adj;
-    static boolean[] visited;
+    static ArrayList<Integer>[] A;
     
-    static int DFS(int x) { // DFS(1,1)
-        int cnt = 1;
-        visited[x] = true;
+    static int DFS(int cnt, int node, boolean[] visited) {
+        visited[node] = true;
         
-        for (int i=1; i<=n; i++) {
-            if (!visited[i] && adj[x][i] == 1) {
-                visited[i] = true;
-                cnt += DFS(i); // DFS(2), DFS(3), DFS(4)
+        for (int next : A[node]) {
+            if (!visited[next]) {
+                cnt = DFS(cnt+1, next, visited);
             }
         }
         
         return cnt;
     }
     
-    static void backtrack(int x) {
-        // 인접리스트 초기화
-        adj = new int[n+1][n+1];
-        
-        for (int i=0; i<wires.length; i++) {
-            if (i == x) continue;
-            int a = wires[i][0];
-            int b = wires[i][1];
-            adj[a][b] = 1;
-            adj[b][a] = 1;
-        }
-    }
-    
     public int solution(int n, int[][] wires) {
         int answer = -1;
-        this.n = n;
-        this.wires = wires;
         int MIN_VAL = Integer.MAX_VALUE;
         
-        // 전선들 중 하나를 고르는 백트래킹
-        for (int i=0; i<wires.length; i++) {
-            backtrack(i);
+        // 인접리스트 초기화
+        A = new ArrayList[n+1];
+        for (int i=0; i<n+1; i++) {
+            A[i] = new ArrayList<>();
+        }
+        
+        // 노드 양방향 연결
+        for (int[] wire : wires) {
+            int node1 = wire[0];
+            int node2 = wire[1];
+            A[node1].add(node2);
+            A[node2].add(node1);
+        }
+        
+        // 간선 하나씩 끊어서 확인
+        for (int[] wire : wires) {
+            int node1 = wire[0];
+            int node2 = wire[1];
             
-            visited = new boolean[n+1];
-            int cnt = DFS(1); // 정점 1부터 탐색
+            A[node1].remove(Integer.valueOf(node2));
+            A[node2].remove(Integer.valueOf(node1));
             
-            int remain = n - cnt;
-            MIN_VAL = Math.min(MIN_VAL, Math.abs(cnt - remain));
+            boolean[] visited = new boolean[n+1];
+            
+            int subtree = DFS(1, node1, visited);
+            int size = Math.abs(subtree - (n - subtree));
+            MIN_VAL = Math.min(MIN_VAL, size);
+            
+            A[node1].add(Integer.valueOf(node2));
+            A[node2].add(Integer.valueOf(node1));
         }
         
         answer = MIN_VAL;
