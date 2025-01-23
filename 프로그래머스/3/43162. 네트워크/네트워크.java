@@ -1,5 +1,6 @@
 class Solution {
     static int[] parent;
+    static int[] rank;
     
     static int find(int x) {
         if (x != parent[x]) {
@@ -11,8 +12,16 @@ class Solution {
     static void union(int x, int y) {
         int root1 = parent[x];
         int root2 = parent[y];
+        
         if (root1 != root2) {
-            parent[root1] = root2;
+            if (rank[root1] < rank[root2]) {
+                parent[root1] = root2; // 더 작은 root1을 root2에 붙임
+            } else if (rank[root1] > rank[root2]) {
+                parent[root2] = root1; // 더 작은 root2를 root1에 붙임
+            } else {
+                parent[root1] = root2; // 아무거나 붙이고 rank++
+                rank[root2]++;
+            }
         }
     }
     
@@ -20,8 +29,10 @@ class Solution {
         int answer = 0;
         
         parent = new int[n];
+        rank = new int[n];
         for (int i=0; i<n; i++) {
             parent[i] = i;
+            rank[i] = 0;
         }
         
         for (int i=0; i<n; i++) {
@@ -40,4 +51,5 @@ class Solution {
         
         return answer;
     }
+    
 }
