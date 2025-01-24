@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
     static class Edge {
@@ -14,20 +16,17 @@ public class Main {
         }
     }
 
-    static int N, S, E, M;
     static ArrayList<Edge> edges;
-    static boolean[] visited;
 
-    static boolean DFS(int start) {
-        if (start == E) {
+    static boolean DFS(int start, boolean[] visited, int end) {
+        visited[start] = true;
+        if (start == end) {
             return true;
         }
 
-        visited[start] = true;
-
         for (Edge edge : edges) {
             if (edge.s == start && !visited[edge.e]) {
-                if (DFS(edge.e)) {
+                if (DFS(edge.e, visited, end)) {
                     return true;
                 }
             }
@@ -39,10 +38,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        S = Integer.parseInt(st.nextToken());
-        E = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
+        int N = Integer.parseInt(st.nextToken()); // 도시 수
+        int S = Integer.parseInt(st.nextToken()); // 시작 도시
+        int E = Integer.parseInt(st.nextToken()); // 도착 도시
+        int M = Integer.parseInt(st.nextToken()); // 교통수단 수
 
         edges = new ArrayList<>();
         for (int i = 0; i < M; i++) {
@@ -53,8 +52,8 @@ public class Main {
             edges.add(new Edge(s, e, v));
         }
 
-        int[] money = new int[N];
         st = new StringTokenizer(br.readLine());
+        int[] money = new int[N];
         for (int i = 0; i < N; i++) {
             money[i] = Integer.parseInt(st.nextToken());
         }
@@ -63,44 +62,46 @@ public class Main {
         Arrays.fill(cost, Long.MIN_VALUE);
         cost[S] = money[S];
 
+        // 벨만포드 (음수 간선 존재 가능)
         for (int i = 0; i < N - 1; i++) {
             for (Edge edge : edges) {
-                if (cost[edge.s] != Long.MIN_VALUE &&
-                        cost[edge.e] < cost[edge.s] - edge.v + money[edge.e]) {
-                    cost[edge.e] = cost[edge.s] - edge.v + money[edge.e];
+                int s = edge.s, e = edge.e, v = edge.v;
+
+                if (cost[s] != Long.MIN_VALUE && cost[e] < cost[s] - v + money[e]) {
+                    cost[e] = cost[s] - v + money[e];
                 }
             }
         }
 
-        if (cost[E] == Long.MIN_VALUE) {
-            System.out.println("gg");
-            return;
-        }
+        // 추가 확인
+        boolean cycle = false;
+        boolean[] onCycle = new boolean[N];
 
-        // 양수 사이클에 포함된 노드들을 저장할 Set
-        Set<Integer> cycleNodes = new HashSet<>();
-
-        // 양수 사이클 발견 및 사이클 노드 저장
         for (Edge edge : edges) {
-            if (cost[edge.s] != Long.MIN_VALUE &&
-                    cost[edge.e] < cost[edge.s] - edge.v + money[edge.e]) {
-                cycleNodes.add(edge.s);
-                cycleNodes.add(edge.e);
+            int s = edge.s, e = edge.e, v = edge.v;
+
+            if (cost[s] != Long.MIN_VALUE && cost[e] < cost[s] - v + money[e]) {
+                cycle = true;
+                onCycle[s] = true;
+                onCycle[e] = true;
             }
         }
 
-        // 사이클이 존재하면
-        if (!cycleNodes.isEmpty()) {
-            // 사이클의 모든 노드에서 DFS 시도
-            for (int cycleNode : cycleNodes) {
-                visited = new boolean[N];  // DFS 호출마다 visited 초기화
-                if (DFS(cycleNode)) {
-                    System.out.println("Gee");
-                    return;
+        if (!cycle) {
+            System.out.println(cost[E] == Long.MIN_VALUE ? "gg" : cost[E]);
+        } else {
+            for (int i = 0; i < N; i++) {
+                if (onCycle[i]) {
+                    boolean[] visitedFromStart = new boolean[N];
+                    boolean[] visitedFromEnd = new boolean[N];
+
+                    if (DFS(S, visitedFromStart, i) && DFS(i, visitedFromEnd, E)) {
+                        System.out.println("Gee");
+                        return;
+                    }
                 }
             }
+            System.out.println(cost[E] == Long.MIN_VALUE ? "gg" : cost[E]);
         }
-
-        System.out.println(cost[E]);
     }
 }
