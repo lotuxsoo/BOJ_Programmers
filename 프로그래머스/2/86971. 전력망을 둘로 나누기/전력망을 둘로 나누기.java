@@ -1,58 +1,44 @@
 import java.util.*;
 
 class Solution {
-    static ArrayList<Integer>[] A;
+    static ArrayList<Integer>[] T;
+    static boolean[] visited;
     
-    static int DFS(int cnt, int node, boolean[] visited) {
-        visited[node] = true;
+    static int DFS(int x, int cnt) {
+        visited[x] = true;
         
-        for (int next : A[node]) {
+        for (int next : T[x]) {
             if (!visited[next]) {
-                cnt = DFS(cnt+1, next, visited);
+                cnt = DFS(next, cnt+1);
             }
         }
         
         return cnt;
     }
-    
+         
     public int solution(int n, int[][] wires) {
         int answer = -1;
         int MIN_VAL = Integer.MAX_VALUE;
         
-        // 인접리스트 초기화
-        A = new ArrayList[n+1];
-        for (int i=0; i<n+1; i++) {
-            A[i] = new ArrayList<>();
+        for (int k=0; k<wires.length; k++) {
+            T = new ArrayList[n+1];
+            for (int i=0; i<n+1; i++) {
+                T[i] = new ArrayList<>();
+            }
+            
+            visited = new boolean[n+1];
+            
+            for (int i=0; i<wires.length; i++) {
+                if (i == k) continue;
+                T[wires[i][0]].add(wires[i][1]);
+                T[wires[i][1]].add(wires[i][0]);
+            }
+            int subset = DFS(1, 1);
+            MIN_VAL = Math.min(MIN_VAL, Math.abs((n - subset) - subset));
         }
-        
-        // 노드 양방향 연결
-        for (int[] wire : wires) {
-            int node1 = wire[0];
-            int node2 = wire[1];
-            A[node1].add(node2);
-            A[node2].add(node1);
-        }
-        
-        // 간선 하나씩 끊어서 확인
-        for (int[] wire : wires) {
-            int node1 = wire[0];
-            int node2 = wire[1];
-            
-            A[node1].remove(Integer.valueOf(node2));
-            A[node2].remove(Integer.valueOf(node1));
-            
-            boolean[] visited = new boolean[n+1];
-            
-            int subtree = DFS(1, node1, visited);
-            int size = Math.abs(subtree - (n - subtree));
-            MIN_VAL = Math.min(MIN_VAL, size);
-            
-            A[node1].add(Integer.valueOf(node2));
-            A[node2].add(Integer.valueOf(node1));
-        }
-        
+
         answer = MIN_VAL;
-        
+       
         return answer;
     }
 }
