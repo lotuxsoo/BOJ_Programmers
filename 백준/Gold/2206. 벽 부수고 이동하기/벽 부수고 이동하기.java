@@ -8,15 +8,61 @@ import java.util.StringTokenizer;
 
 public class Main {
     static class Node {
-        int x;
-        int y;
-        int z; // 안부숨:0, 부숨:1
+        int x, y, flag; // 0:안부숨, 1:부숨
 
-        Node(int x, int y, int z) {
+        Node(int x, int y, int flag) {
             this.x = x;
             this.y = y;
-            this.z = z;
+            this.flag = flag;
         }
+    }
+
+    static int BFS(int[][] map) {
+        int N = map.length;
+        int M = map[0].length;
+        int[][][] visited = new int[N][M][2]; // 0:안부숨, 1:부숨
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                Arrays.fill(visited[i][j], Integer.MAX_VALUE);
+            }
+        }
+        visited[0][0][0] = 1;
+
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(new Node(0, 0, 0));
+
+        int[] dx = {-1, 1, 0, 0};
+        int[] dy = {0, 0, -1, 1};
+
+        while (!queue.isEmpty()) {
+            Node cur = queue.poll();
+            int x = cur.x, y = cur.y, flag = cur.flag;
+
+            if (x == N - 1 && y == M - 1) {
+                return visited[x][y][flag];
+            }
+
+            for (int i = 0; i < 4; i++) {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if (!(0 <= nx && nx < N && 0 <= ny && ny < M)) {
+                    continue;
+                }
+                if (map[nx][ny] == 0) {
+                    if (visited[nx][ny][flag] > visited[x][y][flag] + 1) {
+                        visited[nx][ny][flag] = visited[x][y][flag] + 1;
+                        queue.add(new Node(nx, ny, flag));
+                    }
+                } else if (map[nx][ny] == 1 && flag == 0) {
+                    if (visited[nx][ny][1] > visited[x][y][flag] + 1) {
+                        visited[nx][ny][1] = visited[x][y][flag] + 1;
+                        queue.add(new Node(nx, ny, 1));
+                    }
+                }
+            }
+        }
+
+        return -1;
     }
 
     public static void main(String[] args) throws IOException {
@@ -24,51 +70,15 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
         int N = Integer.parseInt(st.nextToken());
         int M = Integer.parseInt(st.nextToken());
-        int[][] A = new int[N][M];
+        int[][] map = new int[N][M];
         for (int i = 0; i < N; i++) {
             String[] splits = br.readLine().split("");
             for (int j = 0; j < splits.length; j++) {
-                A[i][j] = Integer.parseInt(splits[j]);
+                map[i][j] = Integer.parseInt(splits[j]);
             }
         }
 
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(new Node(0, 0, 0));
-
-        int[][][] dp = new int[N][M][2]; // 거리저장
-        for (int[][] dp1 : dp) {
-            for (int[] dp2 : dp1) {
-                Arrays.fill(dp2, -1);
-            }
-        }
-        dp[0][0][0] = 1;
-
-        while (!queue.isEmpty()) {
-            Node now = queue.poll();
-            int x = now.x, y = now.y, z = now.z;
-
-            if (x == N - 1 && y == M - 1) {
-                System.out.println(dp[x][y][z]);
-                return;
-            }
-
-            int[] dx = {-1, 1, 0, 0};
-            int[] dy = {0, 0, -1, 1};
-            for (int i = 0; i < 4; i++) {
-                int nx = x + dx[i];
-                int ny = y + dy[i];
-                if (!(0 <= nx && nx < N && 0 <= ny && ny < M)) {
-                    continue;
-                }
-                if (A[nx][ny] == 0 && dp[nx][ny][z] == -1) {
-                    dp[nx][ny][z] = dp[x][y][z] + 1;
-                    queue.add(new Node(nx, ny, z));
-                } else if (A[nx][ny] == 1 && z == 0 && dp[nx][ny][1] == -1) {
-                    dp[nx][ny][1] = dp[x][y][z] + 1;
-                    queue.add(new Node(nx, ny, 1));
-                }
-            }
-        }
-        System.out.println(-1);
+        int bfs = BFS(map);
+        System.out.println(bfs);
     }
 }
