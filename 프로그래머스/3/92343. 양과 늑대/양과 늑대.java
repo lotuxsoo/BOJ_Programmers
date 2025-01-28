@@ -1,47 +1,43 @@
 import java.util.*;
 
 class Solution {
-    static class Status {
-        int zero, one;
+    static class Node {
+        int sheep, wolf;
         Set<Integer> nodes;
-        Status(int zero, int one, Set<Integer> nodes) {
-            this.zero = zero;
-            this.one = one;
+        Node(int sheep, int wolf, Set<Integer> nodes) {
+            this.sheep = sheep;
+            this.wolf = wolf;
             this.nodes = nodes;
         }
     }
-    
-    static int N;
+    static int n;
     static ArrayList<Integer>[] graph;
     static int MAX_VAL = Integer.MIN_VALUE;
     
     static void BFS(int[] info) {
-        Queue<Status> queue = new LinkedList<>();
-        queue.add(new Status(1,0,new HashSet<>(Set.of(0))));
-        Set<String> visited = new HashSet<>();
-            
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(new Node(1, 0, new HashSet<>(Set.of(0))));
+        
         while (!queue.isEmpty()) {
-            Status cur = queue.poll();
-            int zero = cur.zero, one = cur.one;
-            MAX_VAL = Math.max(MAX_VAL, zero);
-            
+            Node cur = queue.poll();
+            int sheep = cur.sheep, wolf = cur.wolf;
             Set<Integer> nodes = cur.nodes;
-            // String s = zero+" "+one+" "+nodes.toString();
-            // if (visited.contains(s)) continue;
-            // else visited.add(s);
+            
+            MAX_VAL = Math.max(MAX_VAL, sheep);
             
             for (int node : nodes) {
-                for (int next : graph[node]) { // 다음 노드와 연결된 노드들
+                for (int next : graph[node]) {
                     if (nodes.contains(next)) continue;
-                    if ((info[next] == 1) && zero > one+1) {
-                        Set<Integer> newNodes = new HashSet<>(nodes);
-                        newNodes.add(next);
-                        queue.add(new Status(zero,one+1,newNodes));
-                    } else if (info[next] == 0) {
-                        Set<Integer> newNodes = new HashSet<>(nodes);
-                        newNodes.add(next);
-                        queue.add(new Status(zero+1,one,newNodes));
-                    }
+                    
+                    if (info[next] == 0) {
+                        Set<Integer> newSet = new HashSet<>(nodes);
+                        newSet.add(next);
+                        queue.add(new Node(sheep+1, wolf, newSet));
+                   } else if ((info[next] == 1) && (wolf+1 < sheep)){
+                        Set<Integer> newSet = new HashSet<>(nodes);
+                        newSet.add(next);
+                        queue.add(new Node(sheep, wolf+1, newSet));
+                   }
                 }
             }
         }
@@ -49,17 +45,19 @@ class Solution {
     
     public int solution(int[] info, int[][] edges) {
         int answer = 0;
-        N = info.length; // 노드의 수
-        graph = new ArrayList[N]; // 에지 저장
-        for (int i=0; i<N; i++) {
+        
+        n = info.length; // 노드 개수
+        graph = new ArrayList[n]; // 0:루트(양)
+        for (int i=0; i<n; i++) {
             graph[i] = new ArrayList<>();
         }
         
-        for (int[] edge : edges) {
-            graph[edge[0]].add(edge[1]);
-            graph[edge[1]].add(edge[0]);
+        for (int i=0; i<n-1; i++) {
+            int a = edges[i][0];
+            int b = edges[i][1];
+            graph[a].add(b);
+            graph[b].add(a);
         }
-        
         
         BFS(info);
         
