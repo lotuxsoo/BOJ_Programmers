@@ -4,27 +4,34 @@ class Solution {
     public int[] solution(String[] enroll, String[] referral, String[] seller, int[] amount) {
         int[] answer = {};
         
-        Map<String,String> parentMap = new HashMap<>();
+        // enroll, referral
+        Map<String,String> referralMap = new HashMap<>();
         for (int i=0; i<enroll.length; i++) {
-            parentMap.put(enroll[i], referral[i]);
+            referralMap.put(enroll[i], referral[i]);
+        }
+
+        // enroll, result
+        Map<String,Integer> resultMap = new HashMap<>();
+        for (int i=0; i<enroll.length; i++) {
+            resultMap.put(enroll[i], 0);
         }
         
-        Map<String,Integer> benefitMap = new HashMap<>();
-        
         for (int i=0; i<seller.length; i++) {
-            String curName = seller[i];
-            int money = amount[i]*100;
+            String curSeller = seller[i];
+            int curAmount = amount[i] * 100;
             
-            while (!curName.equals("-") && money > 0) {
-                benefitMap.put(curName, benefitMap.getOrDefault(curName,0) + money - (money/10));
-                curName = parentMap.get(curName);
-                money /= 10;  
+            while (curAmount > 0 && !curSeller.equals("-")) {
+                int remain = curAmount - curAmount / 10;
+                resultMap.put(curSeller, resultMap.get(curSeller)+remain);
+                
+                curAmount = curAmount / 10;
+                curSeller = referralMap.get(curSeller);
             }
         }
         
         answer = new int[enroll.length];
-        for (int i=0; i<answer.length; i++) {
-            answer[i] = benefitMap.getOrDefault(enroll[i],0);
+        for (int i=0; i<enroll.length; i++) {
+            answer[i] = resultMap.get(enroll[i]);
         }
         
         return answer;
