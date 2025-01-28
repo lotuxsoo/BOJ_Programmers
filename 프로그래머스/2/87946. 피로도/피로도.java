@@ -1,18 +1,26 @@
 import java.util.*;
 
+
 class Solution {
-    static int k;
-    static int[][] dungeons;
+    static int n;
     static boolean[] visited;
     static int MAX_VAL = Integer.MIN_VALUE;
     
-    static void backtrack(int cnt, int k) {
-        MAX_VAL = Math.max(MAX_VAL, cnt);
+    static void DFS(int x, ArrayList<Integer> list, int k, int[][] dungeons) {
+
+        MAX_VAL = Math.max(MAX_VAL, list.size());
         
-        for (int i=0; i<dungeons.length; i++) {
-            if (!visited[i] && k >= dungeons[i][0]) {
+        for (int i=0; i<n; i++) {
+            if (visited[i]) continue;
+            
+            int a = dungeons[i][0]; // 최소 필요 피로도
+            int b = dungeons[i][1]; // 소모 피로도
+            
+            if (k >= a) {
                 visited[i] = true;
-                backtrack(cnt+1, k - dungeons[i][1]);
+                ArrayList<Integer> newlist = new ArrayList<>(list);
+                newlist.add(i);
+                DFS(i, newlist, k - b, dungeons);
                 visited[i] = false;
             }
         }
@@ -20,13 +28,14 @@ class Solution {
     
     public int solution(int k, int[][] dungeons) {
         int answer = -1;
-        this.k = k;
-        this.dungeons = dungeons;
         
-        visited = new boolean[dungeons.length];
+        n = dungeons.length;
+        visited = new boolean[n];
         
-        backtrack(0, k);
-
+        for (int i=0; i<n; i++) {
+            DFS(i, new ArrayList<>(), k, dungeons);
+        }
+        
         answer = MAX_VAL;
         
         return answer;
