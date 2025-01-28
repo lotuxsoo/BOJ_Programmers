@@ -6,9 +6,8 @@ class Solution {
     static boolean[] visited;
     static int MAX_VAL = Integer.MIN_VALUE;
     
-    static void DFS(int x, ArrayList<Integer> list, int k, int[][] dungeons) {
-
-        MAX_VAL = Math.max(MAX_VAL, list.size());
+    static void DFS(int x, int count, int k, int[][] dungeons) {
+        MAX_VAL = Math.max(MAX_VAL, count);
         
         for (int i=0; i<n; i++) {
             if (visited[i]) continue;
@@ -18,9 +17,7 @@ class Solution {
             
             if (k >= a) {
                 visited[i] = true;
-                ArrayList<Integer> newlist = new ArrayList<>(list);
-                newlist.add(i);
-                DFS(i, newlist, k - b, dungeons);
+                DFS(i, count + 1, k - b, dungeons);
                 visited[i] = false;
             }
         }
@@ -33,7 +30,7 @@ class Solution {
         visited = new boolean[n];
         
         for (int i=0; i<n; i++) {
-            DFS(i, new ArrayList<>(), k, dungeons);
+            DFS(i, 0, k, dungeons);
         }
         
         answer = MAX_VAL;
