@@ -4,20 +4,22 @@ class Solution {
     public String solution(int[] numbers) {
         String answer = "";
         
-        String[] arr = new String[numbers.length];
-        for (int i=0; i<numbers.length; i++) {
-            arr[i] = String.valueOf(numbers[i]);
-        }
+        String[] strNums = Arrays.stream(numbers)
+                                 .mapToObj(String::valueOf)
+                                 .toArray(String[]::new);
         
-        Arrays.sort(arr, (o1,o2) -> (o2+o1).compareTo(o1+o2));
+        Arrays.sort(strNums, (a,b) -> (b+a).compareTo(a+b));
         
-        for (String s : arr) {
-            answer += s;
-        }
-        
-        if (answer.startsWith("0")) {
+        if (strNums[0].equals("0")) {
             return "0";
         }
+        
+        StringBuilder sb = new StringBuilder();
+        for (String s : strNums) {
+            sb.append(s);
+        }
+        
+        answer = sb.toString();
         
         return answer;
     }
