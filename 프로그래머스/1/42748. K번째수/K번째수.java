@@ -3,23 +3,16 @@ import java.util.*;
 class Solution {
     public int[] solution(int[] array, int[][] commands) {
         int[] answer = {};
+        answer = new int[commands.length];
         
-        ArrayList<Integer> result = new ArrayList<>();
-        
-        for (int i=0; i<commands.length; i++) {
-            int[] command = commands[i];
-            int a = command[0]-1;
-            int b = command[1];
-            int c = command[2]-1;
-            
-            int[] newArr = Arrays.copyOfRange(array, a, b);
-            Arrays.sort(newArr);
-            result.add(newArr[c]);
-        }
-        
-        answer = new int[result.size()];
-        for (int i=0; i<answer.length; i++) {
-            answer[i] = result.get(i);
+        int idx = 0;
+        for (int[] command : commands) {
+            ArrayList<Integer> list = new ArrayList<>();
+            for (int i=command[0]-1; i<=command[1]-1; i++) {
+                list.add(array[i]);
+            }
+            Collections.sort(list);
+            answer[idx++] = list.get(command[2]-1);
         }
         
         return answer;
