@@ -1,39 +1,34 @@
+import java.util.*;
+
 class Solution {
-    static String[] moeum = {"A","E","I","O","U"};
-    static String word;
-    static int count = 0;
-    static boolean found = false;
+    static String[] str = {"A","E","I","O","U"};
+    static int cnt = 0;
+    static int result = 0;
     
-    static void DFS(String s, int len) {
-        if (found) return;
-        
-        count++;
-        
-        if (s.equals(word)) {
-            found = true;
+    static void backtrack(StringBuilder cur, String target) {
+        if (cur.toString().equals(target)) {
+            result = cnt;
             return;
         }
         
-        if (len == 5) {
+        if (cur.length() == 5) {
             return;
         }
         
-        for (int i=0; i<moeum.length; i++) {
-            DFS(s + moeum[i], len + 1);
+        for (int i=0; i<str.length; i++) {
+            cur.append(str[i]);
+            cnt++;
+            backtrack(cur, target);
+            cur.deleteCharAt(cur.length()-1);
         }
     }
     
     public int solution(String word) {
         int answer = 0;
-        this.word = word;
         
-        for (int i=0; i<moeum.length; i++) {
-            DFS(moeum[i], 1);
-            
-            if (found) break;
-        }
+        backtrack(new StringBuilder(), word);
         
-        answer = count;
+        answer = result;
         
         return answer;
     }
