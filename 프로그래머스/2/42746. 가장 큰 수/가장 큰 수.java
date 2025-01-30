@@ -4,22 +4,18 @@ class Solution {
     public String solution(int[] numbers) {
         String answer = "";
         
-        String[] strNums = Arrays.stream(numbers)
-                                 .mapToObj(String::valueOf)
-                                 .toArray(String[]::new);
+        PriorityQueue<String> pq = new PriorityQueue<>((a,b) -> (b+a).compareTo(a+b));
         
-        Arrays.sort(strNums, (a,b) -> (b+a).compareTo(a+b));
-        
-        if (strNums[0].equals("0")) {
-            return "0";
+        for (int i : numbers) {
+            pq.add(String.valueOf(i));
         }
         
         StringBuilder sb = new StringBuilder();
-        for (String s : strNums) {
-            sb.append(s);
+        while (!pq.isEmpty()) {
+            sb.append(pq.poll());
         }
         
-        answer = sb.toString();
+        answer = sb.charAt(0) == '0' ? "0" : sb.toString();
         
         return answer;
     }
