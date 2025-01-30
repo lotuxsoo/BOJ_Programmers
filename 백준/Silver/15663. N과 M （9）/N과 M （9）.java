@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,25 +8,31 @@ import java.util.StringTokenizer;
 
 public class Main {
     static int N, M;
-    static int[] arr;
     static boolean[] visited;
+    static int[] sequence;
+    static int[] numbers;
+    static StringBuilder sb = new StringBuilder();
     static Set<String> set = new HashSet<>();
-    static StringBuilder result = new StringBuilder();
 
-    static void backtrack(int cnt, StringBuilder sb) {
-        if (cnt == M) {
-            if (!set.contains(sb.toString())) {
-                set.add(new String(sb));
-                result.append(new String(sb)).append("\n");
+    static void backtrack(int depth) {
+        if (depth == M) {
+            if (!set.contains(Arrays.toString(sequence))) {
+                set.add(Arrays.toString(sequence));
+                for (int s : sequence) {
+                    sb.append(s).append(" ");
+                }
+                sb.append("\n");
+                return;
             }
-            return;
         }
 
+        int last = 0;
         for (int i = 0; i < N; i++) {
-            if (!visited[i]) {
+            if (!visited[i] && numbers[i] != last) {
                 visited[i] = true;
-                StringBuilder nsb = new StringBuilder(sb).append(arr[i]).append(" ");
-                backtrack(cnt + 1, nsb);
+                sequence[depth] = numbers[i];
+                last = numbers[i];
+                backtrack(depth + 1);
                 visited[i] = false;
             }
         }
@@ -39,18 +44,19 @@ public class Main {
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
 
-        arr = new int[N];
+        numbers = new int[N]; // N개의 자연수
+        visited = new boolean[N];
+        sequence = new int[M]; // M개의 수열
+
         st = new StringTokenizer(br.readLine());
         for (int i = 0; i < N; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
+            numbers[i] = Integer.parseInt(st.nextToken());
         }
 
-        Arrays.sort(arr);
+        Arrays.sort(numbers);
 
-        visited = new boolean[N];
+        backtrack(0);
 
-        backtrack(0, new StringBuilder());
-
-        System.out.println(result.toString());
+        System.out.println(sb.toString());
     }
 }
