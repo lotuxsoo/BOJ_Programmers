@@ -1,27 +1,16 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Node {
-        double x, y;
-        int idx;
-
-        Node(double x, double y, int idx) {
-            this.x = x;
-            this.y = y;
-            this.idx = idx;
-        }
-    }
 
     static class Edge {
-        Node a, b;
+        int a, b;
         double dist;
 
-        Edge(Node a, Node b, double dist) {
+        Edge(int a, int b, double dist) {
             this.a = a;
             this.b = b;
             this.dist = dist;
@@ -43,34 +32,36 @@ public class Main {
         }
     }
 
-    static ArrayList<Node> nodes = new ArrayList<>();
+    static double[][] nodes;
     static PriorityQueue<Edge> pq;
     static int[] parent;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int N = Integer.parseInt(br.readLine());
+
+        nodes = new double[N][2];
+
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             double x = Double.parseDouble(st.nextToken());
             double y = Double.parseDouble(st.nextToken());
-            nodes.add(new Node(x, y, i));
+            nodes[i][0] = x;
+            nodes[i][1] = y;
         }
 
-        pq = new PriorityQueue<>((e1, e2) -> Double.compare(e1.dist, e2.dist));
+        pq = new PriorityQueue<>((i, j) -> Double.compare(i.dist, j.dist));
 
         // 간선들 구하기
-        for (int i = 0; i < nodes.size() - 1; i++) {
-            for (int j = i + 1; j < nodes.size(); j++) {
-                Node n1 = nodes.get(i);
-                Node n2 = nodes.get(j);
-                double x1 = n1.x, y1 = n1.y, x2 = n2.x, y2 = n2.y;
+        for (int i = 0; i < N - 1; i++) {
+            for (int j = i + 1; j < N; j++) {
+                double x1 = nodes[i][0], y1 = nodes[i][1], x2 = nodes[j][0], y2 = nodes[j][1];
                 double distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-                pq.add(new Edge(n1, n2, distance));
+                pq.add(new Edge(i, j, distance));
             }
         }
 
-        // 유니온 파인드
+        // 유니온 파인드 (인덱스 저장)
         parent = new int[N];
         for (int i = 0; i < N; i++) {
             parent[i] = i;
@@ -82,10 +73,8 @@ public class Main {
         while (cnt < N - 1) {
             Edge cur = pq.poll();
 
-            Node a = cur.a;
-            Node b = cur.b;
-            if (find(a.idx) != find(b.idx)) {
-                union(a.idx, b.idx);
+            if (find(cur.a) != find(cur.b)) {
+                union(cur.a, cur.b);
                 cnt++;
                 total += cur.dist;
             }
