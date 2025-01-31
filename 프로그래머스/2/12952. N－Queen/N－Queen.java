@@ -1,37 +1,40 @@
 class Solution {
-    private static int[] board;
-    private static int answer;
-
-    private static boolean valid(int depth) {
-        for (int i = 0; i < depth; i++) { // 마지막으로 놓여진 것과 이전의 것들을 비교
-            if (board[depth] == board[i]) return false;
-            if (Math.abs(depth - i) == Math.abs(board[depth] - board[i])) return false;
+    
+    static boolean isValid(int depth, int i) {
+        for (int k=0; k<depth; k++) {
+            if (col[k] == i) return false; // 같은 열 금지
+            if (Math.abs(depth-k) == Math.abs(i-col[k])) return false;
         }
         return true;
     }
-    
-    // depth는 행을 의미함
-    private static void backTracking(int depth, int n) {
+        
+    static void backtrack(int depth, int n) {
         if (depth == n) {
-            answer++;
+            cnt++;
             return;
         }
         
-        for (int i = 0; i < n; i++) {
-            board[depth] = i; // 해당 depth(행)과 i(열)에 퀸을 놓을 수 있는지 확인
-            if (valid(depth)) {
-                backTracking(depth + 1, n);
+        for (int i=0; i<n; i++) {
+            if (isValid(depth, i)) {
+                col[depth] = i;
+                backtrack(depth+1, n);
             }
-            // 유망하지 않은 경우는 바로 패스하고 다른 경우를 시도하면서 탐색을 진행
         }
     }
     
-    public static int solution(int n) {
-        // 배열의 값은 해당 행의 queen이 있는 '열(column)'을 의미함
-        board = new int[n];
-
-        backTracking(0, n);
-
+    static int cnt = 0;
+    static int[] col;
+    
+    public int solution(int n) {
+        int answer = 0;
+        
+        // col[i] = j: i행 j열에 퀸 위치
+        col = new int[n];
+        
+        backtrack(0, n);
+        
+        answer = cnt;
+        
         return answer;
     }
 }
