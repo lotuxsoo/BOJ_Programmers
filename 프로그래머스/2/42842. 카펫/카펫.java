@@ -1,36 +1,15 @@
-import java.util.*;
-
 class Solution {
-    
-    static int[] getPair(int total, int brown, int yellow) {
-        List<int[]> pairs = new ArrayList<>();    
-        
-        for (int i=1; i<=Math.sqrt(total); i++) {
-            if (total % i == 0) {
-                pairs.add(new int[]{i, total/i});
-            }
-        }
-        
-        for (int[] pair : pairs) {
-            int row = Math.min(pair[0], pair[1]); // 세로
-            int col = Math.max(pair[0], pair[1]); // 가로
-            
-            if ((col-2)*(row-2) == yellow && col*2+(row-2)*2 == brown) {
-                return new int[]{col, row};
-            }
-        }
-        
-        return new int[]{0,0};
-    }
-    
     public int[] solution(int brown, int yellow) {
-        int[] answer = {};
-        
-        int total = brown + yellow;
-        int[] pair = getPair(total, brown, yellow);
-        
-        answer = pair;
-        
-        return answer;
+        for (int h = 1; h <= Math.sqrt(yellow); h++) { // 세로 길이는 yellow의 약수
+            if (yellow % h == 0) {
+                int w = yellow / h; // 가로 길이
+                
+                // 갈색 개수 확인
+                if (2 * (w + h) + 4 == brown) {
+                    return new int[]{w + 2, h + 2}; // 전체 가로, 세로 크기 반환
+                }
+            }
+        }
+        return new int[]{}; // 예외 케이스 (실제 문제에서는 없음)
     }
 }
