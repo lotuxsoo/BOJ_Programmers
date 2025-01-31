@@ -59,8 +59,8 @@ public class Main {
         }
 
         int cnt = 0; // N-1 될때까지
-        ArrayList<Integer> costList = new ArrayList<>();
-        int answer = 0;
+        int maxCost = 0;
+        int totalCost = 0;
 
         while (cnt < N - 1) {
             Edge cur = pq.poll();
@@ -68,17 +68,13 @@ public class Main {
             if (find(cur.a) != find(cur.b)) {
                 union(cur.a, cur.b);
                 cnt++;
-                costList.add(cur.c);
-            }
-
-            if (cnt == N - 1) {
-                costList.sort(Collections.reverseOrder());
-                int sum = costList.stream().mapToInt(i -> i).sum();
-                answer = sum - costList.get(0);
-                break;
+                totalCost += cur.c;
+                maxCost = Math.max(maxCost, cur.c);
             }
         }
 
-        System.out.println(answer);
+        totalCost -= maxCost;
+
+        System.out.println(totalCost);
     }
 }
