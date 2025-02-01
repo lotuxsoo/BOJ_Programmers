@@ -11,24 +11,22 @@ public class Main {
         int N = Integer.parseInt(st.nextToken());
         int K = Integer.parseInt(st.nextToken());
 
-        int[] weights = new int[N + 1];
-        int[] values = new int[N + 1];
-
+        int[][] info = new int[N + 1][2];
         for (int i = 1; i < N + 1; i++) {
             st = new StringTokenizer(br.readLine());
-            weights[i] = Integer.parseInt(st.nextToken());
-            values[i] = Integer.parseInt(st.nextToken());
+            info[i][0] = Integer.parseInt(st.nextToken()); // 무게
+            info[i][1] = Integer.parseInt(st.nextToken()); // 가치
         }
 
-        // dp[i][w]: i번째 물건까지 고려했을때, w무게까지 담을때의 최대값
+        // dp[i][j]: i번째 물건까지 고려했을때 j무게 이하로 넣을수있는 가치 최댓값
         int[][] dp = new int[N + 1][K + 1];
 
         for (int i = 1; i < N + 1; i++) {
-            for (int w = 1; w < K + 1; w++) {
-                if (weights[i] <= w) {
-                    dp[i][w] = Math.max(dp[i - 1][w], dp[i - 1][w - weights[i]] + values[i]);
+            for (int j = 1; j < K + 1; j++) {
+                if (info[i][0] <= j) { // 현재 물건 넣을수있으면
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - info[i][0]] + info[i][1]);
                 } else {
-                    dp[i][w] = dp[i - 1][w];
+                    dp[i][j] = dp[i - 1][j];
                 }
             }
         }
