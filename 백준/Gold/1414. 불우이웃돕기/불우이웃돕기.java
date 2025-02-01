@@ -1,8 +1,10 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.PriorityQueue;
 
 public class Main {
-    static class Edge implements Comparable<Edge> {
+    static class Edge {
         int a, b, cost;
 
         Edge(int a, int b, int cost) {
@@ -10,69 +12,84 @@ public class Main {
             this.b = b;
             this.cost = cost;
         }
-
-        @Override
-        public int compareTo(Edge other) {
-            return Integer.compare(this.cost, other.cost);
-        }
     }
 
-    static int N, totalLength = 0;
-    static int[] parent;
-    static PriorityQueue<Edge> pq = new PriorityQueue<>();
-
     static int find(int x) {
-        if (x != parent[x]) parent[x] = find(parent[x]);
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
         return parent[x];
     }
 
     static void union(int x, int y) {
-        int rootX = find(x);
-        int rootY = find(y);
-        if (rootX != rootY) parent[rootX] = rootY;
+        int root1 = find(x);
+        int root2 = find(y);
+
+        if (rank[root1] < rank[root2]) {
+            parent[root1] = root2;
+        } else if (rank[root1] > rank[root2]) {
+            parent[root2] = root1;
+        } else {
+            parent[root2] = root1;
+            rank[root1]++;
+        }
     }
+
+    static int n;
+    static int[] parent;
+    static int[] rank;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
+        n = Integer.parseInt(br.readLine());
 
-        parent = new int[N];
-        for (int i = 0; i < N; i++) parent[i] = i;
+        PriorityQueue<Edge> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.cost, o2.cost));
+        int totalCost = 0;
 
-        for (int i = 0; i < N; i++) {
-            char[] line = br.readLine().toCharArray();
-            for (int j = 0; j < N; j++) {
-                if (line[j] == '0') continue;
-                int cost = (line[j] >= 'a') ? (line[j] - 'a' + 1) : (line[j] - 'A' + 27);
-                totalLength += cost;
-                if (i != j) pq.add(new Edge(i, j, cost));  // ✅ 모든 간선 추가
+        for (int i = 0; i < n; i++) {
+            char[] ch = br.readLine().toCharArray();
+            for (int j = 0; j < ch.length; j++) {
+                if (ch[j] == 0) {
+                    continue;
+                }
+                if (ch[j] >= 'a' && ch[j] <= 'z') {
+                    int c = ch[j] - 'a' + 1;
+                    pq.add(new Edge(i, j, c));
+                    totalCost += c;
+                } else if (ch[j] >= 'A' && ch[j] <= 'Z') {
+                    int c = ch[j] - 'A' + 27;
+                    pq.add(new Edge(i, j, c));
+                    totalCost += c;
+                }
             }
         }
 
-        int mstCost = 0, edgeCount = 0;
+        // 집합 초기화
+        parent = new int[n];
+        rank = new int[n];
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+
+        // 크루스칼
+        int edgeCount = 0;
+        int edgeCost = 0;
+
         while (!pq.isEmpty()) {
             Edge edge = pq.poll();
+
             if (find(edge.a) != find(edge.b)) {
                 union(edge.a, edge.b);
-                mstCost += edge.cost;
                 edgeCount++;
+                edgeCost += edge.cost;
             }
-        }
 
-        // ✅ 모든 정점이 연결되지 못한 경우 (MST가 완성되지 않음)
-        boolean isConnected = true;
-        int root = find(0);
-        for (int i = 1; i < N; i++) {
-            if (find(i) != root) {
-                isConnected = false;
+            if (edgeCount == n - 1) {
                 break;
             }
         }
 
-        if (!isConnected) {
-            System.out.println(-1);
-        } else {
-            System.out.println(totalLength - mstCost);
-        }
+        System.out.println(edgeCount == n - 1 ? totalCost - edgeCost : -1);
     }
 }
