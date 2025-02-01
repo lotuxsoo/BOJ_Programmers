@@ -5,15 +5,14 @@ import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
-
     static class Edge {
-        int a, b;
-        double dist;
+        int a, b; // 별의 인덱스
+        double cost;
 
-        Edge(int a, int b, double dist) {
+        Edge(int a, int b, double cost) {
             this.a = a;
             this.b = b;
-            this.dist = dist;
+            this.cost = cost;
         }
     }
 
@@ -25,61 +24,71 @@ public class Main {
     }
 
     static void union(int x, int y) {
-        int r1 = find(x);
-        int r2 = find(y);
-        if (r1 != r2) {
-            parent[r1] = r2;
+        int root1 = find(x);
+        int root2 = find(y);
+
+        if (rank[root1] < rank[root2]) {
+            parent[root1] = root2;
+        } else if (rank[root1] > rank[root2]) {
+            parent[root2] = root1;
+        } else {
+            parent[root2] = root1;
+            rank[root1]++;
         }
     }
 
-    static double[][] nodes;
-    static PriorityQueue<Edge> pq;
+    static int n;
+    static double[][] stars;
     static int[] parent;
+    static int[] rank;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
+        n = Integer.parseInt(br.readLine());
 
-        nodes = new double[N][2];
-
-        for (int i = 0; i < N; i++) {
+        stars = new double[n][2];
+        for (int i = 0; i < n; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            double x = Double.parseDouble(st.nextToken());
-            double y = Double.parseDouble(st.nextToken());
-            nodes[i][0] = x;
-            nodes[i][1] = y;
+            stars[i][0] = Double.parseDouble(st.nextToken());
+            stars[i][1] = Double.parseDouble(st.nextToken());
         }
 
-        pq = new PriorityQueue<>((i, j) -> Double.compare(i.dist, j.dist));
+        PriorityQueue<Edge> pq = new PriorityQueue<>((o1, o2) -> Double.compare(o1.cost, o2.cost));
 
-        // 간선들 구하기
-        for (int i = 0; i < N - 1; i++) {
-            for (int j = i + 1; j < N; j++) {
-                double x1 = nodes[i][0], y1 = nodes[i][1], x2 = nodes[j][0], y2 = nodes[j][1];
-                double distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-                pq.add(new Edge(i, j, distance));
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                double x1 = stars[i][0], y1 = stars[i][1], x2 = stars[j][0], y2 = stars[j][1];
+                double cost = Math.sqrt((Math.pow(x1 - x2, 2)) + Math.pow(y1 - y2, 2));
+                pq.add(new Edge(i, j, cost));
             }
         }
 
-        // 유니온 파인드 (인덱스 저장)
-        parent = new int[N];
-        for (int i = 0; i < N; i++) {
+        // 집합 초기화
+        parent = new int[n];
+        rank = new int[n];
+        for (int i = 0; i < n; i++) {
             parent[i] = i;
+            rank[i] = 0;
         }
 
-        int cnt = 0;
-        double total = 0;
+        // 크루스칼
+        int edgeCount = 0;
+        double totalCost = 0.0;
 
-        while (cnt < N - 1) {
-            Edge cur = pq.poll();
+        while (!pq.isEmpty()) {
+            Edge edge = pq.poll();
 
-            if (find(cur.a) != find(cur.b)) {
-                union(cur.a, cur.b);
-                cnt++;
-                total += cur.dist;
+            if (find(edge.a) != find(edge.b)) {
+                union(edge.a, edge.b);
+                edgeCount++;
+                totalCost += edge.cost;
+            }
+
+            if (edgeCount == n - 1) {
+                break;
             }
         }
 
-        System.out.printf("%.2f", total);
+        System.out.printf("%.2f", totalCost);
     }
 }
