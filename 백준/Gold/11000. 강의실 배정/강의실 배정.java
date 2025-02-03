@@ -1,54 +1,44 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Lecture {
-        int S, T;
-
-        Lecture(int S, int T) {
-            this.S = S;
-            this.T = T;
-        }
-    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int N = Integer.parseInt(br.readLine());
 
-        List<Lecture> list = new ArrayList<>();
+        // 시작시간 오름차순, 끝나는시간 오름차순
+        PriorityQueue<int[]> pq1 = new PriorityQueue<>((a, b) -> {
+            if (a[0] == b[0]) {
+                return a[1] - b[1];
+            }
+            return a[0] - b[0];
+        });
 
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             int S = Integer.parseInt(st.nextToken());
             int T = Integer.parseInt(st.nextToken());
-            list.add(new Lecture(S, T));
+            pq1.add(new int[]{S, T});
         }
 
-        // 시작시간 오름차순 정렬
-        Collections.sort(list, (a, b) -> Integer.compare(a.S, b.S));
+        // 끝나는시간 오름차순
+        PriorityQueue<Integer> pq2 = new PriorityQueue<>();
+        pq2.add(pq1.poll()[1]); // 첫번째로 끝나는시간 저장
 
-        // 끝나는 시간 오름차순 poll
-        PriorityQueue<Integer> pq = new PriorityQueue<>();
-        pq.add(list.get(0).T);
-
-        for (int i = 1; i < list.size(); i++) {
-            Lecture now = list.get(i);
-            if (now.S >= pq.peek()) {
-                pq.poll();
-                pq.add(now.T);
+        while (!pq1.isEmpty()) {
+            int[] now = pq1.poll();
+            if (now[0] >= pq2.peek()) {
+                pq2.poll();
+                pq2.add(now[1]); // 현재 끝나는시간 저장
             } else {
-                pq.add(now.T);
+                pq2.add(now[1]);
             }
         }
 
-        int answer = pq.size();
-        System.out.println(answer);
-
+        System.out.println(pq2.size());
     }
 }
