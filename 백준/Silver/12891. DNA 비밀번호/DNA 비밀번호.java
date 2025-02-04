@@ -5,6 +5,17 @@ import java.util.StringTokenizer;
 
 public class Main {
 
+    static boolean isValid(int[] tempArr) {
+        boolean b = true;
+        for (int k = 0; k < 26; k++) {
+            if (tempArr[k] < dnaArr[k]) {
+                return false;
+            }
+        }
+
+        return b;
+    }
+
     static int S, P; // 문자열 길이, 부분문자열 길이
     static String dnaString;
     static char[] dnaChar = {'A', 'C', 'G', 'T'};
@@ -22,26 +33,21 @@ public class Main {
         }
 
         int answer = 0;
-        int start = 0;
 
         int[] tempArr = new int[26];
-        // 초기 윈도우 P만큼 저장
+
+        // **O(P)**
         for (int i = 0; i < P; i++) {
             char ch = dnaString.charAt(i);
             tempArr[ch - 'A']++;
         }
 
-        boolean found = true;
-        for (int k = 0; k < 26; k++) {
-            if (tempArr[k] < dnaArr[k]) {
-                found = false;
-                break;
-            }
-        }
-        if (found) {
+        // **O(1)**
+        if (isValid(tempArr)) {
             answer++;
         }
 
+        // **O(S-P)**
         int end = P;
         while (end < S) {
             char last = dnaString.charAt(end - P);
@@ -49,14 +55,8 @@ public class Main {
             char next = dnaString.charAt(end);
             tempArr[next - 'A']++;
 
-            found = true;
-            for (int k = 0; k < 26; k++) {
-                if (tempArr[k] < dnaArr[k]) {
-                    found = false;
-                    break;
-                }
-            }
-            if (found) {
+            // **O(1)**
+            if (isValid(tempArr)) {
                 answer++;
             }
             end++;
