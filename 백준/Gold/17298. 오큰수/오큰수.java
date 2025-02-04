@@ -8,36 +8,38 @@ import java.util.StringTokenizer;
 
 public class Main {
 
+    static int N;
+    static int[] A;
+    static int[] answer;
+    static StringBuilder sb = new StringBuilder();
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-        int[] A = new int[N];
+        N = Integer.parseInt(br.readLine());
+        A = new int[N];
         StringTokenizer st = new StringTokenizer(br.readLine());
         for (int i = 0; i < N; i++) {
             A[i] = Integer.parseInt(st.nextToken());
         }
+        answer = new int[N];
 
         Deque<Integer> stack = new ArrayDeque<>();
-        int[] result = new int[N];
-
         for (int i = 0; i < N; i++) {
-            // 스택안에 있는거는 아직 result가 확정되지 않은 숫자
+
             while (!stack.isEmpty() && A[stack.peek()] < A[i]) {
-                int index = stack.pop();
-                result[index] = A[i];
+                answer[stack.pop()] = A[i];
             }
             stack.push(i);
+
         }
 
         while (!stack.isEmpty()) {
-            int index = stack.pop();
-            result[index] = -1;
+            answer[stack.pop()] = -1;
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (int i : result) {
-            sb.append(i).append(" ");
+        for (int x : answer) {
+            sb.append(x).append(" ");
         }
-        System.out.println(sb.toString());
+        System.out.println(sb.toString().trim());
     }
 }
