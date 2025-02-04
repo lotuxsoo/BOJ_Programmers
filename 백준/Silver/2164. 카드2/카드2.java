@@ -15,10 +15,10 @@ public class Main {
             deque.addLast(i);
         }
 
-        while (deque.size() >= 2) {
-            deque.pollFirst(); // 제일 위에 있는 카드를 버린다.
-
-            deque.addLast(deque.pollFirst()); // 제일 위에 있는 카드를 제일 밑으로 옮긴다.
+        while (deque.size() != 1) {
+            deque.pollFirst();
+            deque.addLast(deque.peekFirst());
+            deque.pollFirst();
         }
 
         System.out.println(deque.poll());
