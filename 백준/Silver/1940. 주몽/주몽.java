@@ -10,26 +10,26 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int N = Integer.parseInt(br.readLine());
         int M = Integer.parseInt(br.readLine());
-        int[] arr = new int[N + 1];
+        int[] A = new int[N];
         StringTokenizer st = new StringTokenizer(br.readLine());
-        for (int i = 1; i <= N; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
+        for (int i = 0; i < N; i++) {
+            A[i] = Integer.parseInt(st.nextToken()); // 모두 양수
         }
+        Arrays.sort(A);
 
-        Arrays.sort(arr);
         int answer = 0;
-        int left = 1;
-        int right = N;
+        int left = 0, right = N - 1; // 윈도우 범위 좁혀나감
 
-        while (left < right) { // 무조건 2개 선택
-            if (arr[left] + arr[right] == M) {
+        while (left < right) {
+            long sum = A[left] + A[right];
+            if (sum == M) {
                 answer++;
                 left++;
                 right--;
-            } else if (arr[left] + arr[right] > M) {
-                right--;
-            } else if (arr[left] + arr[right] < M) {
+            } else if (sum < M) {
                 left++;
+            } else if (sum > M) {
+                right--;
             }
         }
 
