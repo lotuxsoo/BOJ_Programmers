@@ -2,50 +2,41 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 
 public class Main {
 
+    static int N;
+    static int[] S;
+    static StringBuilder sb = new StringBuilder();
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        int[] A = new int[n];
-        for (int i = 0; i < n; i++) {
-            A[i] = Integer.parseInt(br.readLine());
+        N = Integer.parseInt(br.readLine());
+        S = new int[N];
+        for (int i = 0; i < N; i++) {
+            S[i] = Integer.parseInt(br.readLine());
         }
 
         Deque<Integer> stack = new ArrayDeque<>();
-        ArrayList<Character> list = new ArrayList<>();
+        int idx = 0;
 
-        int num = 1;
-        boolean flag = false;
+        for (int num = 1; num <= N; num++) {
 
-        for (int i = 0; i < n; i++) {
-            if (num <= A[i]) {
-                while (num <= A[i]) {
-                    stack.push(num++);
-                    list.add('+');
-                }
+            stack.push(num); // 순서대로 반드시 push
+            sb.append("+\n");
+
+            while (!stack.isEmpty() && stack.peek() == S[idx]) {
                 stack.pop();
-                list.add('-');
-            } else {
-                if (!stack.isEmpty() && stack.peek() == A[i]) {
-                    stack.pop();
-                    list.add('-');
-                } else {
-                    flag = true;
-                    break;
-                }
+                sb.append("-\n");
+                idx++;
             }
         }
 
-        if (flag) {
-            System.out.println("NO");
+        if (idx == N) {
+            System.out.println(sb.toString());
         } else {
-            for (char c : list) {
-                System.out.println(c);
-            }
+            System.out.println("NO");
         }
     }
 }
