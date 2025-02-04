@@ -2,50 +2,52 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Node {
-        int index;
-        int number;
 
-        Node(int index, int number) {
-            this.index = index;
-            this.number = number;
-        }
-    }
+    static int N, L; // 숫자 개수, 윈도우 크기
+    static int[] A;
+    static int[] answer;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int N = Integer.parseInt(st.nextToken());
-        int L = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());
+        L = Integer.parseInt(st.nextToken());
+        A = new int[N];
         st = new StringTokenizer(br.readLine());
-        int[] A = new int[N + 1];
-        for (int i = 1; i <= N; i++) {
+        for (int i = 0; i < N; i++) {
             A[i] = Integer.parseInt(st.nextToken());
         }
 
-        Deque<Node> deque = new ArrayDeque<>();
-        int[] result = new int[N + 1];
+        answer = new int[N];
 
-        for (int i = 1; i <= N; i++) {
-            while (!deque.isEmpty() && deque.getLast().number > A[i]) {
-                deque.removeLast();
+        // 모노토닉 덱
+        Deque<Integer> deque = new ArrayDeque<>();
+
+        for (int i = 0; i < N; i++) {
+
+            // 최솟값 인덱스 범위 확인
+            if (!deque.isEmpty() && deque.peekFirst() < i - L + 1) {
+                deque.pollFirst();
             }
-            deque.addLast(new Node(i, A[i]));
 
-            if (deque.getFirst().index < i - L + 1) {
-                deque.removeFirst();
+            // 삽입하면서 최솟값 유지
+            while (!deque.isEmpty() && A[deque.peekLast()] >= A[i]) {
+                deque.pollLast();
             }
+            deque.addLast(i);
 
-            result[i] = deque.getFirst().number;
+            // 최솟값 저장
+            answer[i] = A[deque.peekFirst()];
         }
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= N; i++) {
-            sb.append(result[i]).append(" ");
+        for (int x : answer) {
+            sb.append(x).append(" ");
         }
         System.out.println(sb.toString());
     }
