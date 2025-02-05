@@ -9,17 +9,20 @@ public class Main {
         int N = Integer.parseInt(br.readLine());
 
         long[][] D = new long[N + 1][2];
-        // D[i][0]: i 길이에서 끝이 0인 개수
-        // D[i][1]: i 길이에서 끝이 1인 개수
 
-        D[1][0] = 0;
         D[1][1] = 1;
-        for (int i = 2; i <= N; i++) {
-            D[i][1] = D[i - 1][0];
-            D[i][0] = D[i - 1][0] + D[i - 1][1];
+
+        if (N == 1) {
+            System.out.println(1);
+            return;
         }
 
-        long answer = D[N][1] + D[N][0];
-        System.out.println(answer);
+        D[2][0] = 1;
+        for (int i = 2; i <= N; i++) {
+            D[i][0] = D[i - 1][0] + D[i - 1][1];
+            D[i][1] = D[i - 1][0];
+        }
+
+        System.out.println(D[N][0] + D[N][1]);
     }
 }
