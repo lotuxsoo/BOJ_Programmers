@@ -5,11 +5,11 @@ import java.util.PriorityQueue;
 
 public class Main {
     static class Edge {
-        int a, b, cost;
+        int s, e, cost;
 
-        Edge(int a, int b, int cost) {
-            this.a = a;
-            this.b = b;
+        Edge(int s, int e, int cost) {
+            this.s = s;
+            this.e = e;
             this.cost = cost;
         }
     }
@@ -24,72 +24,59 @@ public class Main {
     static void union(int x, int y) {
         int root1 = find(x);
         int root2 = find(y);
-
-        if (rank[root1] < rank[root2]) {
+        if (root1 != root2) {
             parent[root1] = root2;
-        } else if (rank[root1] > rank[root2]) {
-            parent[root2] = root1;
-        } else {
-            parent[root2] = root1;
-            rank[root1]++;
         }
     }
 
-    static int n;
+    static int N; // 컴퓨터 개수
+    static int[][] map;
+    static PriorityQueue<Edge> pq;
     static int[] parent;
-    static int[] rank;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        n = Integer.parseInt(br.readLine());
+        N = Integer.parseInt(br.readLine());
+        map = new int[N][N];
+        int total = 0;
+        pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
 
-        PriorityQueue<Edge> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.cost, o2.cost));
-        int totalCost = 0;
-
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < N; i++) {
             char[] ch = br.readLine().toCharArray();
-            for (int j = 0; j < ch.length; j++) {
-                if (ch[j] == 0) {
+            for (int j = 0; j < N; j++) {
+                if (ch[j] == '0') {
                     continue;
-                }
-                if (ch[j] >= 'a' && ch[j] <= 'z') {
-                    int c = ch[j] - 'a' + 1;
-                    pq.add(new Edge(i, j, c));
-                    totalCost += c;
                 } else if (ch[j] >= 'A' && ch[j] <= 'Z') {
-                    int c = ch[j] - 'A' + 27;
-                    pq.add(new Edge(i, j, c));
-                    totalCost += c;
+                    map[i][j] = ch[j] - 'A' + 27;
+                    pq.add(new Edge(i, j, map[i][j]));
+                } else if (ch[j] >= 'a' && ch[j] <= 'z') {
+                    map[i][j] = ch[j] - 'a' + 1;
+                    pq.add(new Edge(i, j, map[i][j]));
                 }
+                total += map[i][j];
             }
         }
 
-        // 집합 초기화
-        parent = new int[n];
-        rank = new int[n];
-        for (int i = 0; i < n; i++) {
+        // 유니온 파인드 초기화
+        parent = new int[N];
+        for (int i = 0; i < N; i++) {
             parent[i] = i;
-            rank[i] = 0;
         }
 
-        // 크루스칼
-        int edgeCount = 0;
-        int edgeCost = 0;
+        int cnt = 0;
+        boolean[] visited = new boolean[N];
+        int cost = 0;
 
-        while (!pq.isEmpty()) {
-            Edge edge = pq.poll();
+        while ((cnt < N - 1) && !pq.isEmpty()) {
+            Edge cur = pq.poll();
 
-            if (find(edge.a) != find(edge.b)) {
-                union(edge.a, edge.b);
-                edgeCount++;
-                edgeCost += edge.cost;
-            }
-
-            if (edgeCount == n - 1) {
-                break;
+            if (find(cur.s) != find(cur.e)) {
+                union(cur.s, cur.e);
+                cost += cur.cost;
+                cnt++;
             }
         }
 
-        System.out.println(edgeCount == n - 1 ? totalCost - edgeCost : -1);
+        System.out.println((cnt == N - 1) ? total - cost : -1);
     }
 }
