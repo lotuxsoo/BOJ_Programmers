@@ -5,19 +5,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
     static class State {
-        int index, left, right, cost;
+        int idx, left, right; // 큐에 넣을 상태 정의
 
-        State(int index, int left, int right, int cost) {
-            this.index = index;
+        State(int idx, int left, int right) {
+            this.idx = idx;
             this.left = left;
             this.right = right;
-            this.cost = cost;
         }
     }
 
@@ -34,75 +32,67 @@ public class Main {
         return 3;
     }
 
-    static List<Integer> instruction = new ArrayList<>();
+    static List<Integer> commands = new ArrayList<>();
     static int[][][] dp;
+    static final int INF = 1_000_000_000;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        while (st.hasMoreTokens()) {
-            int x = Integer.parseInt(st.nextToken());
-            if (x == 0) {
+        while (true) {
+            int t = Integer.parseInt(st.nextToken());
+            if (t == 0) {
                 break;
             }
-            instruction.add(x);
+            commands.add(t);
         }
 
-        // dp[i][left][right]: 이 상태에서 달성하 ㄴ최소 힘
-        dp = new int[instruction.size() + 1][5][5];
+        // i번째 지시, (x,y)에서의 최소 힘
+        dp = new int[commands.size() + 1][5][5];
 
-        // 메모 초기화
-        for (int i = 0; i <= instruction.size(); i++) {
+        // INF로 초기화
+        for (int i = 0; i <= commands.size(); i++) {
             for (int j = 0; j < 5; j++) {
-                Arrays.fill(dp[i][j], Integer.MAX_VALUE);
+                Arrays.fill(dp[i][j], INF);
             }
         }
 
-        // 반복문 풀이
-
-        Queue<State> queue = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
-        queue.add(new State(0, 0, 0, 0));
+        // 초기값 지정
         dp[0][0][0] = 0;
 
+        Queue<State> queue = new LinkedList<>();
+        queue.add(new State(0, 0, 0));
+
+        int ans = INF;
+
+        // 가중치 BFS 탐색 (업데이트 o)
         while (!queue.isEmpty()) {
             State cur = queue.poll();
 
-            if (cur.index == instruction.size()) {
-                break;
-            }
-
-            if (cur.cost > dp[cur.index][cur.left][cur.right]) {
+            if (cur.idx == commands.size()) {
+                ans = Math.min(ans, dp[cur.idx][cur.left][cur.right]);
                 continue;
             }
 
-            // 다음 명령어 처리
-            int nextPos = instruction.get(cur.index);
+            int nextPos = commands.get(cur.idx);
 
-            if (nextPos != cur.left) {
-                int nextCost = cur.cost + getCost(cur.right, nextPos);
-                if (nextCost < dp[cur.index + 1][cur.left][nextPos]) {
-                    dp[cur.index + 1][cur.left][nextPos] = nextCost;
-                    queue.add(new State(cur.index + 1, cur.left, nextPos, nextCost)); // 비용 갱신
+            if (cur.left != nextPos) { // right로 이동 가능
+                if (dp[cur.idx + 1][cur.left][nextPos] > dp[cur.idx][cur.left][cur.right] + getCost(cur.right,
+                        nextPos)) { // 갱신 가능한지
+                    dp[cur.idx + 1][cur.left][nextPos] = dp[cur.idx][cur.left][cur.right] + getCost(cur.right, nextPos);
+                    queue.add(new State(cur.idx + 1, cur.left, nextPos));
                 }
             }
 
-            if (nextPos != cur.right) {
-                int nextCost = cur.cost + getCost(cur.left, nextPos);
-                if (nextCost < dp[cur.index + 1][nextPos][cur.right]) {
-                    dp[cur.index + 1][nextPos][cur.right] = nextCost;
-                    queue.add(new State(cur.index + 1, nextPos, cur.right, nextCost));
+            if (cur.right != nextPos) {
+                if (dp[cur.idx + 1][nextPos][cur.right] > dp[cur.idx][cur.left][cur.right] + getCost(cur.left,
+                        nextPos)) {
+                    dp[cur.idx + 1][nextPos][cur.right] = dp[cur.idx][cur.left][cur.right] + getCost(cur.left, nextPos);
+                    queue.add(new State(cur.idx + 1, nextPos, cur.right));
                 }
             }
         }
 
-        int bestCost = Integer.MAX_VALUE;
-
-        for (int j = 0; j < 5; j++) {
-            for (int k = 0; k < 5; k++) {
-                bestCost = Math.min(bestCost, dp[instruction.size()][j][k]);
-            }
-        }
-
-        System.out.println(bestCost);
+        System.out.println(ans);
     }
 }
