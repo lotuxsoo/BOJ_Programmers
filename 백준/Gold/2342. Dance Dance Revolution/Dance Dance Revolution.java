@@ -3,77 +3,106 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
+    static class State {
+        int index, left, right, cost;
 
-    static int cost(int from, int to) {
-        if (from == to) {
-            return 1;
+        State(int index, int left, int right, int cost) {
+            this.index = index;
+            this.left = left;
+            this.right = right;
+            this.cost = cost;
         }
+    }
+
+    static int getCost(int from, int to) {
         if (from == 0) {
             return 2;
         }
         if (Math.abs(from - to) == 2) {
             return 4;
         }
+        if (from == to) {
+            return 1;
+        }
         return 3;
     }
 
-    static int solve(int index, int left, int right) {
-        if (index == N) {
-            return 0;
-        }
-
-        if (dp[index][left][right] != -1) {
-            return dp[index][left][right];
-        }
-
-        int next = moves.get(index);
-
-        int temp = Integer.MAX_VALUE;
-
-        if (next != left) { // right로 이동
-            temp = Math.min(temp,
-                    solve(index + 1, left, next) + cost(right, next));
-        }
-
-        if (next != right) { // left로 이동
-            temp = Math.min(temp,
-                    solve(index + 1, next, right) + cost(left, next));
-        }
-
-        return dp[index][left][right] = temp;
-    }
-
-    static List<Integer> moves = new ArrayList<>();
-    static int N;
+    static List<Integer> instruction = new ArrayList<>();
     static int[][][] dp;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         while (st.hasMoreTokens()) {
-            int t = Integer.parseInt(st.nextToken());
-            if (t == 0) {
+            int x = Integer.parseInt(st.nextToken());
+            if (x == 0) {
                 break;
             }
-            moves.add(t);
+            instruction.add(x);
         }
-        N = moves.size();
 
-        // dp[index][left][right]: index 지시를 고려할때 위치 (l,r)일때의 최소힘
-        dp = new int[N + 1][5][5];
+        // dp[i][left][right]: 이 상태에서 달성하 ㄴ최소 힘
+        dp = new int[instruction.size() + 1][5][5];
 
-        // 초기화 (방문 체크)
-        for (int i = 0; i < N + 1; i++) {
+        // 메모 초기화
+        for (int i = 0; i <= instruction.size(); i++) {
             for (int j = 0; j < 5; j++) {
-                Arrays.fill(dp[i][j], -1);
+                Arrays.fill(dp[i][j], Integer.MAX_VALUE);
             }
         }
 
-        System.out.println(solve(0, 0, 0));
+        // 반복문 풀이
 
+        Queue<State> queue = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
+        queue.add(new State(0, 0, 0, 0));
+        dp[0][0][0] = 0;
+
+        while (!queue.isEmpty()) {
+            State cur = queue.poll();
+
+            if (cur.index == instruction.size()) {
+                break;
+            }
+
+            if (cur.cost > dp[cur.index][cur.left][cur.right]) {
+                continue;
+            }
+
+            // 다음 명령어 처리
+            int nextPos = instruction.get(cur.index);
+
+            if (nextPos != cur.left) {
+                int nextCost = cur.cost + getCost(cur.right, nextPos);
+                if (nextCost < dp[cur.index + 1][cur.left][nextPos]) {
+                    dp[cur.index + 1][cur.left][nextPos] = nextCost;
+                    queue.add(new State(cur.index + 1, cur.left, nextPos, nextCost)); // 비용 갱신
+                }
+            }
+
+            if (nextPos != cur.right) {
+                int nextCost = cur.cost + getCost(cur.left, nextPos);
+                if (nextCost < dp[cur.index + 1][nextPos][cur.right]) {
+                    dp[cur.index + 1][nextPos][cur.right] = nextCost;
+                    queue.add(new State(cur.index + 1, nextPos, cur.right, nextCost));
+                }
+            }
+        }
+
+        int bestCost = Integer.MAX_VALUE;
+
+        for (int j = 0; j < 5; j++) {
+            for (int k = 0; k < 5; k++) {
+                bestCost = Math.min(bestCost, dp[instruction.size()][j][k]);
+            }
+        }
+
+        System.out.println(bestCost);
     }
 }
