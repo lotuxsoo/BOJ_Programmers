@@ -7,78 +7,83 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Node {
-        int x, y, flag; // 0:안부숨, 1:부숨
+    static class State {
+        int x, y, z;
 
-        Node(int x, int y, int flag) {
+        State(int x, int y, int z) {
             this.x = x;
             this.y = y;
-            this.flag = flag;
+            this.z = z;
         }
     }
 
-    static int BFS(int[][] map) {
-        int N = map.length;
-        int M = map[0].length;
-        int[][][] visited = new int[N][M][2]; // 0:안부숨, 1:부숨
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                Arrays.fill(visited[i][j], Integer.MAX_VALUE);
-            }
-        }
-        visited[0][0][0] = 1;
-
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(new Node(0, 0, 0));
-
-        int[] dx = {-1, 1, 0, 0};
-        int[] dy = {0, 0, -1, 1};
-
-        while (!queue.isEmpty()) {
-            Node cur = queue.poll();
-            int x = cur.x, y = cur.y, flag = cur.flag;
-
-            if (x == N - 1 && y == M - 1) {
-                return visited[x][y][flag];
-            }
-
-            for (int i = 0; i < 4; i++) {
-                int nx = x + dx[i];
-                int ny = y + dy[i];
-                if (!(0 <= nx && nx < N && 0 <= ny && ny < M)) {
-                    continue;
-                }
-                if (map[nx][ny] == 0) {
-                    if (visited[nx][ny][flag] > visited[x][y][flag] + 1) {
-                        visited[nx][ny][flag] = visited[x][y][flag] + 1;
-                        queue.add(new Node(nx, ny, flag));
-                    }
-                } else if (map[nx][ny] == 1 && flag == 0) {
-                    if (visited[nx][ny][1] > visited[x][y][flag] + 1) {
-                        visited[nx][ny][1] = visited[x][y][flag] + 1;
-                        queue.add(new Node(nx, ny, 1));
-                    }
-                }
-            }
-        }
-
-        return -1;
-    }
+    static int N, M; // 세로,가로
+    static int[][] map;
+    static int[][][] dp;
+    static final int INF = 1_000_000_000;
+    static int[] dx = {-1, 1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int N = Integer.parseInt(st.nextToken());
-        int M = Integer.parseInt(st.nextToken());
-        int[][] map = new int[N][M];
-        for (int i = 0; i < N; i++) {
-            String[] splits = br.readLine().split("");
-            for (int j = 0; j < splits.length; j++) {
-                map[i][j] = Integer.parseInt(splits[j]);
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        map = new int[N + 1][M + 1];
+        for (int i = 1; i <= N; i++) {
+            char[] ch = br.readLine().toCharArray();
+            for (int j = 1; j <= M; j++) {
+                map[i][j] = ch[j - 1] - '0';
             }
         }
 
-        int bfs = BFS(map);
-        System.out.println(bfs);
+        // (x,y)까지 이동하는 최단 경로
+        // 0(안부숨), 1(한개까지 부숨)
+        dp = new int[N + 1][M + 1][2];
+
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= M; j++) {
+                Arrays.fill(dp[i][j], INF);
+            }
+        }
+
+        // BFS 풀이
+        Queue<State> queue = new LinkedList<>();
+        queue.add(new State(1, 1, 0));
+
+        // dp 초기값 지정 필수
+        dp[1][1][0] = 1;
+
+        while (!queue.isEmpty()) {
+            State cur = queue.poll();
+
+            // 종료 조건 필수
+            if (cur.x == N && cur.y == M) {
+                System.out.println(dp[N][M][cur.z]);
+                return;
+            }
+
+            for (int i = 0; i < 4; i++) {
+                int nx = cur.x + dx[i];
+                int ny = cur.y + dy[i];
+                if (!(1 <= nx && nx <= N && 1 <= ny && ny <= M)) {
+                    continue;
+                }
+
+                if (map[nx][ny] == 0) {
+                    if (dp[nx][ny][cur.z] > dp[cur.x][cur.y][cur.z] + 1) {
+                        dp[nx][ny][cur.z] = dp[cur.x][cur.y][cur.z] + 1; // 상태 업데이트
+                        queue.add(new State(nx, ny, cur.z)); // 그냥 이동
+                    }
+                } else if (map[nx][ny] == 1 && cur.z == 0) {
+                    if (dp[nx][ny][1] > dp[cur.x][cur.y][0] + 1) {
+                        dp[nx][ny][1] = dp[cur.x][cur.y][0] + 1; // 상태 업데이트
+                        queue.add(new State(nx, ny, 1)); // 부수고 이동
+                    }
+                }
+            }
+        }
+
+        System.out.println(-1);
     }
 }
