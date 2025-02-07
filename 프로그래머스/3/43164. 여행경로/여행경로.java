@@ -2,38 +2,36 @@ import java.util.*;
 
 class Solution {
     
-    static ArrayList<String> ansList = new ArrayList<>();
-    static boolean[] visited;
-    
-    static void DFS(int cnt, String start, StringBuilder sb, String[][] tickets) {
-        if (cnt == tickets.length) {
-            ansList.add(sb.toString());
-            return;
+    // 인자로 주어진 리스트(또는 전역 리스트)를 수정하는 패턴
+    static void dfs(List<String> results, String from) {
+        
+        // from -> to가 존재하는 경우 반복해서 재귀
+        while (map.containsKey(from) && !map.get(from).isEmpty()) {
+            dfs(results, map.get(from).poll());
         }
         
-        for (int i=0; i<tickets.length; i++) {
-            if (!visited[i] && tickets[i][0].equals(start)) {
-                visited[i] = true;
-                StringBuilder nsb = new StringBuilder(sb).append(tickets[i][1]).append(" ");
-                DFS(cnt+1, tickets[i][1], nsb, tickets);
-                visited[i] = false;
-            }
-        }
-        
+        results.add(0, from);
     }
+    
+    static Map<String, PriorityQueue<String>> map = new HashMap<>();
+    static int N; // 티켓 개수
     
     public String[] solution(String[][] tickets) {
         String[] answer = {};
         
-        visited = new boolean[tickets.length];
+        N = tickets.length;
         
-        DFS(0, "ICN", new StringBuilder("ICN "), tickets);
-        
-        ansList.sort(Comparator.comparing(s -> s));
-        
-        if (ansList.size() > 0) {
-            answer = ansList.get(0).split(" ");
+        for (String[] ticket : tickets) {
+            map.putIfAbsent(ticket[0], new PriorityQueue<>((a,b)->a.compareTo(b)));
+            map.get(ticket[0]).add(ticket[1]);
         }
+        
+        // 인자로 주어진 리스트(또는 전역 리스트)를 수정하는 패턴
+        List<String> results = new LinkedList<>(); 
+        
+        dfs(results, "ICN");
+        
+        answer = results.toArray(new String[0]);
         
         return answer;
     }
