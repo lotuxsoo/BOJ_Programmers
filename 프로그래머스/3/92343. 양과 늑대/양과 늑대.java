@@ -1,56 +1,57 @@
 import java.util.*;
 
 class Solution {
-    
-    static void dfs(int now, Set<Integer> set, int sheep, int wolf, int[] info) {
+
+    static void dfs(int node, int sheep, int wolf, Set<Integer> set, int[] info, int[][] edges) {
+        if (sheep <= wolf) return; // 추가한 인접 노드가 조건에 안맞으면 리턴
         
-        if (sheep <= wolf) return;
+        visited[node] = true;
+        MAX = Math.max(MAX, sheep);
         
-        ans = Math.max(ans, sheep);
-        visited[now] = true;
-        
-        for (int index : set) { // 후보들 중 하나를 골라            
-            for (int next : nodes[index]) { // 다음 후보들을 탐색
-                if (visited[next]) continue;
-                
+        for (int candidate : set) { // 방문할수 있는 노드
+            
+             for (int nextCandidate : graph[candidate]) { // 의 인접노드들 추가
                 Set<Integer> newSet = new HashSet<>(set);
-                
-                if (info[next] == 0) {
-                    newSet.add(next);
-                    dfs(next, newSet, sheep+1, wolf, info);
-                } else if ((info[next] == 1) && wolf+1 < sheep) {
-                    newSet.add(next);
-                    dfs(next, newSet, sheep, wolf+1, info);
+                 
+                if (newSet.contains(nextCandidate)) continue;
+                newSet.add(nextCandidate);
+                 
+                if (info[nextCandidate] == 0) { // 조건 확인하고, 그 노드로 이동
+                    dfs(nextCandidate, sheep+1, wolf, newSet, info, edges);
+                } else if ((info[nextCandidate] == 1) && wolf+1<sheep) {
+                    dfs(nextCandidate, sheep, wolf+1, newSet, info, edges);
                 }
-            }
+             }
         }
         
-        visited[now] = false;
+        visited[node] = false;
     }
-
-    static ArrayList<Integer>[] nodes;
-    static int N;
+    
+    static List<Integer>[] graph;
+    static int N; // 정점개수
     static boolean[] visited;
-    static int ans = 0;
+    static int MAX = 0;
     
     public int solution(int[] info, int[][] edges) {
-        N = info.length;    
-        nodes = new ArrayList[N];
+        int answer = 0;
+        N = info.length;
         
+        graph = new ArrayList[N];
         for (int i=0; i<N; i++) {
-            nodes[i] = new ArrayList<>();
+            graph[i] = new ArrayList<>();
         }
         
-        // 트리 구성 (양방향 연결, 문제에 따라 다르게 구성 가능)
         for (int[] edge : edges) {
-            nodes[edge[0]].add(edge[1]);
-            nodes[edge[1]].add(edge[0]);
+            graph[edge[0]].add(edge[1]);
+            graph[edge[1]].add(edge[0]);
         }
         
         visited = new boolean[N];
-        visited[0] = true;
-        dfs(0, new HashSet<>(Set.of(0)), 1, 0, info);
         
-        return ans;
+        dfs(0, 1, 0, new HashSet<>(Set.of(0)), info, edges);
+        
+        answer = MAX;
+        
+        return answer;
     }
 }
