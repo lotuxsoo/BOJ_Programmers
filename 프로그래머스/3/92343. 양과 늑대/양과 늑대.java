@@ -1,59 +1,56 @@
 import java.util.*;
 
 class Solution {
-    static class State {
-        int index, sheep, wolf;
-        Set<Integer> nodes;
-        
-        State(int index, int sheep, int wolf, Set<Integer> nodes) {
-            this.index = index;
-            this.sheep = sheep;
-            this.wolf = wolf;
-            this.nodes = nodes;
-        }
-    }
     
-    static List<List<Integer>> adjList = new ArrayList<>();
-    
-    public int solution(int[] info, int[][] edges) {
-        int answer = 0;
+    static void dfs(int now, Set<Integer> set, int sheep, int wolf, int[] info) {
         
-        int N = info.length;
+        if (sheep <= wolf) return;
         
-        for (int i=0; i<N; i++) {
-            adjList.add(new ArrayList<>());
-        }
+        ans = Math.max(ans, sheep);
+        visited[now] = true;
         
-        for (int[] edge : edges) {
-            adjList.get(edge[0]).add(edge[1]);
-            adjList.get(edge[1]).add(edge[0]);
-        }
+        for (int index : set) { // 후보들 중 하나를 골라            
+            for (int next : nodes[index]) { // 다음 후보들을 탐색
+                if (visited[next]) continue;
                 
-        Queue<State> queue = new LinkedList<>();
-        queue.add(new State(0, 1, 0, new HashSet<>(Set.of(0))));
-        
-        while (!queue.isEmpty()) {
-            State cur = queue.poll();
-            
-            answer = Math.max(answer, cur.sheep);            
-            
-            for (int node : cur.nodes) { // 후보 노드 집합 탐색
-                for (int next : adjList.get(node)) { // 후보 노드 연결관계 탐색
-                    if (cur.nodes.contains(next)) continue;
-
-                    if (info[next] == 0) {
-                        Set<Integer> newSet = new HashSet<>(cur.nodes);
-                        newSet.add(next);
-                        queue.add(new State(next, cur.sheep+1, cur.wolf, newSet));
-                    } else if ((info[next] == 1) && cur.wolf+1 < cur.sheep) {
-                        Set<Integer> newSet = new HashSet<>(cur.nodes);
-                        newSet.add(next);
-                        queue.add(new State(next, cur.sheep, cur.wolf+1, newSet));
-                    }
-                } 
+                Set<Integer> newSet = new HashSet<>(set);
+                
+                if (info[next] == 0) {
+                    newSet.add(next);
+                    dfs(next, newSet, sheep+1, wolf, info);
+                } else if ((info[next] == 1) && wolf+1 < sheep) {
+                    newSet.add(next);
+                    dfs(next, newSet, sheep, wolf+1, info);
+                }
             }
         }
         
-        return answer;
+        visited[now] = false;
+    }
+
+    static ArrayList<Integer>[] nodes;
+    static int N;
+    static boolean[] visited;
+    static int ans = 0;
+    
+    public int solution(int[] info, int[][] edges) {
+        N = info.length;    
+        nodes = new ArrayList[N];
+        
+        for (int i=0; i<N; i++) {
+            nodes[i] = new ArrayList<>();
+        }
+        
+        // 트리 구성 (양방향 연결, 문제에 따라 다르게 구성 가능)
+        for (int[] edge : edges) {
+            nodes[edge[0]].add(edge[1]);
+            nodes[edge[1]].add(edge[0]);
+        }
+        
+        visited = new boolean[N];
+        visited[0] = true;
+        dfs(0, new HashSet<>(Set.of(0)), 1, 0, info);
+        
+        return ans;
     }
 }
