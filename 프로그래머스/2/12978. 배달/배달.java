@@ -1,59 +1,60 @@
 import java.util.*;
 
 class Solution {
-    static class Node {
-        int end, cost;
-        Node(int end, int cost) {
-            this.end = end;
+    static class Edge {
+        int to, cost;
+        Edge(int to, int cost) {
+            this.to = to;
             this.cost = cost;
         }
     }
     
-    static ArrayList<Node>[] A;
-    
-    static int BFS(int N, int K) {
-        int[] dist = new int[N+1];
-        Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[1] = 0;
-        
-        PriorityQueue<Node> pq = new PriorityQueue<>((a,b) -> Integer.compare(a.cost,b.cost));
-        pq.add(new Node(1, 0));
-        
-        while (!pq.isEmpty()) {
-            Node cur = pq.poll();
-            
-            for (Node next : A[cur.end]) {
-                if (dist[next.end] > cur.cost + next.cost) {
-                    dist[next.end] = cur.cost + next.cost;
-                    pq.add(new Node(next.end, dist[next.end]));
-                }
-            } 
-        }
-        
-        int cnt = 0;
-        for (int i=1; i<N+1; i++) {
-            if (dist[i] <= K) {
-                cnt++;
-            }
-        }
-        
-        return cnt;
-    }
+    static List<Edge>[] graph;
+    static final int INF = 1_000_000_000;
     
     public int solution(int N, int[][] road, int K) {
         int answer = 0;
         
-        A = new ArrayList[N+1]; // 마을 번호: 1~N
+        graph = new ArrayList[N+1];
         for (int i=0; i<N+1; i++) {
-            A[i] = new ArrayList<>();
+            graph[i] = new ArrayList<>();
         }
         
+        // 양방향 정점기준 에지리스트
         for (int[] row : road) {
-            A[row[0]].add(new Node(row[1], row[2]));
-            A[row[1]].add(new Node(row[0], row[2]));
+            graph[row[0]].add(new Edge(row[1],row[2]));
+            graph[row[1]].add(new Edge(row[0],row[2]));
         }
         
-        answer = BFS(N, K);
+        int[] dist = new int[N+1];
+        // INF 초기화
+        Arrays.fill(dist, INF);
+        
+        // 시작점 초기화
+        dist[1] = 0;
+        
+        // 다익스트라, 우선순위큐
+        PriorityQueue<Edge> pq = new PriorityQueue<>((a,b)->Integer.compare(a.cost,b.cost));
+        
+        // 시작정점:1, cost:0
+        pq.add(new Edge(1,0));
+        
+        while (!pq.isEmpty()) {
+            Edge cur = pq.poll();
+            
+            if (dist[cur.to] == INF) continue;
+            
+            for (Edge next : graph[cur.to]) {
+                if (dist[next.to] > dist[cur.to] + next.cost) {
+                    dist[next.to] = dist[cur.to] + next.cost;
+                    pq.add(new Edge(next.to, dist[next.to]));     
+                }
+            }
+        }
+        
+        for (int x : dist) {
+            if (x <= K) answer++;
+        }
         
         return answer;
     }
