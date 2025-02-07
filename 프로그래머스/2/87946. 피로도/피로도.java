@@ -1,40 +1,33 @@
 import java.util.*;
 
-
 class Solution {
-    static int n;
-    static boolean[] visited;
-    static int MAX_VAL = Integer.MIN_VALUE;
     
-    static void DFS(int x, int count, int k, int[][] dungeons) {
-        MAX_VAL = Math.max(MAX_VAL, count);
+    static void dfs(int depth, int k, Set<Integer> indexSet, int[][] dungeons) {
+        ans = Math.max(ans, indexSet.size());
         
-        for (int i=0; i<n; i++) {
-            if (visited[i]) continue;
+        for (int i=0; i<N; i++) {
+            if (indexSet.contains(i)) continue;
             
-            int a = dungeons[i][0]; // 최소 필요 피로도
-            int b = dungeons[i][1]; // 소모 피로도
+            int[] cur = dungeons[i];
             
-            if (k >= a) {
-                visited[i] = true;
-                DFS(i, count + 1, k - b, dungeons);
-                visited[i] = false;
+            if (k >= cur[0]) {
+                Set<Integer> newSet = new HashSet<>(indexSet);
+                newSet.add(i);
+                dfs(depth+1, k - cur[1], newSet, dungeons);
             }
         }
     }
     
-    public int solution(int k, int[][] dungeons) {
-        int answer = -1;
+    static int N;
+    static int ans = 0;
+    
+    public int solution(int k, int[][] dungeons) {        
+        N = dungeons.length;
+
+        Set<Integer> indexSet = new HashSet<>();
         
-        n = dungeons.length;
-        visited = new boolean[n];
+        dfs(0, k, indexSet, dungeons);
         
-        for (int i=0; i<n; i++) {
-            DFS(i, 0, k, dungeons);
-        }
-        
-        answer = MAX_VAL;
-        
-        return answer;
+        return ans;
     }
 }
