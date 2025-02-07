@@ -1,44 +1,67 @@
 import java.util.*;
 
 class Solution {
-    static int[] parent;
-    
-    static int find(int x) {
-        if (x == parent[x]) return x;
-        parent[x] = find(parent[x]);
-        return parent[x];
+    static class Edge {
+        int a, b, cost;
+        Edge(int a, int b, int cost) {
+            this.a = a;
+            this.b = b;
+            this.cost = cost;
+        }
     }
-
+    
     static void union(int x, int y) {
         int root1 = find(x);
         int root2 = find(y);
-        parent[root1] = root2;
+        
+        if (root1 != root2) {
+            if (rank[root1] > rank[root2]) {
+                parent[root2] = root1;
+            } else if (rank[root1] < rank[root2]) {
+                parent[root1] = root2;
+            } else {
+                parent[root1] = root2;
+                rank[root2]++;
+            }
+        }
     }
     
-    static boolean isFinish() {
-        int x = parent[0];
-        for (int i=1; i<parent.length; i++) {
-            if (x != parent[i]) return false;
-            x = parent[i];
+    static int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
         }
-        return true;
+        return parent[x];
     }
+    
+    static int[] parent;
+    static int[] rank;
     
     public int solution(int n, int[][] costs) {
         int answer = 0;
         
-        Arrays.sort(costs, (o1,o2) -> Integer.compare(o1[2],o2[2]));
+        PriorityQueue<Edge> pq = new PriorityQueue<>((a,b)->Integer.compare(a.cost,b.cost));
         
-        parent = new int[n];
-        for (int i=0; i<n; i++) {
-            parent[i] = i;
+        for (int[] line : costs) {
+            pq.add(new Edge(line[0],line[1],line[2]));
         }
         
-        for (int[] edge : costs) {
-
-            if (find(edge[0]) != find(edge[1])) {
-                union(edge[0], edge[1]);
-                answer += edge[2];
+        int cnt = 0;
+        
+        parent = new int[n];
+        rank = new int[n];
+        
+        for (int i=0; i<n; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+        
+        while (!pq.isEmpty() && (cnt < n-1)) {
+            Edge cur = pq.poll();
+            
+            if (find(cur.a)!=find(cur.b)) {
+                union(cur.a,cur.b);
+                cnt++;
+                answer += cur.cost;
             }
         }
         
