@@ -3,67 +3,76 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Node {
-        int e, v;
+    static class Edge {
+        int to;
+        long cost;
 
-        Node(int e, int v) {
-            this.e = e;
-            this.v = v;
+        Edge(int to, long cost) {
+            this.to = to;
+            this.cost = cost;
         }
     }
+
+    static List<Edge>[] graph;
+    static int V, E;
+    static int K;
+    static final long INF = 1_000_000_000_000L;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int V = Integer.parseInt(st.nextToken());
-        int E = Integer.parseInt(st.nextToken());
-        int K = Integer.parseInt(br.readLine());
+        V = Integer.parseInt(st.nextToken());
+        E = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(br.readLine());
 
-        ArrayList<Node>[] A = new ArrayList[V + 1]; // 1~V까지 사용
+        graph = new ArrayList[V + 1];
         for (int i = 0; i < V + 1; i++) {
-            A[i] = new ArrayList<>();
+            graph[i] = new ArrayList<>();
         }
 
         for (int i = 0; i < E; i++) {
             st = new StringTokenizer(br.readLine());
-            int s = Integer.parseInt(st.nextToken());
-            int e = Integer.parseInt(st.nextToken());
+            int u = Integer.parseInt(st.nextToken());
             int v = Integer.parseInt(st.nextToken());
-            A[s].add(new Node(e, v));
+            int w = Integer.parseInt(st.nextToken());
+            graph[u].add(new Edge(v, w));
         }
 
-        int[] dist = new int[V + 1];
-        Arrays.fill(dist, Integer.MAX_VALUE);
+        // 최단거리 배열 초기화
+        long[] dist = new long[V + 1];
+        Arrays.fill(dist, INF);
+
+        // 시작정점: K
         dist[K] = 0;
 
-        boolean[] visited = new boolean[V + 1];
-
-        PriorityQueue<Node> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.v, o2.v));
-        pq.add(new Node(K, 0)); // 시작점 추가
+        // 최단거리 배열 갱신
+        PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> Long.compare(a.cost, b.cost));
+        pq.add(new Edge(K, 0));
 
         while (!pq.isEmpty()) {
-            Node cur = pq.poll();
+            Edge cur = pq.poll();
 
-            if (visited[cur.e]) {
+            if (dist[cur.to] == INF) {
                 continue;
             }
-            visited[cur.e] = true;
 
-            for (Node next : A[cur.e]) {
-
-                if (dist[next.e] > cur.v + next.v) {
-                    dist[next.e] = cur.v + next.v;
-                    pq.add(new Node(next.e, dist[next.e]));
+            for (Edge next : graph[cur.to]) {
+                if (dist[next.to] > dist[cur.to] + next.cost) {
+                    dist[next.to] = dist[cur.to] + next.cost;
+                    pq.add(new Edge(next.to, dist[next.to]));
                 }
             }
         }
 
-        for (int i = 1; i < V + 1; i++) {
-            System.out.println(dist[i] == Integer.MAX_VALUE ? "INF" : dist[i]);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= V; i++) {
+            sb.append(dist[i] == INF ? "INF" : dist[i]).append("\n");
         }
+        System.out.println(sb.toString());
     }
 }
