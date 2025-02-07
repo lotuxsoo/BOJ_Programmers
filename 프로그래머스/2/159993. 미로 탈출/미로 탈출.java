@@ -1,88 +1,109 @@
 import java.util.*;
 
 class Solution {
-    static class Node {
-        int x, y;
-        Node(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
     
-    static int N;
-    static int M;
-    static char[][] miro;
-    
-    static int BFS(Node s, Node e, boolean[][] visited) {
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(s);
-        
-        int sec = 0;
-        int[] dx = {-1,1,0,0};
-        int[] dy = {0,0,-1,1};
-        
-        while (!queue.isEmpty()) {
-            int size = queue.size(); // 현재 레벨의 노드 수
-            
-            for (int i=0; i<size; i++) {
-                Node cur = queue.poll();
-                
-                if (cur.x == e.x && cur.y == e.y) {
-                    return sec;
-                }
-                
-                for (int j=0; j<4; j++) {
-                    int nx = cur.x + dx[j];
-                    int ny = cur.y + dy[j];
-                    if (!(0 <= nx && nx < N && 0 <= ny && ny < M)) continue;
-                    if (visited[nx][ny]) continue; // 큐에 넣기 전에 조건 확인
-                    if (miro[nx][ny] == 'X') continue;
-                    
-                    visited[nx][ny] = true; // 방문 처리하고 큐에 넣음
-                    queue.add(new Node(nx, ny));
-                } 
-            }
-            
-            sec++; // 현재 레벨의 모든 노드를 탐색한 뒤 sec++;
-        }
-        return -1;
-    }
+    static char[][] map;
+    static int[] start;
+    static int[] levar;
+    static int[] end;
+    static int N,M;
+    static int[] dx = {-1,1,0,0};
+    static int[] dy = {0,0,-1,1};
+    static int[][] dist;
+    static final int INF = 1_000_000_000;
     
     public int solution(String[] maps) {
         int answer = 0;
         
-        Node S = null;
-        Node L = null;
-        Node E = null;
-        
         N = maps.length;
         M = maps[0].length();
+        map = new char[N][M];
         
-        // String[] -> char[][]
-        miro = new char[N][];
-        for (int i=0; i<N; i++) {
-            miro[i] = maps[i].toCharArray();
+        for (int i=0; i<maps.length; i++) {
+            char[] ch = maps[i].toCharArray();
             for (int j=0; j<maps[i].length(); j++) {
-                if (miro[i][j] == 'S') {
-                    S = new Node(i,j);
-                } else if (miro[i][j] == 'L') {
-                    L = new Node(i,j);
-                } else if (miro[i][j] == 'E') {
-                    E = new Node(i,j);
+                if (ch[j] == 'S') {
+                    start = new int[]{i,j};
+                } else if (ch[j] == 'E') {
+                    end = new int[]{i,j};
+                } else if (ch[j] == 'L') {
+                    levar = new int[]{i,j};
                 }
-             }
+                map[i][j] = ch[j];
+            }
+        }
+
+        // BFS: S->L 
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{start[0], start[1]});
+        boolean found = false;
+        
+        dist = new int[N][M];
+        for (int i=0; i<N; i++) {
+            Arrays.fill(dist[i], INF);
+        }
+        dist[start[0]][start[1]] = 0;
+        
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int x=cur[0], y=cur[1];
+            
+            if (x==levar[0] && y==levar[1]) {
+                answer += dist[x][y];
+                found = true;
+                break;
+            }
+            
+            for (int i=0; i<4; i++) {
+                int nx = x+dx[i];
+                int ny = y+dy[i];
+                if (!(0<=nx&&nx<N&&0<=ny&&ny<M)) continue;
+                if (map[nx][ny] == 'X') continue;
+                
+                if (dist[nx][ny] > dist[x][y] + 1) {
+                    dist[nx][ny] = dist[x][y] + 1;
+                    queue.add(new int[]{nx,ny});
+                }
+            }
         }
         
-        // BFS: S -> L
-        boolean[][] visited = new boolean[N][M];
-        int sec1 = BFS(S, L, visited);
-        if (sec1 == -1) return -1;
+        if (!found) return -1;
         
-        visited = new boolean[N][M];
-        int sec2 = BFS(L, E, visited);
-        if (sec2 == -1) return -1;
+        dist = new int[N][M];
+        for (int i=0; i<N; i++) {
+            Arrays.fill(dist[i], INF);
+        }
+        dist[levar[0]][levar[1]] = 0;
         
-        answer = sec1 + sec2;
+        // BFS: L->E
+        queue = new LinkedList<>();
+        queue.add(new int[]{levar[0], levar[1]});
+        found = false;
+        
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int x=cur[0], y=cur[1];
+            
+            if (x==end[0] && y==end[1]) {
+                answer += dist[x][y];
+                found = true;
+                break;
+            }
+            
+            for (int i=0; i<4; i++) {
+                int nx = x+dx[i];
+                int ny = y+dy[i];
+                if (!(0<=nx&&nx<N&&0<=ny&&ny<M)) continue;
+                if (map[nx][ny] == 'X') continue;
+                
+                if (dist[nx][ny] > dist[x][y]+1) {
+                    dist[nx][ny] = dist[x][y]+1;
+                    queue.add(new int[]{nx,ny});
+                }
+            }
+        }
+        
+        if (!found) return -1;
         
         return answer;
     }
