@@ -4,44 +4,64 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int N, M;
-    static int[][] grid;
-    static boolean[] visited;
 
-    static void DFS(int x) {
-        for (int i = 1; i <= N; i++) {
-            if (grid[x][i] == 1 && !visited[i]) {
-                visited[i] = true;
-                DFS(i);
+    // O(N)
+    static int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    // O(M)
+    static void union(int u, int v) {
+        int root1 = find(u);
+        int root2 = find(v);
+
+        if (root1 != root2) {
+            if (rank[root1] < rank[root2]) {
+                parent[root1] = root2;
+            } else if (rank[root1] > rank[root2]) {
+                parent[root2] = root1;
+            } else {
+                parent[root2] = root1;
+                rank[root1]++;
             }
         }
     }
+
+    static int N, M;
+    static int[] parent;
+    static int[] rank;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        grid = new int[N + 1][N + 1];
-        visited = new boolean[N + 1];
+
+        // 초기화
+        parent = new int[N + 1];
+        rank = new int[N + 1];
+        for (int i = 1; i <= N; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+        }
 
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            grid[a][b] = 1;
-            grid[b][a] = 1;
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            union(u, v);
         }
 
-        int answer = 0;
+        int cnt = 0;
+        // find(i)==i 인것은 부모노드
         for (int i = 1; i <= N; i++) {
-            if (!visited[i]) {
-                visited[i] = true;
-                answer++;
-                DFS(i);
+            if (i == find(i)) {
+                cnt++;
             }
         }
-
-        System.out.println(answer);
+        System.out.println(cnt);
     }
 }
