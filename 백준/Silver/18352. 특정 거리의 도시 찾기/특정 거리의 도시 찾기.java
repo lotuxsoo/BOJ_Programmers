@@ -1,70 +1,66 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Queue;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int N, M, K, X;
-    static Queue<Integer> que = new ArrayDeque<>();
-    static ArrayList<ArrayList<Integer>> list = new ArrayList<>();
-    static int[] dist;
 
-    static void BFS(int start) {
-        dist[start] = 0; // 시작노드
-        que.offer(start);
+    static void DFS(int x) {
 
-        while (!que.isEmpty()) {
-            int now = que.poll();
+        for (int next : graph[x]) {
 
-            for (int next : list.get(now)) {
-                if (dist[next] == -1) {
-                    dist[next] = dist[now] + 1;
-                    que.offer(next);
-                }
+            if ((dist[next] > dist[x] + 1) && (dist[x] + 1 <= K)) {
+                dist[next] = dist[x] + 1;
+                DFS(next);
             }
         }
     }
 
+    static int N, M, K, X;
+    static List<Integer>[] graph;
+    static int[] dist;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        K = Integer.parseInt(st.nextToken());
-        X = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken()); // 정점 개수
+        M = Integer.parseInt(st.nextToken()); // 간선 개수
+        K = Integer.parseInt(st.nextToken()); // 최단 거리
+        X = Integer.parseInt(st.nextToken()); // 출발 노드
 
-        // 인접리스트 초기화
-        for (int i = 0; i <= N; i++) {
-            list.add(new ArrayList<>());
+        graph = new ArrayList[N + 1];
+        for (int i = 0; i < N + 1; i++) {
+            graph[i] = new ArrayList<>();
         }
 
-        // 간선 인접리스트에 저장
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            int A = Integer.parseInt(st.nextToken());
-            int B = Integer.parseInt(st.nextToken());
-            list.get(A).add(B);
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            graph[a].add(b); // 방향 간선
         }
 
         dist = new int[N + 1];
-        Arrays.fill(dist, -1);
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[X] = 0;
 
-        BFS(X);
+        DFS(X);
 
-        boolean flag = true;
+        boolean found = false;
         for (int i = 1; i <= N; i++) {
             if (dist[i] == K) {
                 System.out.println(i);
-                flag = false;
+                found = true;
             }
         }
 
-        if (flag) {
+        if (!found) {
             System.out.println(-1);
         }
+
     }
 }
