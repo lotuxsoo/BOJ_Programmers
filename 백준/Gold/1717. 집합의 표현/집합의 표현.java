@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,7 +6,20 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static int[] parent;
+    static void union(int a, int b) {
+        int r1 = find(a);
+        int r2 = find(b);
+        if (r1 != r2) {
+            if (rank[r1] < rank[r2]) {
+                parent[r1] = r2;
+            } else if (rank[r1] > rank[r2]) {
+                parent[r2] = r1;
+            } else {
+                parent[r2] = r1;
+                rank[r1]++; // 랭크 값을 증가
+            }
+        }
+    }
 
     static int find(int x) {
         if (x != parent[x]) {
@@ -14,40 +28,39 @@ public class Main {
         return parent[x];
     }
 
-    static void union(int x, int y) {
-        int p1 = find(x);
-        int p2 = find(y);
-        if (p1 != p2) {
-            parent[p1] = p2;
-        }
-    }
+    static int[] parent;
+    static int[] rank;
+    static int n, m;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
 
-        parent = new int[n + 1]; // 0~n까지의 집합
-        for (int i = 0; i < n + 1; i++) {
+        parent = new int[n + 1];
+        rank = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
             parent[i] = i;
+            rank[i] = 0;
         }
 
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < m; i++) {
             st = new StringTokenizer(br.readLine());
-            int c = Integer.parseInt(st.nextToken());
+            int t = Integer.parseInt(st.nextToken());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
-            if (c == 0 && find(a) != find(b)) {
+            if (t == 0) {
                 union(a, b);
-            }
-            if (c == 1) {
-                if (find(a) == find(b)) {
-                    System.out.println("YES");
+            } else {
+                if (find(a) != find(b)) {
+                    sb.append("NO\n");
                 } else {
-                    System.out.println("NO");
+                    sb.append("YES\n");
                 }
             }
         }
+        System.out.println(sb.toString());
     }
 }
