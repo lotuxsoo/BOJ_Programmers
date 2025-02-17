@@ -2,32 +2,37 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    static void DFS(int x) {
-        visited[x] = true;
+    static boolean BFS(int x) {
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(x);
+        check[x] = 1;
 
-        for (int next : graph[x]) {
-            if (!visited[next]) {
-                check[next] = (check[x] + 1) % 2;
-                DFS(next);
-            } else {
-                if (check[next] == check[x]) {
-                    found = true;
-                    return;
+        while (!queue.isEmpty()) {
+            int cur = queue.poll();
+
+            for (int next : graph[cur]) {
+                if (check[next] == 0) {
+                    check[next] = -check[cur];
+                    queue.add(next);
+                } else {
+                    if (check[next] == check[cur]) {
+                        return false;
+                    }
                 }
             }
         }
+        return true;
     }
 
     static ArrayList<Integer>[] graph;
     static int[] check;
-    static boolean[] visited;
     static int V, E;
-    static boolean found;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -42,9 +47,6 @@ public class Main {
                 graph[j] = new ArrayList<>();
             }
 
-            check = new int[V + 1];
-            visited = new boolean[V+1];
-
             E = Integer.parseInt(st.nextToken());
             for (int j = 0; j < E; j++) {
                 st = new StringTokenizer(br.readLine());
@@ -54,22 +56,19 @@ public class Main {
                 graph[v].add(u);
             }
 
-            found = false;
-            
-            // 그래프가 모두 연결돼있다는 보장이 없으므로 모든 노드에서 수행
+            check = new int[V + 1]; // 0 초기화 상태
+            boolean found = true;
+
             for (int j = 1; j <= V; j++) {
-                if (!found) {
-                    DFS(j);
-                } else {
-                    System.out.println("NO");
-                    break;
+                if (check[j] == 0) {
+                    if (!BFS(j)) {
+                        found = false;
+                        break;
+                    }
                 }
             }
 
-            if (!found) {
-                System.out.println("YES");
-            }
-
+            System.out.println(found ? "YES" : "NO");
         }
     }
 }
