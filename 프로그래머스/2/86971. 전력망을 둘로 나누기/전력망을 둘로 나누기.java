@@ -1,46 +1,52 @@
 import java.util.*;
 
 class Solution {
-    static ArrayList<Integer>[] A;
-    static boolean[] visited;
-    static int MIN_VAL = Integer.MAX_VALUE;
     
-    static int DFS(int cnt, int x) {
+    static int DFS(int x) {
         visited[x] = true;
-        for (int next : A[x]) {
+        int cnt = 1;
+        
+        for (int next : graph[x]) {
             if (!visited[next]) {
-                cnt = DFS(cnt+1, next);
+                cnt += DFS(next);
             }
         }
+        
         return cnt;
     }
+
+    static ArrayList<Integer>[] graph;
+    static int min = Integer.MAX_VALUE;
+    static boolean[] visited;
     
     public int solution(int n, int[][] wires) {
         int answer = -1;
+        int m = wires.length;
         
-        A = new ArrayList[n+1];
+        graph = new ArrayList[n+1];
         for (int i=0; i<n+1; i++) {
-            A[i] = new ArrayList<>();
+            graph[i] = new ArrayList<>();
         }
         
-        for (int[] wire : wires) {
-            A[wire[0]].add(wire[1]);
-            A[wire[1]].add(wire[0]);
+        for (int i=0; i<m; i++) {
+            graph[wires[i][0]].add(wires[i][1]);
+            graph[wires[i][1]].add(wires[i][0]);
         }
         
-        for (int[] wire : wires) {
-            A[wire[0]].remove(Integer.valueOf(wire[1]));
-            A[wire[1]].remove(Integer.valueOf(wire[0]));
-            
+        // 간선 하나씩 끊기
+        for (int i=0; i<m; i++) {
+            graph[wires[i][0]].remove(Integer.valueOf(wires[i][1]));
+            graph[wires[i][1]].remove(Integer.valueOf(wires[i][0]));
             visited = new boolean[n+1];
-            int cnt = DFS(1, wire[0]);
-            MIN_VAL = Math.min(MIN_VAL, Math.abs((n-cnt)-cnt));
             
-            A[wire[0]].add(wire[1]);
-            A[wire[1]].add(wire[0]);
+            int cnt = DFS(wires[i][0]);
+            min = Math.min(min, Math.abs((n-cnt)-cnt));
+            
+            graph[wires[i][0]].add(wires[i][1]);
+            graph[wires[i][1]].add(wires[i][0]);
         }
         
-        answer = MIN_VAL;
+        answer = min;
         
         return answer;
     }
