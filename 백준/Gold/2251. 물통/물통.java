@@ -1,14 +1,15 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
+
     static class State {
         int a, b, c;
 
@@ -19,99 +20,85 @@ public class Main {
         }
     }
 
-    static int A, B, C;
-    static List<Integer> ansList = new ArrayList<>();
     static boolean[][][] visited;
+    static ArrayList<Integer> ansList = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        A = Integer.parseInt(st.nextToken());
-        B = Integer.parseInt(st.nextToken());
-        C = Integer.parseInt(st.nextToken());
+
+        int A = Integer.parseInt(st.nextToken());
+        int B = Integer.parseInt(st.nextToken());
+        int C = Integer.parseInt(st.nextToken());
+
+        visited = new boolean[A + 1][B + 1][C + 1];
 
         Queue<State> queue = new LinkedList<>();
         queue.add(new State(0, 0, C));
-
-        visited = new boolean[A + 1][B + 1][C + 1];
-        visited[0][0][C] = true; // 첫 상태 체크
+        // visited[0][0][C] = true; 이거 때문에 오답
 
         while (!queue.isEmpty()) {
-            State cur = queue.poll();
+            State now = queue.poll();
 
-            // 큐에서 꺼낼때마다 A 비었는지 확인
-            if (cur.a == 0) {
-                ansList.add(cur.c);
+            // 이미 검사한 상태인지 확인
+            if (visited[now.a][now.b][now.c]) {
+                continue;
+            }
+            visited[now.a][now.b][now.c] = true;
+
+            // 정답 추가
+            if (now.a == 0) {
+                ansList.add(now.c);
             }
 
-            // 물붓기 연산 (현상태에서 전부 수행)
-            int move = Math.min(cur.a, B - cur.b); // a->b
-            int newA = cur.a - move;
-            int newB = cur.b + move;
-            int newC = cur.c;
-
-            if (!visited[newA][newB][newC]) {
-                visited[newA][newB][newC] = true;
-                queue.add(new State(newA, newB, newC));
+            // 6가지 상태 전이
+            // a->b
+            if (now.a + now.b <= B) {
+                queue.add(new State(0, now.a + now.b, now.c));
+            } else {
+                queue.add(new State(now.a - (B - now.b), B, now.c));
             }
 
-            move = Math.min(cur.a, C - cur.c); // a->c
-            newA = cur.a - move;
-            newB = cur.b;
-            newC = cur.c + move;
-
-            if (!visited[newA][newB][newC]) {
-                visited[newA][newB][newC] = true;
-                queue.add(new State(newA, newB, newC));
+            // a->c
+            if (now.a + now.c <= C) {
+                queue.add(new State(0, now.b, now.a + now.c));
+            } else {
+                queue.add(new State(now.a - (C - now.c), now.b, C));
             }
 
-            move = Math.min(cur.b, A - cur.a); // b->a
-            newA = cur.a + move;
-            newB = cur.b - move;
-            newC = cur.c;
-
-            if (!visited[newA][newB][newC]) {
-                visited[newA][newB][newC] = true;
-                queue.add(new State(newA, newB, newC));
+            // b->a
+            if (now.b + now.a <= A) {
+                queue.add(new State(now.b + now.a, 0, now.c));
+            } else {
+                queue.add(new State(A, now.b - (A - now.a), now.c));
             }
 
-            move = Math.min(cur.b, C - cur.c); // b->c
-            newA = cur.a;
-            newB = cur.b - move;
-            newC = cur.c + move;
-
-            if (!visited[newA][newB][newC]) {
-                visited[newA][newB][newC] = true;
-                queue.add(new State(newA, newB, newC));
+            // b->c
+            if (now.b + now.c <= C) {
+                queue.add(new State(now.a, 0, now.b + now.c));
+            } else {
+                queue.add(new State(now.a, now.b - (C - now.c), C));
             }
 
-            move = Math.min(cur.c, A - cur.a); // c->a
-            newA = cur.a + move;
-            newB = cur.b;
-            newC = cur.c - move;
-
-            if (!visited[newA][newB][newC]) {
-                visited[newA][newB][newC] = true;
-                queue.add(new State(newA, newB, newC));
+            // c->a
+            if (now.c + now.a <= A) {
+                queue.add(new State(now.c + now.a, now.b, 0));
+            } else {
+                queue.add(new State(A, now.b, now.c - (A - now.a)));
             }
 
-            move = Math.min(cur.c, B - cur.b); // c->b
-            newA = cur.a;
-            newB = cur.b + move;
-            newC = cur.c - move;
-
-            if (!visited[newA][newB][newC]) {
-                visited[newA][newB][newC] = true;
-                queue.add(new State(newA, newB, newC));
+            // c->b
+            if (now.c + now.b <= B) {
+                queue.add(new State(now.a, now.c + now.b, 0));
+            } else {
+                queue.add(new State(now.a, B, now.c - (B - now.b)));
             }
         }
 
         Collections.sort(ansList);
 
-        StringBuilder sb = new StringBuilder();
         for (int x : ansList) {
-            sb.append(x + " ");
+            System.out.print(x + " ");
         }
-        System.out.println(sb.toString());
     }
 }
