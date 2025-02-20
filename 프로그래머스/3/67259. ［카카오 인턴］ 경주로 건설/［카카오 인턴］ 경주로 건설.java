@@ -1,79 +1,63 @@
 import java.util.*;
 
 class Solution {
-    static class State {
-        int x, y, pos;
-        State(int x, int y, int pos) {
+    static class Node {
+        int x, y, dir, cost;
+        Node(int x, int y, int dir, int cost) {
             this.x = x;
             this.y = y;
-            this.pos = pos;
+            this.dir = dir;
+            this.cost = cost;
         }
     }
+
+    static int calculateCost(int prevDir, int dir, int cost) {
+        int newCost = cost;
+        if (prevDir==-1 || (prevDir-dir)%2 == 0) {
+            newCost += 100;
+        } else {
+            newCost += 600;
+        }
+        return newCost;
+    }
     
-    static int[][][] dp;
-    static int N;
-    static final int INF = 1_000_000_000;
-    
-    // 세로방향:0,2 가로방향:1,3
-    static int[] dx = {-1,0,1,0};
+    static int[] dx = {-1,0,1,0}; // 상(0),좌(1),하(2),우(3)
     static int[] dy = {0,-1,0,1};
+    static int[][][] cost;
+    static int N;
+    static int bestCost = Integer.MAX_VALUE;
     
     public int solution(int[][] board) {
-        int answer = INF;
+        int answer = 0;
         N = board.length;
-        
-        // dp[x][y][pos]: 현재까지의 최소 비용
-        dp = new int[N][N][2]; // 0:세로, 1:가로
-        
-        // INF로 초기화
-        for (int i=0; i<N; i++) {
-            for (int j=0; j<N; j++) {
-                Arrays.fill(dp[i][j], INF);
-            }
-        }
-        
-        // 초기값 설정
-        dp[0][0][0] = 0;
-        dp[0][0][1] = 0;
-        
-        Queue<State> queue = new LinkedList<>();
-        queue.add(new State(0,0,0));
-        queue.add(new State(0,0,1));
+        cost = new int[N][N][4];
+
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(new Node(0, 0, -1, 0));
         
         while (!queue.isEmpty()) {
-            State cur = queue.poll();
-            int x=cur.x, y=cur.y, pos=cur.pos;
+            Node now = queue.poll();
             
-            if (x==N-1 && y==N-1) {
-                answer = Math.min(answer, dp[x][y][pos]);
+            if (now.x == N-1 && now.y == N-1) {
+                bestCost = Math.min(bestCost, now.cost);
                 continue;
             }
             
-            if (dp[x][y][pos] == INF) continue;
-            
-            // 세로방향:0,2 가로방향:1,3
             for (int i=0; i<4; i++) {
-                int nx = x+dx[i];
-                int ny = y+dy[i];
-                if (!(0<=nx&&nx<N&&0<=ny&&ny<N)) continue;
+                int nx = now.x + dx[i];
+                int ny = now.y + dy[i];
+                if (!(0<=nx && nx<N && 0<=ny && ny<N)) continue;
+                if (board[nx][ny] == 1) continue;
                 
-                // 이동 가능한 경로 탐색
-                if (board[nx][ny] == 0) {
-                    if (((i%2==0) && (pos==0)) || ((i%2==1) && (pos==1))) {
-                        if (dp[nx][ny][pos] > dp[x][y][pos] + 100) {
-                            dp[nx][ny][pos] = dp[x][y][pos] + 100;
-                            queue.add(new State(nx,ny,pos));
-                        }
-                    } else {
-                        if (dp[nx][ny][Math.abs(1-pos)] > dp[x][y][pos] + 600) {
-                            dp[nx][ny][Math.abs(1-pos)] = dp[x][y][pos] + 600;
-                            queue.add(new State(nx,ny,Math.abs(1-pos)));
-                        }
-                    } 
+                int newCost = calculateCost(now.dir, i, now.cost);
+                if (cost[nx][ny][i] == 0 || cost[nx][ny][i] > newCost) {
+                    cost[nx][ny][i] = newCost;
+                    queue.add(new Node(nx, ny, i, newCost));
                 }
             }
         }
         
+        answer = bestCost;
         
         return answer;
     }
