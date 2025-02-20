@@ -1,61 +1,59 @@
 import java.util.*;
 
 class Solution {
-    static class Edge {
-        int to, cost;
-        Edge(int to, int cost) {
-            this.to = to;
+    static class Node {
+        int dest, cost;
+        Node(int dest, int cost) {
+            this.dest = dest;
             this.cost = cost;
         }
     }
-    
-    static List<Edge>[] graph;
-    static final int INF = 1_000_000_000;
-    
+
+    static ArrayList<Node>[] graph;
+    static int[] dist;
+
     public int solution(int N, int[][] road, int K) {
         int answer = 0;
-        
+            
+        // 인접리스트 초기화
         graph = new ArrayList[N+1];
         for (int i=0; i<N+1; i++) {
             graph[i] = new ArrayList<>();
         }
         
-        // 양방향 정점기준 에지리스트
+        // (A마을-B마을,걸리는시간) 양방향 연결
         for (int[] row : road) {
-            graph[row[0]].add(new Edge(row[1],row[2]));
-            graph[row[1]].add(new Edge(row[0],row[2]));
+            graph[row[0]].add(new Node(row[1], row[2]));
+            graph[row[1]].add(new Node(row[0], row[2]));
         }
         
-        int[] dist = new int[N+1];
-        // INF 초기화
-        Arrays.fill(dist, INF);
+        dist = new int[N+1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
         
-        // 시작점 초기화
+        PriorityQueue<Node> pq = new PriorityQueue<>((a,b) -> Integer.compare(a.cost, b.cost));
+        pq.add(new Node(1, 0));
         dist[1] = 0;
         
-        // 다익스트라, 우선순위큐
-        PriorityQueue<Edge> pq = new PriorityQueue<>((a,b)->Integer.compare(a.cost,b.cost));
-        
-        // 시작정점:1, cost:0
-        pq.add(new Edge(1,0));
-        
         while (!pq.isEmpty()) {
-            Edge cur = pq.poll();
+            Node now = pq.poll();
             
-            if (dist[cur.to] == INF) continue;
+            if (dist[now.dest] < now.cost) continue;
             
-            for (Edge next : graph[cur.to]) {
-                if (dist[next.to] > dist[cur.to] + next.cost) {
-                    dist[next.to] = dist[cur.to] + next.cost;
-                    pq.add(new Edge(next.to, dist[next.to]));     
+            for (Node next : graph[now.dest]) {
+                
+                if (dist[next.dest] > next.cost + now.cost) {
+                    dist[next.dest] = next.cost + now.cost;
+                    pq.add(new Node(next.dest, dist[next.dest]));
                 }
+            }   
+        }
+        
+        for (int i=1; i<=N; i++) {
+            if (dist[i] <= K) {
+                answer++;
             }
         }
-        
-        for (int x : dist) {
-            if (x <= K) answer++;
-        }
-        
+
         return answer;
     }
 }
