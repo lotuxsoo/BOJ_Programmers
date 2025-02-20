@@ -32,15 +32,15 @@ class Solution {
         N = board.length;
         cost = new int[N][N][4];
 
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(new Node(0, 0, -1, 0));
+        PriorityQueue<Node> pq = new PriorityQueue<>((a,b) -> Integer.compare(a.cost,b.cost));
+        pq.add(new Node(0, 0, -1, 0));
         
-        while (!queue.isEmpty()) {
-            Node now = queue.poll();
+        while (!pq.isEmpty()) {
+            Node now = pq.poll();
             
             if (now.x == N-1 && now.y == N-1) {
                 bestCost = Math.min(bestCost, now.cost);
-                continue;
+                break;
             }
             
             for (int i=0; i<4; i++) {
@@ -52,7 +52,7 @@ class Solution {
                 int newCost = calculateCost(now.dir, i, now.cost);
                 if (cost[nx][ny][i] == 0 || cost[nx][ny][i] > newCost) {
                     cost[nx][ny][i] = newCost;
-                    queue.add(new Node(nx, ny, i, newCost));
+                    pq.add(new Node(nx, ny, i, newCost));
                 }
             }
         }
