@@ -27,7 +27,7 @@ class Solution {
         Queue<Integer> queue = new LinkedList<>();
         queue.add(1);
         
-        int MAX = Integer.MIN_VALUE;
+        int MAX = 0;
         
         while (!queue.isEmpty()) {
             int cur = queue.poll();
@@ -36,14 +36,14 @@ class Solution {
                 if (dist[next] > dist[cur]+1) {
                     queue.add(next);
                     dist[next] = dist[cur]+1;
-                    MAX = Math.max(MAX, dist[next]);
+                    
+                    if (dist[next] > MAX) {
+                        answer = 1;
+                        MAX = dist[next];
+                    } else {
+                        answer++;
+                    }
                 }
-            }
-        }
-    
-        for (int i=1; i<=n; i++) {
-            if (dist[i] == MAX) {
-                answer++;
             }
         }
         
