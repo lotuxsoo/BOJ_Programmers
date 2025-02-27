@@ -7,20 +7,26 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static void DFS(int x) {
-        visited[x] = true;
+    static int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
 
-        for (int next : A[x]) {
-            if (!visited[next]) {
-                DFS(next);
-            }
+    static void union(int a, int b) {
+        int root1 = find(a);
+        int root2 = find(b);
+
+        if (root1 != root2) {
+            parent[root1] = root2;
         }
     }
 
     static ArrayList<Integer>[] A;
     static int N, M;
     static int[] route;
-    static boolean[] visited;
+    static int[] parent;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -28,10 +34,9 @@ public class Main {
         M = Integer.parseInt(br.readLine());
         StringTokenizer st;
 
-        // 인접행렬 -> 인접리스트
-        A = new ArrayList[N + 1];
+        parent = new int[N + 1];
         for (int i = 0; i < N + 1; i++) {
-            A[i] = new ArrayList<>();
+            parent[i] = i;
         }
 
         for (int i = 1; i <= N; i++) {
@@ -39,8 +44,7 @@ public class Main {
             for (int j = 1; j <= N; j++) {
                 int x = Integer.parseInt(st.nextToken());
                 if (x == 1) {
-                    A[i].add(j);
-                    A[j].add(i); // 양방향 연결
+                    union(i, j);
                 }
             }
         }
@@ -51,12 +55,9 @@ public class Main {
             route[i] = Integer.parseInt(st.nextToken());
         }
 
-        visited = new boolean[N + 1];
-        int start = route[0];
-        DFS(start);
-
-        for (int i = 0; i < M; i++) {
-            if (!visited[route[i]]) {
+        int p = find(route[0]);
+        for (int i = 1; i < M; i++) {
+            if (p != find(route[i])) {
                 System.out.println("NO");
                 return;
             }
