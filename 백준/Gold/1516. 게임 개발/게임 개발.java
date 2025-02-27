@@ -1,66 +1,72 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
-import java.util.StringTokenizer;
 
 public class Main {
 
-    static List<Integer>[] graph;
-    static int[] indegree, cost, answer;
+    static int N;
+    static ArrayList<Integer>[] A;
+    static int[] D;
+    static int[] cost;
+    static int[] answer;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-
-        indegree = new int[N + 1]; // 진입차수 배열
-        cost = new int[N + 1]; // 각 건물의 건설 시간
-        answer = new int[N + 1]; // 각 건물의 완료 시간
-
-        graph = new ArrayList[N + 1]; // 인접리스트 배열
+        N = Integer.parseInt(br.readLine());
+        A = new ArrayList[N + 1];
         for (int i = 0; i < N + 1; i++) {
-            graph[i] = new ArrayList<>();
+            A[i] = new ArrayList<>();
         }
 
-        for (int i = 1; i < N + 1; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine().replace("-1", ""));
-            cost[i] = Integer.parseInt(st.nextToken());
+        D = new int[N + 1];
+        cost = new int[N + 1];
 
-            while (st.hasMoreTokens()) {
-                int x = Integer.parseInt(st.nextToken()); // 선행 건물
-                graph[x].add(i); // x -> i
-                indegree[i]++; // 진입차수 증가
+        for (int i = 1; i <= N; i++) {
+            String[] splits = br.readLine().split(" ");
+            cost[i] = Integer.parseInt(splits[0]);
+
+            for (int j = 1; j < splits.length; j++) {
+                int x = Integer.parseInt(splits[j]);
+                if (x == -1) {
+                    break;
+                }
+                A[x].add(i); // 선->후
+                D[i]++; // 진입차수 추가
             }
         }
 
-        // 위상정렬
         Queue<Integer> queue = new LinkedList<>();
-        for (int i = 1; i < N + 1; i++) {
-            if (indegree[i] == 0) {
+
+        answer = new int[N + 1];
+
+        for (int i = 1; i <= N; i++) {
+            if (D[i] == 0) {
                 queue.add(i);
-                answer[i] = cost[i];
             }
         }
 
         while (!queue.isEmpty()) {
             int cur = queue.poll();
 
-            for (int next : graph[cur]) {
-                indegree[next]--;
-                answer[next] = Math.max(answer[next], answer[cur] + cost[next]);
-
-                if (indegree[next] == 0) {
+            for (int next : A[cur]) {
+                D[next]--;
+                answer[next] = Math.max(answer[next], answer[cur] + cost[cur]);
+                if (D[next] == 0) {
                     queue.add(next);
                 }
             }
         }
 
-        for (int i = 1; i < N + 1; i++) {
-            System.out.println(answer[i]);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= N; i++) {
+            sb.append(cost[i] + answer[i]).append("\n");
         }
 
+        System.out.println(sb.toString());
     }
 }
