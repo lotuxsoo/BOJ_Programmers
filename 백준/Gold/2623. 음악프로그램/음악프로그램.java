@@ -9,16 +9,6 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static void initD(ArrayList<Integer> list) {
-
-        for (int i = 0; i < list.size() - 1; i++) {
-            int cur = list.get(i);
-            int next = list.get(i + 1);
-            A[cur].add(next);
-            D[next]++;
-        }
-    }
-
     static int N, M;
     static ArrayList<Integer>[] A;
     static int[] D;
@@ -39,12 +29,14 @@ public class Main {
 
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            ArrayList<Integer> list = new ArrayList<>();
-            int x = Integer.parseInt(st.nextToken());
-            for (int j = 0; j < x; j++) {
-                list.add(Integer.parseInt(st.nextToken()));
+            int num = Integer.parseInt(st.nextToken());
+            int prev = Integer.parseInt(st.nextToken());
+            for (int j = 0; j < num - 1; j++) {
+                int next = Integer.parseInt(st.nextToken());
+                D[next]++;
+                A[prev].add(next);
+                prev = next;
             }
-            initD(list);
         }
 
         Queue<Integer> queue = new LinkedList<>();
@@ -59,8 +51,8 @@ public class Main {
         while (!queue.isEmpty()) {
             int cur = queue.poll();
 
-            cnt++;
             sb.append(cur).append("\n");
+            cnt++;
 
             for (int next : A[cur]) {
                 D[next]--;
@@ -70,7 +62,7 @@ public class Main {
             }
         }
 
-        if (cnt < N) {
+        if (cnt != N) {
             System.out.println(0);
         } else {
             System.out.println(sb.toString().trim());
