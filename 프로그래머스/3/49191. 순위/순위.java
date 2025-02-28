@@ -2,39 +2,74 @@ import java.util.*;
 
 class Solution {
     
-    static int[][] D;
+    static ArrayList<Integer>[] wins; // 내가 이긴애 더하기
+    static ArrayList<Integer>[] loses; // 내가 진애 추가
+    static int[] count;
     
     public int solution(int n, int[][] results) {
         int answer = 0;
         
-        D = new int[n+1][n+1];
+        wins = new ArrayList[n+1];
+        loses = new ArrayList[n+1];
+        for (int i=0; i<n+1; i++) {
+            wins[i] = new ArrayList<>();
+            loses[i] = new ArrayList<>();
+        }
         
         for (int[] row : results) {
-            D[row[0]][row[1]] = 1;
-            D[row[1]][row[0]] = -1;
+            wins[row[0]].add(row[1]);
+            loses[row[1]].add(row[0]);
         }
         
-        for (int k=1; k<=n; k++) {
-            for (int s=1; s<=n; s++) {
-                for (int e=1; e<=n; e++) {
-                    if (D[s][k]==1 && D[k][e]==1) {
-                        D[s][e] = 1;
-                        D[e][s] = -1;
-                    } else if (D[s][k]==-1 && D[k][e]==-1) {
-                        D[s][e] = -1;
-                        D[e][s] = 1;
+        count = new int[n+1];
+        
+        // 이긴애 전파
+        for (int i=1; i<=n; i++) {
+            Queue<Integer> queue = new LinkedList<>();
+            queue.add(i);
+            boolean[] visited = new boolean[n+1];
+            visited[i] = true;
+            int cnt = 0;
+            
+            while (!queue.isEmpty()) {
+                int cur = queue.poll();
+                
+                for (int next : wins[cur]) { // 내가 이긴애들 탐색
+                    if (!visited[next]) {
+                        visited[next] = true;
+                        queue.add(next);
+                        cnt++;
                     }
                 }
-            }
+            } 
+            
+            count[i] += cnt;
+            
+            // 진애 전파
+            queue = new LinkedList<>();
+            queue.add(i);
+            visited = new boolean[n+1];
+            visited[i] = true;
+            cnt = 0;
+            
+            while (!queue.isEmpty()) {
+                int cur = queue.poll();
+                
+                for (int next : loses[cur]) {
+                    if (!visited[next]) {
+                        visited[next] = true;
+                        queue.add(next);
+                        cnt++;
+                    }
+                }
+            }  
+            
+            count[i] += cnt;
         }
-        
+
         for (int i=1; i<=n; i++) {
-            int cnt = 0;
-            for (int j=1; j<=n; j++) {
-                if (D[i][j] != 0) cnt++;
-            }
-            if (cnt == n-1) answer++;
-        }
+            if (count[i] == n-1) answer++;
+        }  
         
         return answer;
     }
