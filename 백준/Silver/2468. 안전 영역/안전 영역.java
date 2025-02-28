@@ -1,72 +1,76 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int n;
-    static int[][] grid;
-    static boolean[][] visited;
 
-    static void DFS(int a, int b, int x) {
-        int[] dx = new int[]{-1, 1, 0, 0};
-        int[] dy = new int[]{0, 0, -1, 1};
+    static void initFlood(int height) {
+        floodMap = new int[N][N];
 
-        for (int i = 0; i < 4; i++) {
-            int newX = a + dx[i];
-            int newY = b + dy[i];
-            if (canGo(newX, newY, x)) {
-                visited[newX][newY] = true;
-                DFS(newX, newY, x);
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (map[i][j] <= height) {
+                    floodMap[i][j] = FLOOD;
+                }
             }
         }
     }
 
-    static boolean canGo(int a, int b, int x) {
-        if (!(0 <= a && a < n && 0 <= b && b < n)) {
-            return false;
+    static void dfs(int x, int y) {
+        visited[x][y] = true;
+
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (!(0 <= nx && nx < N && 0 <= ny && ny < N)) {
+                continue;
+            }
+            if (floodMap[nx][ny] != FLOOD && !visited[nx][ny]) {
+                dfs(nx, ny);
+            }
         }
-        if (visited[a][b] || grid[a][b] <= x) {
-            return false;
-        }
-        return true;
     }
+
+    static final int FLOOD = -1;
+    static int N;
+    static int[][] map;
+    static int[][] floodMap;
+    static int MAX_HEIGHT = 0;
+    static int ANS = 0;
+    static boolean[][] visited;
+    static int[] dx = {-1, 1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        n = Integer.parseInt(br.readLine());
-        grid = new int[n][n];
-        visited = new boolean[n][n];
-        int max = -1;
-
-        for (int i = 0; i < n; i++) {
+        N = Integer.parseInt(br.readLine());
+        map = new int[N][N];
+        for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < n; j++) {
-                grid[i][j] = Integer.parseInt(st.nextToken());
-                max = Math.max(max, grid[i][j]);
+            for (int j = 0; j < N; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+                MAX_HEIGHT = Math.max(MAX_HEIGHT, map[i][j]);
             }
         }
 
-        int answer = 0;
+        while (MAX_HEIGHT-- > 0) {
+            int count = 0;
+            initFlood(MAX_HEIGHT);
 
-        for (int x = 0; x <= max; x++) {
-            int num = 0;
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    if (!visited[i][j] && grid[i][j] > x) {
-                        visited[i][j] = true;
-                        DFS(i, j, x);
-                        num++;
+            visited = new boolean[N][N];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    if (floodMap[i][j] != FLOOD && !visited[i][j]) {
+                        dfs(i, j);
+                        count++;
                     }
                 }
             }
-            answer = Math.max(answer, num);
-            visited = new boolean[n][n];
+            ANS = Math.max(ANS, count);
         }
 
-        System.out.println(answer);
+        System.out.println(ANS);
     }
 }
