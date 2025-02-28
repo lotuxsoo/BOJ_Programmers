@@ -1,103 +1,102 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
+
     static int N, M;
     static int[][] map;
-    static int MAX_VAL = Integer.MIN_VALUE;
-    static boolean[][] visited;
+    static int maxSafeZone = 0;
+    static int[] dx = {-1, 1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
 
-    static int getSafetyZone(int[][] copyMap) {
-        int cnt = 0;
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= M; j++) {
-                if (copyMap[i][j] == 0) {
-                    cnt++;
-                }
-            }
-        }
-        return cnt;
-    }
-
-    static void goVirus(int[][] copyMap) {
-        boolean[][] visited = new boolean[N + 1][M + 1];
-        int[] dx = {-1, 1, 0, 0};
-        int[] dy = {0, 0, -1, 1};
-        Queue<int[]> queue = new LinkedList<>();
-
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= M; j++) {
-                if (!visited[i][j] && copyMap[i][j] == 2) {
-                    visited[i][j] = true;
-                    queue.add(new int[]{i, j});
-
-                    while (!queue.isEmpty()) {
-                        int[] now = queue.poll();
-
-                        for (int k = 0; k < 4; k++) {
-                            int nx = now[0] + dx[k];
-                            int ny = now[1] + dy[k];
-                            if ((1 <= nx && nx <= N && 1 <= ny && ny <= M) && !visited[nx][ny] && map[nx][ny] != 1) {
-                                copyMap[nx][ny] = 2; // 전파
-                                visited[nx][ny] = true;
-                                queue.add(new int[]{nx, ny});
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    static void DFS(int cnt) {
+    static void dfs(int cnt) {
         if (cnt == 3) {
-            int[][] copyMap = new int[map.length][];
-            for (int i = 0; i < map.length; i++) {
-                copyMap[i] = Arrays.copyOf(map[i], map[i].length);
-            }
-            goVirus(copyMap);
-            MAX_VAL = Math.max(MAX_VAL, getSafetyZone(copyMap));
+            goVirus();
             return;
         }
 
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= M; j++) {
-                if (!visited[i][j] && map[i][j] == 0) {
-                    visited[i][j] = true;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (map[i][j] == 0) {
                     map[i][j] = 1;
-                    DFS(cnt + 1);
+                    dfs(cnt + 1);
                     map[i][j] = 0;
-                    visited[i][j] = false;
                 }
             }
         }
     }
+
+    static void goVirus() {
+        Queue<int[]> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[N][M];
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (map[i][j] == 2) {
+                    queue.add(new int[]{i, j});
+                    visited[i][j] = true;
+                }
+            }
+        }
+
+        int[][] copied = new int[map.length][];
+        for (int i = 0; i < map.length; i++) {
+            copied[i] = map[i].clone();
+        }
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int x = cur[0], y = cur[1];
+
+            for (int i = 0; i < 4; i++) {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if (!(0 <= nx && nx < N && 0 <= ny && ny < M)) {
+                    continue;
+                }
+                if (!visited[nx][ny] && copied[nx][ny] == 0) {
+                    copied[nx][ny] = 2;
+                    queue.add(new int[]{nx, ny});
+                    visited[nx][ny] = true;
+                }
+            }
+        }
+
+        visited = new boolean[N][M];
+        // 영역 세기
+        int count = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (copied[i][j] == 0) {
+                    count++;
+                }
+            }
+        }
+
+        maxSafeZone = Math.max(maxSafeZone, count);
+    }
+
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        map = new int[N + 1][M + 1];
-        for (int i = 1; i <= N; i++) {
+        map = new int[N][M];
+        for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 1; j <= M; j++) {
+            for (int j = 0; j < M; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
-        visited = new boolean[N + 1][M + 1];
-        // 벽 3개 세우기
-        DFS(0);
+        dfs(0); // 백트래킹으로 모든 가지수 세기
 
-        // 바이러스 전파
-
-        // 안전영역 최댓값 갱신
-        System.out.println(MAX_VAL);
+        System.out.println(maxSafeZone);
     }
 }
