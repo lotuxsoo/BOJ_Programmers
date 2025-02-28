@@ -9,18 +9,18 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static void backtrack(int cnt) {
+    static void backtrack(int cnt, int start) { // 조합 뽑기
         if (cnt == 3) {
             goVirus();
             return;
         }
 
-        for (int i = 0; i < emptyList.size(); i++) {
+        for (int i = start; i < emptyList.size(); i++) {
             if (!visited[i]) {
                 int[] cur = emptyList.get(i);
                 map[cur[0]][cur[1]] = 1;
                 visited[i] = true;
-                backtrack(cnt + 1);
+                backtrack(cnt + 1, i + 1);
                 map[cur[0]][cur[1]] = 0;
                 visited[i] = false;
             }
@@ -99,7 +99,7 @@ public class Main {
         }
 
         visited = new boolean[emptyList.size()];
-        backtrack(0);
+        backtrack(0, 0);
 
         System.out.println(maxSafeZone);
     }
