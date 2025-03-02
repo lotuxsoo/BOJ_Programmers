@@ -1,4 +1,3 @@
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +16,7 @@ public class Main {
         }
         visited[x][y] = 0;
 
-        int maxDist = 0, maxValue = map[x][y];
+        int maxDist = 0, maxValue = 0;
 
         while (!queue.isEmpty()) {
             int[] cur = queue.poll();
