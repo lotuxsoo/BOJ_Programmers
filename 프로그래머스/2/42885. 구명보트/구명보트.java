@@ -4,23 +4,23 @@ class Solution {
     public int solution(int[] people, int limit) {
         int answer = 0;
         
-        Arrays.sort(people); // 몸무게 오름차순
-        int n = people.length;
+        Arrays.sort(people);
         
-        int left = 0, right = n-1;
-        
-        while (left <= right && right >= 0) {
-            int sum = people[left] + people[right];
-            if (sum <= limit) {
-                answer++;
-                right--;
-                left++;
-            } else if (sum > limit) {
-                answer++;
-                right--;
+        int l = 0, r = people.length-1;
+        while (l < r) {
+            int temp = people[l] + people[r];
+            
+            if (temp <= limit) {
+                l++;
+                r--;
+            } else {
+                r--;
             }
+            
+            answer++;
         }
-
+        if (l == r) answer++;
+        
         
         return answer;
     }
