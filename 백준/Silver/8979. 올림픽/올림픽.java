@@ -50,19 +50,15 @@ public class Main {
         Collections.sort(infos);
 
         int[] ranks = new int[N + 1]; // 국가 번호를 인덱스로 사용
-
-        int rank = 1;
-        int gold = infos.get(0).gold, silver = infos.get(0).silver, bronze = infos.get(0).bronze;
-        ranks[infos.get(0).idx] = rank;
+        
+        ranks[infos.get(0).idx] = 1;
         for (int i = 1; i < N; i++) {
-            int g = infos.get(i).gold, s = infos.get(i).silver, b = infos.get(i).bronze;
-            if (gold == g && silver == s && bronze == b) {
-                ranks[infos.get(i).idx] = rank;
+            Info prev = infos.get(i - 1);
+            Info cur = infos.get(i);
+            if (prev.gold == cur.gold && prev.silver == cur.silver && prev.bronze == cur.bronze) {
+                ranks[cur.idx] = ranks[prev.idx];
             } else {
-                gold = g;
-                silver = s;
-                bronze = b;
-                rank++;
+                ranks[cur.idx] = ranks[prev.idx] + 1;
             }
         }
 
