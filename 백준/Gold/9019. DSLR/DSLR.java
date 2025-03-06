@@ -17,6 +17,22 @@ public class Main {
         }
     }
 
+    static int D(int n) {
+        return n * 2 > 9999 ? n * 2 % 10000 : n * 2;
+    }
+
+    static int S(int n) {
+        return n == 0 ? 9999 : n - 1;
+    }
+
+    static int L(int n) {
+        return (n % 1000) * 10 + n / 1000;
+    }
+
+    static int R(int n) {
+        return (n / 10) + (n % 10) * 1000;
+    }
+
     static String bfs(int A, int B) {
         Queue<Register> queue = new LinkedList<>();
         queue.add(new Register(A, ""));
@@ -36,27 +52,13 @@ public class Main {
             }
             visited[val] = true;
 
-            // D
-            int v1 = val * 2;
-            if (v1 > 9999) {
-                v1 %= 10000;
-            }
-            queue.add(new Register(v1, order + "D"));
+            queue.add(new Register(D(val), order + "D"));
 
-            // S
-            int v2 = val - 1;
-            if (val == 0) {
-                v2 = 9999;
-            }
-            queue.add(new Register(v2, order + "S"));
+            queue.add(new Register(S(val), order + "S"));
 
-            // L
-            int v3 = (val % 1000) * 10 + val / 1000;
-            queue.add(new Register(v3, order + "L"));
+            queue.add(new Register(L(val), order + "L"));
 
-            // R
-            int v4 = (val / 10) + (val % 10) * 1000;
-            queue.add(new Register(v4, order + "R"));
+            queue.add(new Register(R(val), order + "R"));
         }
         return "";
     }
