@@ -24,24 +24,22 @@ public class Main {
         }
     }
 
-    static void tracking(int u, boolean isIncluded) {
+    static void tracking(int cur, int parent, boolean isIncluded) {
         if (isIncluded) {
-            answer.add(u);
+            answer.add(cur);
         }
 
-        visited[u] = true;
-
-        for (int v : tree[u]) {
-            if (visited[v]) {
+        for (int next : tree[cur]) {
+            if (next == parent) {
                 continue;
             }
             if (isIncluded) {
-                tracking(v, false);
+                tracking(next, cur, false);
             } else {
-                if (dp[v][0] < dp[v][1]) {
-                    tracking(v, true);
+                if (dp[next][0] < dp[next][1]) {
+                    tracking(next, cur, true);
                 } else {
-                    tracking(v, false);
+                    tracking(next, cur, false);
                 }
             }
         }
@@ -85,14 +83,12 @@ public class Main {
         visited[1] = true;
         dfs(1);
 
-        visited = new boolean[N + 1];
-
         if (dp[1][0] < dp[1][1]) {
             System.out.println(dp[1][1]);
-            tracking(1, true);
+            tracking(1, -1, true);
         } else {
             System.out.println(dp[1][0]);
-            tracking(1, false);
+            tracking(1, -1, false);
         }
 
         Collections.sort(answer);
