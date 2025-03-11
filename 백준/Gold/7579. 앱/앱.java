@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,19 +27,14 @@ public class Main {
             c[i] = Integer.parseInt(st.nextToken());
         }
 
-        // dp[n][c]=m (n개까지 고려, c 비용으로 만들 수 있는 최대 메모리)
-        int[][] dp = new int[N + 1][10001];
+        // dp[c]=m (c 비용으로 만들 수 있는 최대 메모리)
+        int[] dp = new int[10001];
         int minCost = Integer.MAX_VALUE;
 
         for (int i = 1; i <= N; i++) {
-            for (int cost = 0; cost <= 10000; cost++) {
-                if (c[i] <= cost) {
-                    // 현재 앱 선택하지 않음 vs 현재 앱 선택
-                    dp[i][cost] = Math.max(dp[i - 1][cost], dp[i - 1][cost - c[i]] + m[i]);
-                } else {
-                    dp[i][cost] = dp[i - 1][cost];
-                }
-                if (dp[i][cost] >= M) {
+            for (int cost = 10000; cost >= c[i]; cost--) {
+                dp[cost] = Math.max(dp[cost], dp[cost - c[i]] + m[i]);
+                if (dp[cost] >= M) {
                     minCost = Math.min(minCost, cost);
                 }
             }
