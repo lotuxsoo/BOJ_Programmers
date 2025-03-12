@@ -3,8 +3,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -15,24 +19,48 @@ public class Main {
             this.childCount = childCount;
             this.candySum = candySum;
         }
+
+        public void addChild() {
+            this.childCount += 1;
+        }
+
+        public void addCandy(int candy) {
+            this.candySum += candy;
+        }
+    }
+
+    static void union(int x, int y) {
+        int root1 = find(x), root2 = find(y);
+        if (root1 != root2) {
+            if (rank[root1] < rank[root2]) {
+                parent[root1] = root2;
+            } else if (rank[root1] > rank[root2]) {
+                parent[root2] = root1;
+            } else {
+                parent[root2] = root1;
+                rank[root1]++;
+            }
+        }
+    }
+
+    static int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
     }
 
     static Group makeGroup(int start) {
         Queue<Integer> queue = new LinkedList<>();
         queue.add(start);
         visited[start] = true;
-        int cnt = 0, sum = 0;
+        int cnt = 1, sum = candy[start];
 
-        while (!queue.isEmpty()) {
-            int cur = queue.poll();
-            cnt++;
-            sum += candy[cur];
-
-            for (int next : A[cur]) {
-                if (!visited[next]) {
-                    visited[next] = true;
-                    queue.add(next);
-                }
+        for (int i = 1; i <= N; i++) {
+            if ((i != start) && !visited[i] && (find(start) == find(i))) {
+                cnt++;
+                sum += candy[i];
+                visited[i] = true;
             }
         }
 
@@ -41,9 +69,10 @@ public class Main {
 
     static int N, M, K;
     static int[] candy;
-    static ArrayList<Integer>[] A;
     static boolean[] visited;
     static ArrayList<Group> groups = new ArrayList<>();
+    static int[] parent;
+    static int[] rank;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -58,32 +87,44 @@ public class Main {
             candy[i] = Integer.parseInt(st.nextToken());
         }
 
-        A = new ArrayList[N + 1];
-        for (int i = 0; i < N + 1; i++) {
-            A[i] = new ArrayList<>();
+        parent = new int[N + 1];
+        rank = new int[N + 1];
+
+        for (int i = 1; i <= N; i++) {
+            parent[i] = i;
         }
 
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
-            A[a].add(b);
-            A[b].add(a);
+            union(a, b);
         }
 
-        // 그룹 만들기
         visited = new boolean[N + 1];
 
+        Map<Integer, Group> groupMap = new HashMap<>();
+
         for (int i = 1; i <= N; i++) {
-            if (!visited[i]) {
-                groups.add(makeGroup(i));
+            if (visited[i]) {
+                continue;
             }
+
+            int root = find(i);
+            groupMap.putIfAbsent(root, new Group(0, 0));
+
+            groupMap.get(root).addChild();
+            groupMap.get(root).addCandy(candy[i]);
+            visited[i] = true;
+        }
+
+        for (Group group : groupMap.values()) {
+            groups.add(group);
         }
 
         int[] dp = new int[K];
 
-        for (int i = 0; i < groups.size(); i++) {
-            Group group = groups.get(i);
+        for (Group group : groups) {
             int childCount = group.childCount, candySum = group.candySum;
 
             for (int j = K - 1; j >= childCount; j--) {
