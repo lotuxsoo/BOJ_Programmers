@@ -50,26 +50,8 @@ public class Main {
         return parent[x];
     }
 
-    static Group makeGroup(int start) {
-        Queue<Integer> queue = new LinkedList<>();
-        queue.add(start);
-        visited[start] = true;
-        int cnt = 1, sum = candy[start];
-
-        for (int i = 1; i <= N; i++) {
-            if ((i != start) && !visited[i] && (find(start) == find(i))) {
-                cnt++;
-                sum += candy[i];
-                visited[i] = true;
-            }
-        }
-
-        return new Group(cnt, sum);
-    }
-
     static int N, M, K;
     static int[] candy;
-    static boolean[] visited;
     static ArrayList<Group> groups = new ArrayList<>();
     static int[] parent;
     static int[] rank;
@@ -100,22 +82,15 @@ public class Main {
             int b = Integer.parseInt(st.nextToken());
             union(a, b);
         }
-
-        visited = new boolean[N + 1];
-
+        
         Map<Integer, Group> groupMap = new HashMap<>();
 
         for (int i = 1; i <= N; i++) {
-            if (visited[i]) {
-                continue;
-            }
-
             int root = find(i);
             groupMap.putIfAbsent(root, new Group(0, 0));
 
             groupMap.get(root).addChild();
             groupMap.get(root).addCandy(candy[i]);
-            visited[i] = true;
         }
 
         for (Group group : groupMap.values()) {
