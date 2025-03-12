@@ -3,7 +3,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
@@ -15,16 +14,6 @@ public class Main {
         Group(int childCount, int candySum) {
             this.childCount = childCount;
             this.candySum = candySum;
-        }
-    }
-
-    static void dfs(int cur, int sum) {
-
-        for (int next : A[cur]) {
-            if (!visited[next]) {
-                visited[next] = true;
-                dfs(next, sum);
-            }
         }
     }
 
@@ -91,19 +80,17 @@ public class Main {
             }
         }
 
-        // 배낭 문제 (0/1)
         int[] dp = new int[K];
 
-        for (Group group : groups) {
+        for (int i = 0; i < groups.size(); i++) {
+            Group group = groups.get(i);
             int childCount = group.childCount, candySum = group.candySum;
-            if (childCount >= K) {
-                continue;
-            }
-            for (int x = K-1; x >= childCount; x--) {
-                dp[x] = Math.max(dp[x], dp[x - childCount] + candySum);
+
+            for (int j = K - 1; j >= childCount; j--) {
+                dp[j] = Math.max(dp[j], dp[j - childCount] + candySum);
             }
         }
 
-        System.out.println(dp[K-1]);
+        System.out.println(dp[K - 1]);
     }
 }
