@@ -67,7 +67,7 @@ public class Main {
         dist[s] = 0;
 
         prev = new int[n + 1];
-        Arrays.fill(prev, -1);
+        Arrays.fill(prev, -1); // prev[s] = -1
 
         PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
         pq.add(new Node(s, 0));
@@ -75,6 +75,7 @@ public class Main {
         while (!pq.isEmpty()) {
             Node cur = pq.poll();
 
+            // 시간초과 안걸리기 위해서 필수 조건
             if (dist[cur.val] < cur.cost) {
                 continue;
             }
