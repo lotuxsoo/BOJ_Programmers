@@ -8,24 +8,20 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
+    static class Point {
+        int x, y, time;
 
-    static boolean isEdge(int x, int y) {
-        if (x == 0 || y == 0 || x == R - 1 || y == C - 1) {
-            return true;
+        Point(int x, int y, int time) {
+            this.x = x;
+            this.y = y;
+            this.time = time;
         }
-        return false;
     }
 
-    static char[][] map;
     static int R, C;
-    static final char WALL = '#';
-    static final char AIR = '.';
+    static char[][] map;
     static int[] dx = {-1, 1, 0, 0};
     static int[] dy = {0, 0, -1, 1};
-    static Queue<int[]> fQueue = new LinkedList<>();
-    static Queue<int[]> jQueue = new LinkedList<>();
-    static int[][] fVisited;
-    static int[][] jVisited;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -33,65 +29,56 @@ public class Main {
         R = Integer.parseInt(st.nextToken());
         C = Integer.parseInt(st.nextToken());
         map = new char[R][C];
-        fVisited = new int[R][C];
-        jVisited = new int[R][C];
-        for (int i = 0; i < R; i++) {
-            Arrays.fill(fVisited[i], -1);
-            Arrays.fill(jVisited[i], -1);
-        }
+
+        Queue<Point> queue = new LinkedList<>();
+        Queue<Point> fireQueue = new LinkedList<>();
 
         for (int i = 0; i < R; i++) {
             map[i] = br.readLine().toCharArray();
             for (int j = 0; j < C; j++) {
                 if (map[i][j] == 'J') {
-                    jQueue.add(new int[]{i, j});
-                    jVisited[i][j] = 0;
+                    queue.add(new Point(i, j, 0));
                 } else if (map[i][j] == 'F') {
-                    fQueue.add(new int[]{i, j});
-                    fVisited[i][j] = 0;
+                    fireQueue.add(new Point(i, j, 0));
                 }
             }
         }
 
-        // fire bfs
-        while (!fQueue.isEmpty()) {
-            int[] cur = fQueue.poll();
-            int x = cur[0], y = cur[1];
+        while (!queue.isEmpty()) {
 
-            for (int i = 0; i < 4; i++) {
-                int nx = x + dx[i];
-                int ny = y + dy[i];
-                if (!(0 <= nx && nx < R && 0 <= ny && ny < C)) {
-                    continue;
-                }
-                if (map[nx][ny] != WALL && fVisited[nx][ny] == -1) {
-                    fVisited[nx][ny] = fVisited[x][y] + 1;
-                    fQueue.add(new int[]{nx, ny});
-                }
-            }
-        }
+            int size = fireQueue.size();
+            while (size-- > 0) {
+                Point cur = fireQueue.poll();
 
-        // jihoon bfs
-        while (!jQueue.isEmpty()) {
-            int[] cur = jQueue.poll();
-            int x = cur[0], y = cur[1];
-
-            if (isEdge(x, y)) {
-                System.out.println(jVisited[x][y] + 1);
-                return;
-            }
-
-            for (int i = 0; i < 4; i++) {
-                int nx = x + dx[i];
-                int ny = y + dy[i];
-                if (!(0 <= nx && nx < R && 0 <= ny && ny < C)) {
-                    continue;
-                }
-                if (map[nx][ny] != WALL && jVisited[nx][ny] == -1) {
-                    if (fVisited[nx][ny] == -1 || fVisited[nx][ny] > jVisited[x][y] + 1) {
-                        jVisited[nx][ny] = jVisited[x][y] + 1;
-                        jQueue.add(new int[]{nx, ny});
+                for (int i = 0; i < 4; i++) {
+                    int nx = cur.x + dx[i], ny = cur.y + dy[i];
+                    if (!(0 <= nx && nx < R && 0 <= ny && ny < C) || map[nx][ny] == '#' || map[nx][ny] == 'F') {
+                        continue;
                     }
+
+                    fireQueue.add(new Point(nx, ny, cur.time + 1));
+                    map[nx][ny] = 'F';
+                }
+            }
+
+            size = queue.size();
+            while (size-- > 0) {
+                Point cur = queue.poll();
+
+                if (cur.x == 0 || cur.x == R - 1 || cur.y == 0 || cur.y == C - 1) {
+                    System.out.println(cur.time + 1);
+                    return;
+                }
+
+                for (int i = 0; i < 4; i++) {
+                    int nx = cur.x + dx[i], ny = cur.y + dy[i];
+                    if (!(0 <= nx && nx < R && 0 <= ny && ny < C) || map[nx][ny] == '#' || map[nx][ny] == 'F'
+                            || map[nx][ny] == 'J') {
+                        continue;
+                    }
+
+                    queue.add(new Point(nx, ny, cur.time + 1));
+                    map[nx][ny] = 'J';
                 }
             }
         }
