@@ -9,15 +9,23 @@ import java.util.Queue;
 public class Main {
 
     static void moveWall() {
-        for (int i = 7; i >= 0; i--) {
-            for (int j = 0; j <= 7; j++) {
+        char[][] copied = new char[8][8];
+        for (int i = 0; i < 8; i++) {
+            Arrays.fill(copied[i], '.');
+        }
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 if (map[i][j] == '#') {
-                    map[i][j] = '.';
-                    if (i != 7) {
-                        map[i + 1][j] = '#';
+                    if (i + 1 < 8) {
+                        copied[i + 1][j] = '#';
                     }
                 }
             }
+        }
+
+        for (int i = 0; i < 8; i++) {
+            map[i] = copied[i].clone();
         }
     }
 
