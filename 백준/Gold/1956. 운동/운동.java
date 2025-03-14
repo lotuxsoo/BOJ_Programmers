@@ -21,6 +21,7 @@ public class Main {
         dist = new int[V + 1][V + 1];
         for (int i = 0; i < V + 1; i++) {
             Arrays.fill(dist[i], INF);
+            dist[i][i] = 0;
         }
 
         for (int i = 0; i < E; i++) {
@@ -44,6 +45,9 @@ public class Main {
         int minCycle = INF;
         for (int i = 1; i <= V; i++) {
             for (int j = 1; j <= V; j++) {
+                if (i == j) {
+                    continue;
+                }
                 if (dist[i][j] != INF && dist[j][i] != INF) {
                     minCycle = Math.min(minCycle, dist[i][j] + dist[j][i]);
                 }
