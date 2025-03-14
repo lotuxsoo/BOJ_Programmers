@@ -8,68 +8,48 @@ import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Node {
-        int node, cost;
-
-        Node(int node, int cost) {
-            this.node = node;
-            this.cost = cost;
-        }
-    }
 
     static int V, E;
-    static ArrayList<Node>[] graph;
+    static int[][] dist;
+    static final int INF = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         V = Integer.parseInt(st.nextToken());
         E = Integer.parseInt(st.nextToken());
-        graph = new ArrayList[V + 1];
+        dist = new int[V + 1][V + 1];
         for (int i = 0; i < V + 1; i++) {
-            graph[i] = new ArrayList<>();
+            Arrays.fill(dist[i], INF);
         }
+
         for (int i = 0; i < E; i++) {
             st = new StringTokenizer(br.readLine());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
             int c = Integer.parseInt(st.nextToken());
-            graph[a].add(new Node(b, c)); // 단방향
+            dist[a][b] = c;
         }
 
-        int minCost = Integer.MAX_VALUE;
-        boolean found = false;
-
-        for (int i = 1; i <= V; i++) {
-            int[] dist = new int[V + 1];
-            Arrays.fill(dist, Integer.MAX_VALUE);
-            dist[i] = 0;
-
-            PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
-            pq.add(new Node(i, 0));
-
-            while (!pq.isEmpty()) {
-                Node cur = pq.poll();
-
-                if (dist[cur.node] < cur.cost) {
-                    continue;
-                }
-
-                if (cur.node == i && dist[i] != 0) {
-                    minCost = Math.min(minCost, dist[cur.node]);
-                    found = true;
-                    break;
-                }
-
-                for (Node next : graph[cur.node]) {
-                    if (dist[next.node] == 0 || dist[next.node] > dist[cur.node] + next.cost) {
-                        dist[next.node] = dist[cur.node] + next.cost;
-                        pq.add(new Node(next.node, cur.cost + next.cost));
+        for (int k = 1; k <= V; k++) {
+            for (int s = 1; s <= V; s++) {
+                for (int e = 1; e <= V; e++) {
+                    if (dist[s][k] != INF && dist[k][e] != INF) {
+                        dist[s][e] = Math.min(dist[s][e], dist[s][k] + dist[k][e]);
                     }
                 }
             }
         }
 
-        System.out.println(found ? minCost : -1);
+        int minCycle = INF;
+        for (int i = 1; i <= V; i++) {
+            for (int j = 1; j <= V; j++) {
+                if (dist[i][j] != INF && dist[j][i] != INF) {
+                    minCycle = Math.min(minCycle, dist[i][j] + dist[j][i]);
+                }
+            }
+        }
+
+        System.out.println(minCycle == INF ? -1 : minCycle);
     }
 }
