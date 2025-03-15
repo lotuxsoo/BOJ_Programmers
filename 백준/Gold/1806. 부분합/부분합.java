@@ -22,14 +22,16 @@ public class Main {
 
         int minLength = Integer.MAX_VALUE;
 
-        int left = 0, sum = 0;
-        for (int right = 0; right < N; right++) {
-            sum += arr[right];
+        int left = 0, sum = 0, right = 0;
+
+        while (right < N) {
+            while (sum < S && right < N) {
+                sum += arr[right++];
+            }
 
             while (sum >= S) {
-                minLength = Math.min(minLength, right - left + 1);
-                sum -= arr[left];
-                left++;
+                minLength = Math.min(minLength, right - left);
+                sum -= arr[left++];
             }
         }
 
