@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -6,29 +7,21 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static int DFS(int x, int y) {
-        if (x == M && y == N) {
-            return 1;
-        }
-
+    static int dfs(int x, int y, int cost) {
         if (dp[x][y] != -1) {
             return dp[x][y];
         }
 
-        dp[x][y] = 0; // (경로가 없을수도 아닐수도, 이후 누적)
+        if (x == M - 1 && y == N - 1) {
+            return 1;
+        }
 
-        int[] dx = {-1, 1, 0, 0};
-        int[] dy = {0, 0, -1, 1};
+        dp[x][y] = 0; // 초기화
 
         for (int i = 0; i < 4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            if (!(1 <= nx && nx <= M && 1 <= ny && ny <= N)) {
-                continue;
-            }
-
-            if (map[x][y] > map[nx][ny]) {
-                dp[x][y] += DFS(nx, ny);
+            int nx = x + dx[i], ny = y + dy[i];
+            if ((0 <= nx && nx < M && 0 <= ny && ny < N) && cost > map[nx][ny]) {
+                dp[x][y] += dfs(nx, ny, map[nx][ny]);
             }
         }
 
@@ -37,6 +30,8 @@ public class Main {
 
     static int M, N;
     static int[][] map;
+    static int[] dx = {-1, 1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
     static int[][] dp;
 
     public static void main(String[] args) throws IOException {
@@ -44,23 +39,19 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
         M = Integer.parseInt(st.nextToken());
         N = Integer.parseInt(st.nextToken());
-        map = new int[M + 1][N + 1];
-        for (int i = 1; i <= M; i++) {
+        map = new int[M][N];
+        for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 1; j <= N; j++) {
+            for (int j = 0; j < N; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
-        // dp[i][j]: (i,j)~(M,N)까지 갈수있는 경로의 개수
-        dp = new int[M + 1][N + 1];
-
-        // 필수 **미방문 표시**
-        for (int i = 0; i < M + 1; i++) {
+        // dp[i][j]: (i,j)~(M-1,N-1)까지의 경로 가짓수
+        dp = new int[M][N];
+        for (int i = 0; i < M; i++) {
             Arrays.fill(dp[i], -1);
         }
-
-        int H = DFS(1, 1);
-        System.out.println(H);
+        System.out.println(dfs(0, 0, map[0][0]));
     }
 }
