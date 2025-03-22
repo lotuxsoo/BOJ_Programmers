@@ -1,61 +1,66 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int[][] tree = new int[26][2]; // 0 -> left(1) -> right(2)
-    static ArrayList<String> answerList = new ArrayList<>();
 
-    static void preOrder(int now) { // root -> left - > right
-        if (now == -1) {
+    // 왼쪽 -> 루트 -> 오른쪽
+    static void inOrder(int cur) {
+        if (cur == -1) {
             return;
         }
 
-        System.out.print((char) (now + 'A'));
-        preOrder(tree[now][0]);
-        preOrder(tree[now][1]);
+        inOrder(tree[cur][0]);
+        System.out.print((char) (cur + 'A'));
+        inOrder(tree[cur][1]);
     }
 
-    static void inOrder(int now) { // left -> root -> right
-        if (now == -1) {
+    // 루트 -> 왼쪽 -> 오른쪽
+    static void preOrder(int cur) {
+        if (cur == -1) {
             return;
         }
 
-        inOrder(tree[now][0]);
-        System.out.print((char) (now + 'A'));
-        inOrder(tree[now][1]);
+        System.out.print((char) (cur + 'A'));
+        preOrder(tree[cur][0]);
+        preOrder(tree[cur][1]);
     }
 
-    static void postOrder(int now) { // left -> right -> root
-        if (now == -1) {
+    static void postOrder(int cur) {
+        if (cur == -1) {
             return;
         }
 
-        postOrder(tree[now][0]);
-        postOrder(tree[now][1]);
-        System.out.print((char) (now + 'A'));
-
+        postOrder(tree[cur][0]);
+        postOrder(tree[cur][1]);
+        System.out.print((char) (cur + 'A'));
     }
+
+    static int N;
+    static int[][] tree;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
-        for (int i = 0; i < N; i++) {
-            String[] splits = br.readLine().split(" ");
-            int node = splits[0].charAt(0) - 'A'; // 알파벳을 index로 변환
-            char left = splits[1].charAt(0);
-            char right = splits[2].charAt(0);
+        N = Integer.parseInt(br.readLine());
 
-            if (left == '.') {
-                tree[node][0] = -1;
-            } else {
-                tree[node][0] = left - 'A';
+        tree = new int[N][2];
+        for (int i = 0; i < N; i++) {
+            Arrays.fill(tree[i], -1);
+        }
+
+        for (int i = 0; i < N; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int val = st.nextToken().charAt(0) - 'A';
+            char left = st.nextToken().charAt(0);
+            if (left != '.') {
+                tree[val][0] = left - 'A';
             }
-            if (right == '.') {
-                tree[node][1] = -1;
-            } else {
-                tree[node][1] = right - 'A';
+            char right = st.nextToken().charAt(0);
+            if (right != '.') {
+                tree[val][1] = right - 'A';
             }
         }
 
@@ -64,6 +69,5 @@ public class Main {
         inOrder(0);
         System.out.println();
         postOrder(0);
-        System.out.println();
     }
 }
