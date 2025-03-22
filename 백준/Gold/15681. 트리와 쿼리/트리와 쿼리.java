@@ -7,20 +7,27 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static void makeTree(int cur, int parent) {
-        dp[cur] = 1; // 본인 포함
+    static int makeTree(int cur, int parent) {
+        visited[cur] = true;
+        subtrees[cur] = 1;
 
-        for (int child : tree[cur]) {
-            if (child != parent) {
-                makeTree(child, cur);
-                dp[cur] += dp[child];
+        if (tree[cur].isEmpty()) {
+            return subtrees[cur];
+        }
+
+        for (int next : tree[cur]) {
+            if (!visited[next] && parent != next) {
+                subtrees[cur] += makeTree(next, cur);
             }
         }
+
+        return subtrees[cur];
     }
 
     static int N, R, Q;
     static ArrayList<Integer>[] tree;
-    static int[] dp;
+    static int[] subtrees;
+    static boolean[] visited;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -28,6 +35,7 @@ public class Main {
         N = Integer.parseInt(st.nextToken());
         R = Integer.parseInt(st.nextToken());
         Q = Integer.parseInt(st.nextToken());
+
         tree = new ArrayList[N + 1];
         for (int i = 0; i < N + 1; i++) {
             tree[i] = new ArrayList<>();
@@ -41,14 +49,14 @@ public class Main {
             tree[v].add(u);
         }
 
-        // dp[v]: v를 루트로 하는 서브트리에 속한 정점의 수
-        dp = new int[N + 1];
+        subtrees = new int[N + 1];
+        visited = new boolean[N + 1];
 
         makeTree(R, -1);
 
         for (int i = 0; i < Q; i++) {
-            int x = Integer.parseInt(br.readLine());
-            System.out.println(dp[x]);
+            int U = Integer.parseInt(br.readLine());
+            System.out.println(subtrees[U]);
         }
     }
 }
