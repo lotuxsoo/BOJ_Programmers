@@ -8,15 +8,10 @@ import java.util.StringTokenizer;
 public class Main {
 
     static int makeTree(int cur, int parent) {
-        visited[cur] = true;
         subtrees[cur] = 1;
 
-        if (tree[cur].isEmpty()) {
-            return subtrees[cur];
-        }
-
         for (int next : tree[cur]) {
-            if (!visited[next] && parent != next) {
+            if (parent != next) {
                 subtrees[cur] += makeTree(next, cur);
             }
         }
@@ -27,7 +22,6 @@ public class Main {
     static int N, R, Q;
     static ArrayList<Integer>[] tree;
     static int[] subtrees;
-    static boolean[] visited;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -50,13 +44,14 @@ public class Main {
         }
 
         subtrees = new int[N + 1];
-        visited = new boolean[N + 1];
 
         makeTree(R, -1);
 
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Q; i++) {
             int U = Integer.parseInt(br.readLine());
-            System.out.println(subtrees[U]);
+            sb.append(subtrees[U]).append("\n");
         }
+        System.out.println(sb.toString());
     }
 }
