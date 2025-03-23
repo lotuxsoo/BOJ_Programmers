@@ -1,76 +1,46 @@
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    static void calc(String operator, int x) {
-        if (operator.equals("add")) {
-            set.add(x);
-        } else if (operator.equals("remove")) {
-            if (set.contains(x)) {
-                set.remove(x);
-            }
-        } else if (operator.equals("toggle")) {
-            if (set.contains(x)) {
-                set.remove(x);
+    static void solve(String s, int num) {
+
+        if (s.equals("add")) {
+            mask |= (1 << num); // 추가
+        } else if (s.equals("check")) {
+            if ((mask & (1 << num)) != 0) { // 원소 없으면
+                sb.append("1\n");
             } else {
-                set.add(x);
+                sb.append("0\n");
             }
-        } else if (operator.equals("all")) {
-            set.clear();
-            for (int i = 1; i <= 20; i++) {
-                set.add(i);
-            }
-        } else if (operator.equals("empty")) {
-            set.clear();
+        } else if (s.equals("remove")) {
+            mask &= ~(1 << num); // 제거
+
+        } else if (s.equals("all")) {
+            mask |= (1 << 20) - 1;
+        } else if (s.equals("toggle")) {
+            mask ^= (1 << num);
+        } else if (s.equals("empty")) {
+            mask = 0;
         }
     }
 
-    static int binSearch(int target) {
-        ArrayList<Integer> list = new ArrayList<>(set);
-        int left = 0, right = list.size() - 1;
-        Collections.sort(list);
-
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-            if (list.get(mid) == target) {
-                return 1;
-            } else if (list.get(mid) < target) {
-                left = mid + 1;
-            } else {
-                right = mid - 1;
-            }
-        }
-
-        return 0;
-    }
-
-    static int M;
-    static Set<Integer> set = new HashSet<>();
+    static int mask = 0;
+    static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        M = Integer.parseInt(br.readLine());
-        StringBuilder sb = new StringBuilder();
+        int M = Integer.parseInt(br.readLine());
         for (int i = 0; i < M; i++) {
-            String[] splits = br.readLine().split(" ");
-            String operator = splits[0];
-            if (splits.length == 1) {
-                calc(operator, 0);
-            } else {
-                int x = Integer.parseInt(splits[1]);
-                if (operator.equals("check")) {
-                    sb.append(binSearch(x)).append("\n");
-                } else {
-                    calc(operator, x);
-                }
+            String[] sp = br.readLine().split(" ");
+            String s = sp[0];
+            int num = 0;
+            if (!s.equals("all") && !s.equals("empty")) {
+                num = Integer.parseInt(sp[1]) - 1;
             }
+            solve(s, num);
         }
         System.out.println(sb.toString());
     }
