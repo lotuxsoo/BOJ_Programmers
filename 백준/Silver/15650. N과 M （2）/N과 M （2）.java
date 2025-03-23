@@ -1,42 +1,40 @@
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int N, M;
-    static boolean[] visited;
-    static int[] result;
-    static StringBuilder sb;
 
-    static void DFS(int depth, int cur) {
+    static void dfs(int idx, int depth, int usedMask) {
         if (depth == M) {
             for (int i = 0; i < M; i++) {
-                sb.append(result[i]).append(" ");
+                sb.append(answer[i]).append(" ");
             }
             sb.append("\n");
             return;
         }
 
-        for (int i = cur; i <= N; i++) {
-            if (!visited[i]) {
-                visited[i] = true;
-                result[depth] = i;
-                DFS(depth + 1, i + 1);
-                visited[i] = false;
+        for (int i = idx; i < N; i++) {
+            if ((usedMask & (1 << i)) == 0) {
+                answer[depth] = i + 1;
+                dfs(i + 1, depth + 1, usedMask | (1 << i));
             }
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    static int N, M;
+    static int[] answer;
+    static StringBuilder sb = new StringBuilder();
+
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        visited = new boolean[N + 1];
-        result = new int[M];
-        sb = new StringBuilder();
 
-        DFS(0, 1);
+        answer = new int[M];
+        dfs(0, 0, 0);
         System.out.println(sb.toString());
     }
 }
