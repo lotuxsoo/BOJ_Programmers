@@ -8,25 +8,17 @@ class Solution {
         PriorityQueue<Integer> maxHeap = new PriorityQueue<>((a,b) -> Integer.compare(b,a));
         
         for (String oper : operations) {
-            String[] sp = oper.split(" ");
-            String d = sp[0];
-            int n = Integer.parseInt(sp[1]);
-            
-            if (d.equals("I")) {
-                minHeap.add(n);
-                maxHeap.add(n);
-            } else if (d.equals("D")) {
-                if (minHeap.isEmpty() || maxHeap.isEmpty()) {
-                    continue;
-                }
-                if (n == 1) {
-                    int max = maxHeap.poll();
-                    minHeap.remove(max);
-                } else {
-                    int min = minHeap.poll();
-                    maxHeap.remove(min);
-                }
-            }   
+            if (oper.equals("D 1")) {
+                Integer max = maxHeap.poll();
+                if (max != null) minHeap.remove(max);
+            } else if (oper.equals("D -1")) {
+                Integer min = minHeap.poll();
+                if (min != null ) maxHeap.remove(min);
+            } else {
+                int num = Integer.parseInt(oper.split(" ")[1]);
+                minHeap.add(num);
+                maxHeap.add(num);
+            }
         }
         
         if (minHeap.isEmpty() || maxHeap.isEmpty()) {
