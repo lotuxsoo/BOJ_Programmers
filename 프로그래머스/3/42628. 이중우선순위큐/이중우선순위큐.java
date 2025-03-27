@@ -4,27 +4,37 @@ class Solution {
     public int[] solution(String[] operations) {
         int[] answer = {};
         
-        PriorityQueue<Integer> maxHeap = new PriorityQueue<>((o1,o2) -> o2-o1);
-        PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+        PriorityQueue<Integer> minHeap = new PriorityQueue<>((a,b) -> Integer.compare(a,b));
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>((a,b) -> Integer.compare(b,a));
         
-        for (String str : operations) {
-            String[] splits = str.split(" ");
-            if (splits[0].equals("I")) {
-                maxHeap.add(Integer.parseInt(splits[1]));
-                minHeap.add(Integer.parseInt(splits[1]));
-            } else if (splits[0].equals("D")) {
-                if (splits[1].equals("1")) { // 최대힙
-                    minHeap.remove(maxHeap.poll());
-                } else if (splits[1].equals("-1")) { // 최소힙
-                    maxHeap.remove(minHeap.poll());
+        for (String oper : operations) {
+            String[] sp = oper.split(" ");
+            String d = sp[0];
+            int n = Integer.parseInt(sp[1]);
+            
+            if (d.equals("I")) {
+                minHeap.add(n);
+                maxHeap.add(n);
+            } else if (d.equals("D")) {
+                if (minHeap.isEmpty() || maxHeap.isEmpty()) {
+                    continue;
                 }
-            }
+                if (n == 1) {
+                    int max = maxHeap.poll();
+                    minHeap.remove(max);
+                } else {
+                    int min = minHeap.poll();
+                    maxHeap.remove(min);
+                }
+            }   
         }
         
-        if (!maxHeap.isEmpty() && !minHeap.isEmpty()) {
-            answer = new int[]{maxHeap.poll(), minHeap.poll()};
-        } else {
+        if (minHeap.isEmpty() || maxHeap.isEmpty()) {
             answer = new int[]{0,0};
+        } else {
+            int min = minHeap.poll();
+            int max = maxHeap.poll();
+            answer = new int[]{max,min};
         }
         
         return answer;
