@@ -5,16 +5,23 @@ class Solution {
         int answer = 0;
         
         PriorityQueue<Integer> pq = new PriorityQueue<>();
+        
         for (int x : scoville) {
             pq.add(x);
         }
         
-        while (pq.peek() < K) {
-            if (pq.size() < 2) return -1;
+        while (true) {
+            Integer x = pq.poll();
+            if (x == null) return -1;
+            if (x >= K) break;
             
-            int val = pq.poll() + pq.poll()*2;
-            pq.add(val);
-            answer++;
+            if (x < K) {
+                Integer y = pq.poll();
+                if (y == null) return -1;
+                int newSum = x + y * 2;
+                pq.add(newSum);
+                answer++;
+            }
         }
         
         return answer;
