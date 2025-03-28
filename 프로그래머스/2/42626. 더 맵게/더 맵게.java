@@ -10,18 +10,12 @@ class Solution {
             pq.add(x);
         }
         
-        while (true) {
+        while (!pq.isEmpty() && pq.peek() < K) {
             Integer x = pq.poll();
-            if (x == null) return -1;
-            if (x >= K) break;
-            
-            if (x < K) {
-                Integer y = pq.poll();
-                if (y == null) return -1;
-                int newSum = x + y * 2;
-                pq.add(newSum);
-                answer++;
-            }
+            Integer y = pq.poll();
+            if (y == null) return -1;
+            pq.add(x + y * 2);
+            answer++;
         }
         
         return answer;
