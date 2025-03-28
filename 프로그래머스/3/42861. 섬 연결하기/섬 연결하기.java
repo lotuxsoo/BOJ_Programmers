@@ -1,50 +1,50 @@
 import java.util.*;
 
 class Solution {   
-    static class Node {
-        int dest, cost;
-        Node(int dest, int cost) {
-            this.dest = dest;
-            this.cost = cost;
+    
+    static int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+    
+    static void union(int a, int b) {
+        int p1 = find(a), p2 = find(b);
+        if (p1 != p2) {
+            parent[p1] = p2;
         }
     }
     
-    static ArrayList<Node>[] graph;
-    
+    static int[] parent;
+
     public int solution(int n, int[][] costs) {
         int answer = 0;
         
-        graph = new ArrayList[n];
+        parent = new int[n];
         for (int i=0; i<n; i++) {
-            graph[i] = new ArrayList<>();
+            parent[i] = i;
         }
+        
+        List<int[]> edgeList = new ArrayList<>();
         
         for (int[] cost : costs) {
-            graph[cost[0]].add(new Node(cost[1], cost[2]));
-            graph[cost[1]].add(new Node(cost[0], cost[2]));
+            edgeList.add(cost);
         }
         
-        PriorityQueue<Node> pq = new PriorityQueue<>((a,b) -> Integer.compare(a.cost, b.cost));
+        Collections.sort(edgeList, (a,b) -> Integer.compare(a[2], b[2]));
         
-        boolean[] visited = new boolean[n];
-        pq.add(new Node(0, 0));
+        int edgeCount = 0;
         
-        int cnt = 0;
-        
-        while (!pq.isEmpty() && cnt < n) {
-            Node cur = pq.poll();
-            
-            if (visited[cur.dest]) continue;
-            visited[cur.dest] = true;
-            cnt++;
-            answer += cur.cost;
-            
-            for (Node next : graph[cur.dest]) {
-                if (!visited[next.dest]) {
-                    pq.add(new Node(next.dest, next.cost));
-                }    
+        for (int[] edge : edgeList) {
+            if (find(edge[0]) != find(edge[1])) {
+                union(edge[0], edge[1]);
+                edgeCount++;
+                answer += edge[2];
             }
-        } 
+            
+            if (edgeCount == n) break;
+        }
         
         return answer;
     }
