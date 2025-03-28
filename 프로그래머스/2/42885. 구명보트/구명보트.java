@@ -6,21 +6,21 @@ class Solution {
         
         Arrays.sort(people);
         
-        int l = 0, r = people.length-1;
-        while (l < r) {
-            int temp = people[l] + people[r];
+        int left = 0, right = people.length-1;
+        
+        while (left < right) {
+            int sum = people[left] + people[right];
             
-            if (temp <= limit) {
-                l++;
-                r--;
+            if (sum <= limit) {
+                left++;
+                right--;
             } else {
-                r--;
+                right--;
             }
-            
             answer++;
         }
-        if (l == r) answer++;
         
+        if (left == right) answer++;
         
         return answer;
     }
