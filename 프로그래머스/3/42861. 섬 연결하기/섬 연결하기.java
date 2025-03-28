@@ -1,69 +1,50 @@
 import java.util.*;
 
-class Solution {
-    static class Edge {
-        int a, b, cost;
-        Edge(int a, int b, int cost) {
-            this.a = a;
-            this.b = b;
+class Solution {   
+    static class Node {
+        int dest, cost;
+        Node(int dest, int cost) {
+            this.dest = dest;
             this.cost = cost;
         }
     }
     
-    static void union(int x, int y) {
-        int root1 = find(x);
-        int root2 = find(y);
-        
-        if (root1 != root2) {
-            if (rank[root1] > rank[root2]) {
-                parent[root2] = root1;
-            } else if (rank[root1] < rank[root2]) {
-                parent[root1] = root2;
-            } else {
-                parent[root1] = root2;
-                rank[root2]++;
-            }
-        }
-    }
-    
-    static int find(int x) {
-        if (x != parent[x]) {
-            parent[x] = find(parent[x]);
-        }
-        return parent[x];
-    }
-    
-    static int[] parent;
-    static int[] rank;
+    static ArrayList<Node>[] graph;
     
     public int solution(int n, int[][] costs) {
         int answer = 0;
         
-        PriorityQueue<Edge> pq = new PriorityQueue<>((a,b)->Integer.compare(a.cost,b.cost));
-        
-        for (int[] line : costs) {
-            pq.add(new Edge(line[0],line[1],line[2]));
+        graph = new ArrayList[n];
+        for (int i=0; i<n; i++) {
+            graph[i] = new ArrayList<>();
         }
+        
+        for (int[] cost : costs) {
+            graph[cost[0]].add(new Node(cost[1], cost[2]));
+            graph[cost[1]].add(new Node(cost[0], cost[2]));
+        }
+        
+        PriorityQueue<Node> pq = new PriorityQueue<>((a,b) -> Integer.compare(a.cost, b.cost));
+        
+        boolean[] visited = new boolean[n];
+        pq.add(new Node(0, 0));
         
         int cnt = 0;
         
-        parent = new int[n];
-        rank = new int[n];
-        
-        for (int i=0; i<n; i++) {
-            parent[i] = i;
-            rank[i] = 0;
-        }
-        
-        while (!pq.isEmpty() && (cnt < n-1)) {
-            Edge cur = pq.poll();
+        while (!pq.isEmpty() && cnt < n) {
+            Node cur = pq.poll();
             
-            if (find(cur.a)!=find(cur.b)) {
-                union(cur.a,cur.b);
-                cnt++;
-                answer += cur.cost;
+            if (visited[cur.dest]) continue;
+            visited[cur.dest] = true;
+            cnt++;
+            answer += cur.cost;
+            
+            for (Node next : graph[cur.dest]) {
+                if (!visited[next.dest]) {
+                    pq.add(new Node(next.dest, next.cost));
+                }    
             }
-        }
+        } 
         
         return answer;
     }
