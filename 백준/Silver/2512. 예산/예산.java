@@ -9,7 +9,7 @@ public class Main {
 
     static int N, M;
     static int[] budget;
-    static int MAX_VAL = Integer.MIN_VALUE;
+    static int result = 0;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -20,31 +20,31 @@ public class Main {
         for (int i = 0; i < N; i++) {
             budget[i] = Integer.parseInt(st.nextToken());
             total += budget[i];
-            MAX_VAL = Math.max(MAX_VAL, budget[i]);
         }
         M = Integer.parseInt(br.readLine());
 
+        Arrays.sort(budget);
         if (total <= M) {
-            System.out.println(MAX_VAL);
+            System.out.println(budget[N - 1]);
         } else {
-            Arrays.sort(budget);
-            int upper = MAX_VAL;
+            // 이분 탐색
+            int low = 0, high = budget[N - 1];
+            while (low <= high) {
+                int mid = (low + high) / 2;
+                long sum = 0;
 
-            while (true) {
-                int max = Integer.MIN_VALUE;
-                upper--;
-                int sum = 0;
                 for (int i = 0; i < N; i++) {
-                    int s = budget[i] > upper ? upper : budget[i];
-                    sum += s;
-                    max = Math.max(max, s);
+                    sum += Math.min(budget[i], mid);
                 }
+
                 if (sum <= M) {
-                    System.out.println(max);
-                    break;
+                    result = mid;
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
                 }
             }
+            System.out.println(result);
         }
-
     }
 }
