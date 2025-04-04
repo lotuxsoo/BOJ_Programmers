@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,78 +8,70 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class State {
-        int x, y, z;
 
-        State(int x, int y, int z) {
+    static class Node {
+        int x, y, broken, dist;
+
+        Node(int x, int y, int broken, int dist) {
             this.x = x;
             this.y = y;
-            this.z = z;
+            this.broken = broken;
+            this.dist = dist;
         }
     }
 
-    static int N, M; // 세로,가로
+    static int N, M;
     static int[][] map;
-    static int[][][] dp;
-    static final int INF = 1_000_000_000;
     static int[] dx = {-1, 1, 0, 0};
     static int[] dy = {0, 0, -1, 1};
+    static final int INF = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        map = new int[N + 1][M + 1];
-        for (int i = 1; i <= N; i++) {
-            char[] ch = br.readLine().toCharArray();
-            for (int j = 1; j <= M; j++) {
-                map[i][j] = ch[j - 1] - '0';
+        map = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            char[] line = br.readLine().toCharArray();
+            for (int j = 0; j < M; j++) {
+                map[i][j] = line[j] - '0';
             }
         }
 
-        // (x,y)까지 이동하는 최단 경로
-        // 0(안부숨), 1(한개까지 부숨)
-        dp = new int[N + 1][M + 1][2];
-
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= M; j++) {
-                Arrays.fill(dp[i][j], INF);
+        int[][][] visited = new int[N][M][2];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                Arrays.fill(visited[i][j], INF);
             }
         }
+        visited[0][0][0] = 1;
 
-        // BFS 풀이
-        Queue<State> queue = new LinkedList<>();
-        queue.add(new State(1, 1, 0));
-
-        // dp 초기값 지정 필수
-        dp[1][1][0] = 1;
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(new Node(0, 0, 0, 1));
 
         while (!queue.isEmpty()) {
-            State cur = queue.poll();
+            Node cur = queue.poll();
+            int x = cur.x, y = cur.y, broken = cur.broken, dist = cur.dist;
 
-            // 종료 조건 필수
-            if (cur.x == N && cur.y == M) {
-                System.out.println(dp[N][M][cur.z]);
+            if (x == N - 1 && y == M - 1) {
+                System.out.println(dist);
                 return;
             }
 
             for (int i = 0; i < 4; i++) {
-                int nx = cur.x + dx[i];
-                int ny = cur.y + dy[i];
-                if (!(1 <= nx && nx <= N && 1 <= ny && ny <= M)) {
+                int nx = x + dx[i], ny = y + dy[i];
+                if (!(0 <= nx && nx < N && 0 <= ny && ny < M)) {
                     continue;
-                }
-
-                if (map[nx][ny] == 0) {
-                    if (dp[nx][ny][cur.z] > dp[cur.x][cur.y][cur.z] + 1) {
-                        dp[nx][ny][cur.z] = dp[cur.x][cur.y][cur.z] + 1; // 상태 업데이트
-                        queue.add(new State(nx, ny, cur.z)); // 그냥 이동
+                } else if (map[nx][ny] == 0) {
+                    if (visited[nx][ny][broken] > dist + 1) {
+                        visited[nx][ny][broken] = dist + 1;
+                        queue.add(new Node(nx, ny, broken, dist + 1));
                     }
-                } else if (map[nx][ny] == 1 && cur.z == 0) {
-                    if (dp[nx][ny][1] > dp[cur.x][cur.y][0] + 1) {
-                        dp[nx][ny][1] = dp[cur.x][cur.y][0] + 1; // 상태 업데이트
-                        queue.add(new State(nx, ny, 1)); // 부수고 이동
+                } else if (broken == 0 && map[nx][ny] == 1) {
+                    if (visited[nx][ny][1] > dist + 1) {
+                        visited[nx][ny][1] = dist + 1;
+                        queue.add(new Node(nx, ny, 1, dist + 1));
                     }
                 }
             }
