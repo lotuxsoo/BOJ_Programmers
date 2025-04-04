@@ -35,39 +35,44 @@ public class Main {
             }
         }
 
-        int[][][] dp = new int[N][3][2];
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < 3; j++) {
-                dp[i][j][0] = Integer.MAX_VALUE;
-                dp[i][j][1] = Integer.MIN_VALUE;
-            }
-        }
+        int[] min = new int[3];
+        int[] max = new int[3];
+        Arrays.fill(min, Integer.MAX_VALUE);
+        Arrays.fill(max, Integer.MIN_VALUE);
 
-        dp[N - 1][0][0] = map[N - 1][0];
-        dp[N - 1][0][1] = map[N - 1][0];
+        min[0] = map[N - 1][0];
+        max[0] = map[N - 1][0];
 
-        dp[N - 1][1][0] = map[N - 1][1];
-        dp[N - 1][1][1] = map[N - 1][1];
+        min[1] = map[N - 1][1];
+        max[1] = map[N - 1][1];
 
-        dp[N - 1][2][0] = map[N - 1][2];
-        dp[N - 1][2][1] = map[N - 1][2];
+        min[2] = map[N - 1][2];
+        max[2] = map[N - 1][2];
 
         for (int i = N - 2; i >= 0; i--) {
+            int[] curMin = new int[3];
+            int[] curMax = new int[3];
+            Arrays.fill(curMin, Integer.MAX_VALUE);
+            Arrays.fill(curMax, Integer.MIN_VALUE);
+            
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
-                    int ny = j + dy[k];
-                    if (!(0 <= ny && ny < 3)) {
+                    int nj = j + dy[k];
+                    if (!(0 <= nj && nj < 3)) {
                         continue;
                     }
-                    dp[i][j][0] = Math.min(dp[i][j][0], dp[i + 1][ny][0] + map[i][j]);
-                    dp[i][j][1] = Math.max(dp[i][j][1], dp[i + 1][ny][1] + map[i][j]);
+                    curMin[j] = Math.min(curMin[j], min[nj] + map[i][j]);
+                    curMax[j] = Math.max(curMax[j], max[nj] + map[i][j]);
                 }
             }
+            
+            min = curMin;
+            max = curMax;
         }
 
         for (int i = 0; i < 3; i++) {
-            MIN_VAL = Math.min(MIN_VAL, dp[0][i][0]);
-            MAX_VAL = Math.max(MAX_VAL, dp[0][i][1]);
+            MIN_VAL = Math.min(MIN_VAL, min[i]);
+            MAX_VAL = Math.max(MAX_VAL, max[i]);
         }
         System.out.println(MAX_VAL + " " + MIN_VAL);
     }
