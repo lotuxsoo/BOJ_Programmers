@@ -7,34 +7,29 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static int N;
-    static int[] A;
-    static int[] dp;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        A = new int[N + 1];
+        int N = Integer.parseInt(br.readLine());
+        int[] A = new int[N];
         StringTokenizer st = new StringTokenizer(br.readLine());
-        for (int i = 1; i <= N; i++) {
+        for (int i = 0; i < N; i++) {
             A[i] = Integer.parseInt(st.nextToken());
         }
 
-        // dp[v]: A[v]를 마지막 원소로 하는 LIS 길이
-        dp = new int[N + 1];
-        dp[1] = 1;
-        int MAX = 1;
+        // dp[i]: i번째를 포함하는 가장 긴 증가하는 부분 수열
+        int[] dp = new int[N];
+        Arrays.fill(dp, 1);
+        int maxLen = 0;
 
-        for (int i = 2; i <= N; i++) {
-            dp[i] = 1;
-            for (int j = 1; j < i; j++) {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < i; j++) {
                 if (A[j] < A[i]) {
                     dp[i] = Math.max(dp[i], dp[j] + 1);
                 }
             }
-            MAX = Math.max(MAX, dp[i]);
+            maxLen = Math.max(maxLen, dp[i]);
         }
 
-        System.out.println(MAX);
+        System.out.println(maxLen);
     }
 }
