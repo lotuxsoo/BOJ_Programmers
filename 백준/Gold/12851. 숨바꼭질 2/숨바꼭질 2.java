@@ -26,47 +26,42 @@ public class Main {
         queue.add(N);
 
         int count = 0;
+        int minTime = -1;
 
         while (!queue.isEmpty()) {
+            int cur = queue.poll();
 
-            int size = queue.size();
-            boolean found = false;
-
-            for (int i = 0; i < size; i++) {
-                int cur = queue.poll();
-
-                if (cur == K) {
-                    found = true;
-                    count++;
-                    continue;
-                }
-
-                if (cur + 1 >= 0 && cur + 1 <= 100000) {
-                    if (dp[cur + 1] >= dp[cur] + 1) {
-                        dp[cur + 1] = dp[cur] + 1;
-                        queue.add(cur + 1);
-                    }
-                }
-                if (cur - 1 >= 0 && cur - 1 <= 100000) {
-                    if (dp[cur - 1] >= dp[cur] + 1) {
-                        dp[cur - 1] = dp[cur] + 1;
-                        queue.add(cur - 1);
-                    }
-                }
-                if (cur * 2 >= 0 && cur * 2 <= 100000) {
-                    if (dp[cur * 2] >= dp[cur] + 1) {
-                        dp[cur * 2] = dp[cur] + 1;
-                        queue.add(cur * 2);
-                    }
-                }
+            if (minTime != -1 && dp[cur] > minTime) {
+                break;
             }
 
-            if (found) {
-                System.out.println(dp[K]);
-                System.out.println(count);
-                break;
+            if (cur == K) {
+                minTime = dp[cur];
+                count++;
+                continue;
+            }
+
+            if (cur + 1 >= 0 && cur + 1 <= 100000) {
+                if (dp[cur + 1] >= dp[cur] + 1) {
+                    dp[cur + 1] = dp[cur] + 1;
+                    queue.add(cur + 1);
+                }
+            }
+            if (cur - 1 >= 0 && cur - 1 <= 100000) {
+                if (dp[cur - 1] >= dp[cur] + 1) {
+                    dp[cur - 1] = dp[cur] + 1;
+                    queue.add(cur - 1);
+                }
+            }
+            if (cur * 2 >= 0 && cur * 2 <= 100000) {
+                if (dp[cur * 2] >= dp[cur] + 1) {
+                    dp[cur * 2] = dp[cur] + 1;
+                    queue.add(cur * 2);
+                }
             }
         }
 
+        System.out.println(dp[K]);
+        System.out.println(count);
     }
 }
