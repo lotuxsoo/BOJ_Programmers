@@ -2,9 +2,9 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Deque;
 
 public class Main {
 
@@ -22,11 +22,11 @@ public class Main {
         Arrays.fill(dp, INF);
         dp[N] = 0;
 
-        Queue<Integer> queue = new LinkedList<>();
-        queue.add(N);
+        Deque<Integer> deque = new ArrayDeque<>();
+        deque.add(N);
 
-        while (!queue.isEmpty()) {
-            int cur = queue.poll();
+        while (!deque.isEmpty()) {
+            int cur = deque.poll();
 
             if (cur == K) {
                 System.out.println(dp[cur]);
@@ -36,19 +36,19 @@ public class Main {
             if (cur + 1 >= 0 && cur + 1 <= 100000) {
                 if (dp[cur + 1] > dp[cur] + 1) {
                     dp[cur + 1] = dp[cur] + 1;
-                    queue.add(cur + 1);
+                    deque.addLast(cur + 1);
                 }
             }
             if (cur - 1 >= 0 && cur - 1 <= 100000) {
                 if (dp[cur - 1] > dp[cur] + 1) {
                     dp[cur - 1] = dp[cur] + 1;
-                    queue.add(cur - 1);
+                    deque.addLast(cur - 1);
                 }
             }
             if (cur * 2 >= 0 && cur * 2 <= 100000) {
                 if (dp[cur * 2] > dp[cur]) {
                     dp[cur * 2] = dp[cur];
-                    queue.add(cur * 2);
+                    deque.addFirst(cur * 2);
                 }
             }
         }
