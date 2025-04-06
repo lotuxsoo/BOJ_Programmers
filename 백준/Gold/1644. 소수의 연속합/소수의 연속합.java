@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Main {
 
-    static void generatePrime(int N) {
+    static ArrayList<Integer> generatePrime(int N) {
         boolean[] isNotPrime = new boolean[N + 1];
 
         for (int i = 2; i * i <= N; i++) {
@@ -17,35 +17,34 @@ public class Main {
             }
         }
 
-        // 소수는 2~N 사이에 존재
+        ArrayList<Integer> primes = new ArrayList<>();
         for (int i = 2; i <= N; i++) {
             if (!isNotPrime[i]) {
                 primes.add(i);
             }
         }
+        return primes;
     }
-
-    static ArrayList<Integer> primes = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int N = Integer.parseInt(br.readLine());
 
-        generatePrime(N);
+        ArrayList<Integer> primes = generatePrime(N);
 
+        // 투포인터로 연속된 소수의 합 구하기
         int left = 0, right = 0, sum = 0, result = 0;
+        while (true) {
 
-        while (left <= right) {
             if (sum >= N) {
                 if (sum == N) {
                     result++;
                 }
                 sum -= primes.get(left);
                 left++;
-            } else if (sum < N) {
-                if (right == primes.size()) {
-                    break;
-                }
+            } else if (right == primes.size()) {
+                break;
+            } else {
                 sum += primes.get(right);
                 right++;
             }
