@@ -6,35 +6,36 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static int N, S;
-    static int[] arr;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        S = Integer.parseInt(st.nextToken());
-        arr = new int[N];
+        int N = Integer.parseInt(st.nextToken());
+        int S = Integer.parseInt(st.nextToken());
+
+        int[] subsequence = new int[N];
         st = new StringTokenizer(br.readLine());
         for (int i = 0; i < N; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
+            subsequence[i] = Integer.parseInt(st.nextToken());
         }
 
-        int minLength = Integer.MAX_VALUE;
+        // 투포인터 사용
+        int left = 0, right = 0, sum = 0, minLen = 100000;
+        while (left <= right) {
 
-        int left = 0, sum = 0, right = 0;
-
-        while (right < N) {
             while (sum < S && right < N) {
-                sum += arr[right++];
+                sum += subsequence[right];
+                right++;
             }
 
-            while (sum >= S) {
-                minLength = Math.min(minLength, right - left);
-                sum -= arr[left++];
+            if (sum < S) {
+                break;
             }
+
+            minLen = Math.min(minLen, right - left); // right는 이미 증가 상태
+            sum -= subsequence[left];
+            left++;
         }
 
-        System.out.println(minLength == Integer.MAX_VALUE ? 0 : minLength);
+        System.out.println(minLen == 100000 ? 0 : minLen);
     }
 }
