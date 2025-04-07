@@ -23,23 +23,20 @@ public class Main {
             }
         }
 
-        System.out.println(dp[n][m]);
-
         StringBuilder sb = new StringBuilder();
-        int i = n, j = m;
         while (dp[n][m] > 0) {
-            if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
-                sb.append(s1.charAt(i - 1));
-                dp[n][m]--;
-                i--;
-                j--;
-            } else if (dp[i - 1][j] < dp[i][j - 1]) {
-                j--;
+            if (s1.charAt(n - 1) == s2.charAt(m - 1)) {
+                sb.append(s1.charAt(n - 1));
+                n--;
+                m--;
+            } else if (dp[n][m] == dp[n - 1][m]) {
+                n--;
             } else {
-                i--;
+                m--;
             }
         }
 
-        System.out.println(sb.reverse().toString());
+        System.out.println(sb.length());
+        System.out.println(sb.reverse());
     }
 }
