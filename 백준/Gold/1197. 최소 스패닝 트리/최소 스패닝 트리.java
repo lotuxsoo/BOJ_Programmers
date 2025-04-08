@@ -2,26 +2,23 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Edge implements Comparable<Edge> {
-        int x, y, cost;
+    static class Edge {
+        int a, b, c;
 
-        Edge(int x, int y, int cost) {
-            this.x = x;
-            this.y = y;
-            this.cost = cost;
-        }
-
-        @Override
-        public int compareTo(Edge o) {
-            return this.cost - o.cost; // 가중치 기준 오름차순
+        Edge(int a, int b, int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
         }
     }
 
+    static int V, E;
     static int[] parent;
+    static PriorityQueue<Edge> pq;
 
     static int find(int x) {
         if (x != parent[x]) {
@@ -30,9 +27,9 @@ public class Main {
         return parent[x];
     }
 
-    static void union(int x, int y) {
-        int r1 = find(x);
-        int r2 = find(y);
+    static void union(int a, int b) {
+        int r1 = find(a);
+        int r2 = find(b);
         if (r1 != r2) {
             parent[r1] = r2;
         }
@@ -41,20 +38,17 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int V = Integer.parseInt(st.nextToken());
-        int E = Integer.parseInt(st.nextToken());
+        V = Integer.parseInt(st.nextToken());
+        E = Integer.parseInt(st.nextToken());
 
-        ArrayList<Edge> edges = new ArrayList<>();
-
+        pq = new PriorityQueue<>((e1, e2) -> Integer.compare(e1.c, e2.c));
         for (int i = 0; i < E; i++) {
             st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
-            edges.add(new Edge(a, b, c));
+            int A = Integer.parseInt(st.nextToken());
+            int B = Integer.parseInt(st.nextToken());
+            int C = Integer.parseInt(st.nextToken());
+            pq.add(new Edge(A, B, C));
         }
-
-        Collections.sort(edges);
 
         parent = new int[V + 1];
         for (int i = 1; i < V + 1; i++) {
@@ -62,17 +56,22 @@ public class Main {
         }
 
         int sum = 0;
-        int cnt = 0; // V-1 돼야함
-        for (Edge e : edges) {
+        int cnt = 0;
+
+        while (cnt < V - 1) {
+            Edge cur = pq.poll();
+
+            if (find(cur.a) != find(cur.b)) {
+                union(cur.a, cur.b);
+                sum += cur.c;
+                cnt++;
+            }
+
             if (cnt == V - 1) {
                 break;
             }
-            if (find(e.x) != find(e.y)) {
-                union(e.x, e.y);
-                sum += e.cost;
-                cnt++;
-            }
         }
+
         System.out.println(sum);
     }
 }
