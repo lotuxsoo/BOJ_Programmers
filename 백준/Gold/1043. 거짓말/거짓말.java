@@ -1,23 +1,9 @@
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 public class Main {
-
-    static void union(int a, int b) {
-        int root1 = find(a);
-        int root2 = find(b);
-
-        if (root1 != root2) {
-            parent[root1] = root2;
-        }
-    }
 
     static int find(int x) {
         if (x != parent[x]) {
@@ -26,28 +12,33 @@ public class Main {
         return parent[x];
     }
 
-    static void getUnion(List<Integer> party) {
-        int p = find(party.get(0));
-        for (int i = 1; i < party.size(); i++) {
-            if (p != find(party.get(i))) {
-                union(p, find(party.get(i)));
+    static void union(int x, int y) {
+        int r1 = find(x), r2 = find(y);
+        if (r1 != r2) {
+            if (rank[r1] < rank[r2]) {
+                parent[r1] = r2;
+            } else if (rank[r1] > rank[r2]) {
+                parent[r2] = r1;
+            } else {
+                parent[r2] = r1;
+                rank[r1]++;
             }
         }
     }
 
-    static boolean canLie(int p, Set<Integer> knowers) {
-        for (int x : knowers) {
-            if (find(x) == p) {
-                return false;
+    static int makeNetwork(int[] people) {
+        int prev = find(people[0]);
+        for (int i = 1; i < people.length; i++) {
+            int root = find(people[i]);
+            if (prev != root) {
+                union(prev, root);
             }
         }
-        return true;
+        return prev;
     }
 
+    static int[] parent, rank;
     static int N, M;
-    static int[] parent;
-    static Set<Integer> knowers = new HashSet<>();
-    static List<List<Integer>> parties = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -55,40 +46,44 @@ public class Main {
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
 
-        st = new StringTokenizer(br.readLine());
-        int n = Integer.parseInt(st.nextToken());
-        for (int i = 0; i < n; i++) {
-            knowers.add(Integer.parseInt(st.nextToken()));
-        }
-
         parent = new int[N + 1];
-        for (int i = 0; i < N + 1; i++) {
+        rank = new int[N + 1];
+        for (int i = 1; i <= N; i++) {
             parent[i] = i;
+            rank[i] = 0;
         }
 
-        for (int i = 0; i < M; i++) {
-            parties.add(new ArrayList<>()); // M개의 리스트 추가
+        st = new StringTokenizer(br.readLine());
+        int num = Integer.parseInt(st.nextToken());
+        int[] truth = new int[num];
+        if (num == 0) {
+            System.out.println(M); // 모든 파티 거짓말 가능
+            return;
         }
+        for (int i = 0; i < num; i++) {
+            truth[i] = Integer.parseInt(st.nextToken());
+        }
+        int truthNetwork = makeNetwork(truth);
 
+        int[] network = new int[M];
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            n = Integer.parseInt(st.nextToken());
-            for (int j = 0; j < n; j++) {
-                parties.get(i).add(Integer.parseInt(st.nextToken()));
+            num = Integer.parseInt(st.nextToken());
+            int[] party = new int[num];
+            for (int j = 0; j < num; j++) {
+                party[j] = Integer.parseInt(st.nextToken());
             }
-            // 파티마다 union
-            getUnion(parties.get(i));
+            network[i] = makeNetwork(party);
         }
 
-        int answer = 0;
-
+        int result = 0;
         for (int i = 0; i < M; i++) {
-            int p = find(parties.get(i).get(0));
-            if (canLie(p, knowers)) {
-                answer++;
+            int root = find(network[i]);
+            if (root != find(truthNetwork)) {
+                result++;
             }
         }
 
-        System.out.println(answer);
+        System.out.println(result);
     }
 }
