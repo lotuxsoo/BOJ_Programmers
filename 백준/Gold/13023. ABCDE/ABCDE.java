@@ -8,20 +8,20 @@ import java.util.StringTokenizer;
 public class Main {
 
     static boolean dfs(int cnt, int x) {
-        visited[x] = true;
         if (cnt == 5) {
             return true;
         }
 
         for (int next : graph[x]) {
             if (!visited[next]) {
+                visited[next] = true;
                 if (dfs(cnt + 1, next)) {
                     return true;
                 }
+                visited[next] = false;
             }
         }
 
-        visited[x] = false;
         return false;
     }
 
@@ -51,10 +51,12 @@ public class Main {
         }
 
         for (int i = 0; i <= N - 1; i++) {
+            visited[i] = true;
             if (dfs(1, i)) {
                 System.out.println(1);
                 return;
             }
+            visited[i] = false;
         }
 
         System.out.println(0);
