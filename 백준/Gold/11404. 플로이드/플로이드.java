@@ -7,52 +7,48 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static int N, M;
-    static int[][] dist;
-    static final int INF = 1_000_000_000;
+    static int n, m;
+    static final int INF = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        M = Integer.parseInt(br.readLine());
+        n = Integer.parseInt(br.readLine());
+        m = Integer.parseInt(br.readLine());
 
-        dist = new int[N + 1][N + 1];
-
-        for (int i = 1; i < N + 1; i++) {
+        int[][] dist = new int[n + 1][n + 1];
+        for (int i = 0; i < n + 1; i++) {
             Arrays.fill(dist[i], INF);
-        }
-
-        for (int i = 1; i < N + 1; i++) {
             dist[i][i] = 0;
         }
 
-        for (int i = 0; i < M; i++) {
+        for (int i = 0; i < m; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
             int c = Integer.parseInt(st.nextToken());
-            dist[a][b] = Math.min(dist[a][b], c); // 효율적인 노선으로 저장
+            if (dist[a][b] > c) {
+                dist[a][b] = c;
+            }
         }
 
-        for (int k = 1; k <= N; k++) {
-            for (int s = 1; s <= N; s++) {
-                for (int e = 1; e <= N; e++) {
-                    if (dist[s][e] > dist[s][k] + dist[k][e]) {
-                        dist[s][e] = dist[s][k] + dist[k][e];
+        // 도시 개수<=100 -> O(N^3) 가능
+        for (int k = 1; k <= n; k++) {
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    if (dist[i][k] != INF && dist[k][j] != INF && dist[i][j] > dist[i][k] + dist[k][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
                     }
                 }
             }
         }
 
         StringBuilder sb = new StringBuilder();
-
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= N; j++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
                 sb.append(dist[i][j] == INF ? 0 : dist[i][j]).append(" ");
             }
             sb.append("\n");
         }
-
         System.out.println(sb.toString());
     }
 }
