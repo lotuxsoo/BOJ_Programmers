@@ -19,6 +19,7 @@ public class Main {
 
     static int N, M, X;
     static ArrayList<Node>[] graph;
+    static ArrayList<Node>[] reverse;
     static final int INF = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
@@ -29,8 +30,10 @@ public class Main {
         X = Integer.parseInt(st.nextToken()); // 파티 장소
 
         graph = new ArrayList[N + 1];
+        reverse = new ArrayList[N + 1];
         for (int i = 0; i < N + 1; i++) {
             graph[i] = new ArrayList<>();
+            reverse[i] = new ArrayList<>();
         }
 
         for (int i = 0; i < M; i++) {
@@ -38,65 +41,60 @@ public class Main {
             int s = Integer.parseInt(st.nextToken());
             int e = Integer.parseInt(st.nextToken());
             int w = Integer.parseInt(st.nextToken());
-            graph[s].add(new Node(e, w));
+            graph[s].add(new Node(e, w)); // i->X
+            reverse[e].add(new Node(s, w)); // X->i
         }
 
-        int[][] distFromN = new int[N + 1][N + 1];
-        for (int i = 0; i < N + 1; i++) {
-            Arrays.fill(distFromN[i], INF);
-            distFromN[i][i] = 0;
-        }
+        // 역방향 그래프로 다른 마을->X까지의 최단거리 구함
+        int[] revereDist = new int[N + 1];
+        Arrays.fill(revereDist, INF);
+        revereDist[X] = 0;
 
-        // 각 마을마다 -> X까지 가는 최단 경로
-        for (int i = 1; i <= N; i++) {
-            PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
-            pq.add(new Node(i, 0));
-
-            while (!pq.isEmpty()) {
-                Node cur = pq.poll();
-
-                if (distFromN[i][cur.val] < cur.cost) {
-                    continue;
-                }
-
-                for (Node next : graph[cur.val]) {
-                    if (distFromN[i][next.val] > distFromN[i][cur.val] + next.cost) {
-                        distFromN[i][next.val] = distFromN[i][cur.val] + next.cost;
-                        pq.add(new Node(next.val, distFromN[i][next.val]));
-                    }
-                }
-            }
-        }
-
-        // X에서 -> 각 마을까지 가는 최단 경로
         PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
         pq.add(new Node(X, 0));
-
-        int[] distFromX = new int[N + 1];
-        Arrays.fill(distFromX, INF);
-        distFromX[X] = 0;
 
         while (!pq.isEmpty()) {
             Node cur = pq.poll();
 
-            if (distFromX[cur.val] < cur.cost) {
+            if (revereDist[cur.val] < cur.cost) {
+                continue;
+            }
+
+            for (Node next : reverse[cur.val]) {
+                if (revereDist[next.val] > revereDist[cur.val] + next.cost) {
+                    revereDist[next.val] = revereDist[cur.val] + next.cost;
+                    pq.add(new Node(next.val, revereDist[next.val]));
+                }
+            }
+        }
+
+        // 순방향 그래프로 X->다른 마을까지의 최단거리 구함
+        int[] dist = new int[N + 1];
+        Arrays.fill(dist, INF);
+        dist[X] = 0;
+
+        pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
+        pq.add(new Node(X, 0));
+
+        while (!pq.isEmpty()) {
+            Node cur = pq.poll();
+
+            if (dist[cur.val] < cur.cost) {
                 continue;
             }
 
             for (Node next : graph[cur.val]) {
-                if (distFromX[next.val] > distFromX[cur.val] + next.cost) {
-                    distFromX[next.val] = distFromX[cur.val] + next.cost;
-                    pq.add(new Node(next.val, distFromX[next.val]));
+                if (dist[next.val] > dist[cur.val] + next.cost) {
+                    dist[next.val] = dist[cur.val] + next.cost;
+                    pq.add(new Node(next.val, dist[next.val]));
                 }
             }
         }
 
         int maxTime = 0;
-
         for (int i = 1; i <= N; i++) {
-            maxTime = Math.max(maxTime, distFromN[i][X] + distFromX[i]);
+            maxTime = Math.max(maxTime, revereDist[i] + dist[i]);
         }
-
         System.out.println(maxTime);
     }
 }
