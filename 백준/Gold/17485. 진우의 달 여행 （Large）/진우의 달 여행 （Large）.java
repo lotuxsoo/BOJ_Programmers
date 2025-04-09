@@ -7,49 +7,9 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static void solve() {
-
-        // dp[i][j][k]: (i,j)위치로 k방향에서 왔을 때 필요한 연료의 최솟값
-        int[][][] dp = new int[N][M][3];
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                Arrays.fill(dp[i][j], Integer.MAX_VALUE);
-            }
-        }
-
-        for (int i = 0; i < M; i++) {
-            for (int j = 0; j < 3; j++) {
-                dp[0][i][j] = map[0][i];
-            }
-        }
-
-        for (int i = 1; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (j == 0) {
-                    dp[i][j][1] = Math.min(dp[i - 1][j][0], dp[i - 1][j][2]) + map[i][j];
-                    dp[i][j][2] = Math.min(dp[i - 1][j + 1][0], dp[i - 1][j + 1][1]) + map[i][j];
-                } else if (j == M - 1) {
-                    dp[i][j][0] = Math.min(dp[i - 1][j - 1][1], dp[i - 1][j - 1][2]) + map[i][j];
-                    dp[i][j][1] = Math.min(dp[i - 1][j][0], dp[i - 1][j][2]) + map[i][j];
-                } else {
-                    dp[i][j][0] = Math.min(dp[i - 1][j - 1][1], dp[i - 1][j - 1][2]) + map[i][j];
-                    dp[i][j][1] = Math.min(dp[i - 1][j][0], dp[i - 1][j][2]) + map[i][j];
-                    dp[i][j][2] = Math.min(dp[i - 1][j + 1][0], dp[i - 1][j + 1][1]) + map[i][j];
-                }
-            }
-        }
-
-        int minCost = Integer.MAX_VALUE;
-        for (int i = 0; i < M; i++) {
-            for (int j = 0; j < 3; j++) {
-                minCost = Math.min(minCost, dp[N - 1][i][j]);
-            }
-        }
-        System.out.println(minCost);
-    }
-
     static int N, M;
     static int[][] map;
+    static final int INF = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -64,6 +24,41 @@ public class Main {
             }
         }
 
-        solve();
+        // dp[i][j][k]: (i,j)까지 K방향으로 도착하는데 필요한 최소 연료값
+        int[][][] dp = new int[N][M][3];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                Arrays.fill(dp[i][j], INF);
+            }
+        }
+
+        for (int j = 0; j < M; j++) {
+            for (int k = 0; k < 3; k++) {
+                dp[0][j][k] = map[0][j]; // 0번째 행 초기화
+            }
+        }
+
+        for (int i = 1; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (i - 1 >= 0 && j - 1 >= 0) { // 방향 0
+                    dp[i][j][0] = Math.min(dp[i][j][0], Math.min(dp[i - 1][j - 1][1], dp[i - 1][j - 1][2]) + map[i][j]);
+                }
+                if (i - 1 >= 0) { // 방향 1
+                    dp[i][j][1] = Math.min(dp[i][j][1], Math.min(dp[i - 1][j][0], dp[i - 1][j][2]) + map[i][j]);
+                }
+                if (i - 1 >= 0 && j + 1 < M) { // 방향 2
+                    dp[i][j][2] = Math.min(dp[i][j][2], Math.min(dp[i - 1][j + 1][0], dp[i - 1][j + 1][1]) + map[i][j]);
+                }
+            }
+        }
+
+        int result = INF;
+        for (int j = 0; j < M; j++) {
+            for (int k = 0; k < 3; k++) {
+                result = Math.min(result, dp[N - 1][j][k]);
+            }
+        }
+
+        System.out.println(result);
     }
 }
