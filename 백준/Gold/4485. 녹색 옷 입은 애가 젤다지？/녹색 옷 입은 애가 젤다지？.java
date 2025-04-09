@@ -58,7 +58,7 @@ public class Main {
 
                 if (cur.x == N - 1 && cur.y == N - 1) {
                     minCost = Math.min(minCost, dp[cur.x][cur.y]);
-                    continue;
+                    break;
                 }
 
                 if (dp[cur.x][cur.y] < cur.cost) {
