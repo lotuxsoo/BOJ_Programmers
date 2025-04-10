@@ -3,97 +3,99 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
 public class Main {
 
     static void dfs(int cur) {
+        visited[cur] = true;
+
         dp[cur][0] = 0;
-        dp[cur][1] = W[cur];
+        dp[cur][1] = weight[cur];
 
-        for (int child : tree[cur]) {
-            if (!visited[child]) {
-                visited[child] = true;
-                dfs(child);
-
-                dp[cur][1] += dp[child][0];
-                dp[cur][0] += Math.max(dp[child][0], dp[child][1]);
+        for (int next : graph[cur]) {
+            if (!visited[next]) {
+                dfs(next);
+                dp[cur][0] += Math.max(dp[next][1], dp[next][0]);
+                dp[cur][1] += dp[next][0];
             }
         }
     }
 
-    static void tracking(int cur, int parent, boolean isIncluded) {
+    static void trace(int cur, int parent, boolean isIncluded) {
         if (isIncluded) {
             answer.add(cur);
-        }
-
-        for (int next : tree[cur]) {
-            if (next == parent) {
-                continue;
+            for (int next : graph[cur]) {
+                if (next != parent) {
+                    trace(next, cur, false);
+                }
             }
-            if (isIncluded) {
-                tracking(next, cur, false);
-            } else {
-                if (dp[next][0] < dp[next][1]) {
-                    tracking(next, cur, true);
-                } else {
-                    tracking(next, cur, false);
+        } else {
+
+            for (int next : graph[cur]) {
+                if (next != parent) {
+                    if (dp[next][0] > dp[next][1]) {
+                        trace(next, cur, false);
+                    } else {
+                        trace(next, cur, true);
+                    }
                 }
             }
         }
     }
 
-    static int N;
-    static int[] W;
-    static ArrayList<Integer>[] tree;
+    static int n;
+    static int[] weight;
+    static ArrayList<Integer>[] graph;
     static int[][] dp;
     static boolean[] visited;
     static ArrayList<Integer> answer = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        W = new int[N + 1];
+        n = Integer.parseInt(br.readLine());
+        weight = new int[n + 1];
         StringTokenizer st = new StringTokenizer(br.readLine());
-        for (int i = 1; i <= N; i++) {
-            W[i] = Integer.parseInt(st.nextToken());
+        for (int i = 1; i <= n; i++) {
+            weight[i] = Integer.parseInt(st.nextToken());
         }
-        tree = new ArrayList[N + 1];
-        for (int i = 0; i < N + 1; i++) {
-            tree[i] = new ArrayList<>();
+
+        graph = new ArrayList[n + 1];
+        for (int i = 0; i < n + 1; i++) {
+            graph[i] = new ArrayList<>();
         }
-        for (int i = 0; i < N - 1; i++) {
+
+        for (int i = 0; i < n - 1; i++) {
             st = new StringTokenizer(br.readLine());
             int u = Integer.parseInt(st.nextToken());
             int v = Integer.parseInt(st.nextToken());
-            tree[u].add(v);
-            tree[v].add(u);
+            graph[u].add(v);
+            graph[v].add(u);
         }
 
-        // dp[v][0]: v가 독립집합에 속하지 않았을 때, 최대 합
-        // dp[v][1]: v가 독립집합에 속했을 때, 최대 합
-        dp = new int[N + 1][2];
-        for (int i = 0; i < N + 1; i++) {
-            Arrays.fill(dp[i], -1);
-        }
+        // dp[i][0]: i가 선택안됐을 때, 최대 독립집합 크기
+        // dp[i][1]: i가 선택됐을 때, 최대 독립집합 크기
+        dp = new int[n + 1][2];
 
-        visited = new boolean[N + 1];
-        visited[1] = true;
+        visited = new boolean[n + 1];
+        // 1로 루트 지정
         dfs(1);
 
-        if (dp[1][0] < dp[1][1]) {
-            System.out.println(dp[1][1]);
-            tracking(1, -1, true);
-        } else {
+        // 독립집합 복원
+        if (dp[1][0] > dp[1][1]) {
             System.out.println(dp[1][0]);
-            tracking(1, -1, false);
+            trace(1, 0, false);
+        } else {
+            System.out.println(dp[1][1]);
+            trace(1, 0, true);
         }
 
         Collections.sort(answer);
+        StringBuilder sb = new StringBuilder();
         for (int x : answer) {
-            System.out.print(x + " ");
+            sb.append(x).append(" ");
         }
+        System.out.println(sb.toString());
     }
 }
