@@ -3,68 +3,59 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
     static class Node {
-        int val, weight;
+        int val, dist;
 
-        Node(int val, int weight) {
+        Node(int val, int dist) {
             this.val = val;
-            this.weight = weight;
+            this.dist = dist;
         }
     }
 
-    static void dfs(int cur, int weight) {
-        dist[cur] = weight;
-        result = Math.max(result, dist[cur]);
+    static void dfs(int cur, int curDist) {
+        visited[cur] = true;
+        if (maxDist < curDist) {
+            maxDist = curDist;
+            maxNode = cur;
+        }
 
         for (Node next : graph[cur]) {
-            if (dist[next.val] == -1) {
-                dfs(next.val, weight + next.weight);
+            if (!visited[next.val]) {
+                dfs(next.val, curDist + next.dist);
             }
         }
     }
 
-    static int n;
     static ArrayList<Node>[] graph;
-    static int[] dist;
-    static int result = 0;
+    static int n;
+    static boolean[] visited;
+    static int maxDist = 0, maxNode = 0;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         n = Integer.parseInt(br.readLine());
-
         graph = new ArrayList[n + 1];
         for (int i = 0; i < n + 1; i++) {
             graph[i] = new ArrayList<>();
         }
-
         for (int i = 0; i < n - 1; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            int p = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
             int w = Integer.parseInt(st.nextToken());
-            graph[p].add(new Node(c, w));
-            graph[c].add(new Node(p, w)); // 양방향 그래프 저장 필수
+            graph[u].add(new Node(v, w));
+            graph[v].add(new Node(u, w)); // 양방향 연결 필요
         }
 
-        dist = new int[n + 1];
-        Arrays.fill(dist, -1);
-
+        visited = new boolean[n + 1];
         dfs(1, 0);
-        int maxNode = 0;
-        for (int i = 1; i <= n; i++) {
-            if (result == dist[i]) {
-                maxNode = i;
-            }
-        }
 
-        result = 0;
-        dist = new int[n + 1];
-        Arrays.fill(dist, -1);
+        maxDist = 0;
+        visited = new boolean[n + 1];
         dfs(maxNode, 0);
-        System.out.println(result);
+        System.out.println(maxDist);
     }
 }
