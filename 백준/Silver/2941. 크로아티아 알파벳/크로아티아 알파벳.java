@@ -14,24 +14,14 @@ public class Main {
         int result = 0;
         int i = 0;
         while (i < word.length()) {
-            if (i <= word.length() - 2) {
-                String substr = word.substring(i, i + 2);
-                if (alphabet.contains(substr)) {
-                    result++;
-                    i += 2;
-                    continue;
-                }
-            }
-            if (i <= word.length() - 3) {
-                String substr = word.substring(i, i + 3);
-                if (alphabet.contains(substr)) {
-                    result++;
-                    i += 3;
-                    continue;
-                }
+            if ((i <= word.length() - 3) && alphabet.contains(word.substring(i, i + 3))) {
+                i += 3;
+            } else if ((i <= word.length() - 2) && alphabet.contains(word.substring(i, i + 2))) {
+                i += 2;
+            } else {
+                i++;
             }
             result++;
-            i++;
         }
 
         System.out.println(result);
