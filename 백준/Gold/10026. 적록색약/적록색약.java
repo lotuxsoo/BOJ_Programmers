@@ -6,13 +6,13 @@ import java.io.InputStreamReader;
 public class Main {
 
     static void dfs(int x, int y, char[][] map) {
-        char current = map[x][y];
+        char color = map[x][y];
         map[x][y] = 'X';
 
         for (int i = 0; i < 4; i++) {
             int nx = x + dx[i], ny = y + dy[i];
 
-            if ((0 <= nx && nx < N && 0 <= ny && ny < N) && map[nx][ny] != 'X' && map[nx][ny] == current) {
+            if ((0 <= nx && nx < N && 0 <= ny && ny < N) && (map[nx][ny] != 'X') && (color == map[nx][ny])) {
                 dfs(nx, ny, map);
             }
         }
@@ -28,7 +28,6 @@ public class Main {
 
         char[][] map = new char[N][N];
         char[][] blindMap = new char[N][N];
-
         for (int i = 0; i < N; i++) {
             map[i] = br.readLine().toCharArray();
             for (int j = 0; j < N; j++) {
@@ -36,21 +35,22 @@ public class Main {
             }
         }
 
-        int count = 0, blindCount = 0;
+        int normalCount = 0;
+        int blindCount = 0;
 
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 if (map[i][j] != 'X') {
-                    count++;
                     dfs(i, j, map);
+                    normalCount++;
                 }
                 if (blindMap[i][j] != 'X') {
-                    blindCount++;
                     dfs(i, j, blindMap);
+                    blindCount++;
                 }
             }
         }
 
-        System.out.println(count + " " + blindCount);
+        System.out.println(normalCount + " " + blindCount);
     }
 }
