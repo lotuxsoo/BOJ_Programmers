@@ -9,19 +9,9 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static boolean finish(int[][] cloneMap) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                if (cloneMap[i][j] == 0) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     static int goVirus(ArrayList<int[]> list) {
         boolean[][] visited = new boolean[N][N];
+        int remain = emptyCount; // 복사본
 
         int[][] cloneMap = new int[N][N];
         for (int i = 0; i < N; i++) {
@@ -31,31 +21,33 @@ public class Main {
         Queue<int[]> queue = new LinkedList<>();
         for (int[] arr : list) {
             queue.add(arr);
-            cloneMap[arr[0]][arr[1]] = 3;
+            cloneMap[arr[0]][arr[1]] = 3; // 활성 바이러스로 바꿈
             visited[arr[0]][arr[1]] = true;
         }
 
         int time = 0;
 
         while (!queue.isEmpty()) {
-            int size = queue.size();
-            if (finish(cloneMap)) {
+            if (remain == 0) {
                 return time;
             }
+
+            int size = queue.size();
             for (int s = 0; s < size; s++) {
                 int[] cur = queue.poll();
 
                 for (int i = 0; i < 4; i++) {
                     int nx = cur[0] + dx[i], ny = cur[1] + dy[i];
-                    if (!(0 <= nx && nx < N && 0 <= ny && ny < N) || cloneMap[nx][ny] == 1) {
+                    if (!(0 <= nx && nx < N && 0 <= ny && ny < N) || cloneMap[nx][ny] == 1 || visited[nx][ny]) {
                         continue;
                     }
 
-                    if ((cloneMap[nx][ny] == 0 || cloneMap[nx][ny] == 2) && !visited[nx][ny]) {
-                        visited[nx][ny] = true;
-                        cloneMap[nx][ny] = 3;
-                        queue.add(new int[]{nx, ny});
+                    if (cloneMap[nx][ny] == 0) {
+                        remain--;
                     }
+                    visited[nx][ny] = true;
+                    cloneMap[nx][ny] = 3;
+                    queue.add(new int[]{nx, ny});
                 }
             }
 
@@ -90,6 +82,7 @@ public class Main {
     static int[] dx = {-1, 1, 0, 0};
     static int[] dy = {0, 0, -1, 1};
     static final int INF = 1_000_000_000;
+    static int emptyCount = 0;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -102,7 +95,10 @@ public class Main {
             for (int j = 0; j < N; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
                 if (map[i][j] == 2) {
-                    virus.add(new int[]{i, j});
+                    virus.add(new int[]{i, j}); // 비활성 바이러스 위치 저장
+                }
+                if (map[i][j] == 0) {
+                    emptyCount++;
                 }
             }
         }
