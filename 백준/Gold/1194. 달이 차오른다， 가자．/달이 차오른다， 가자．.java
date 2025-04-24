@@ -2,30 +2,16 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
 
 public class Main {
-    static class State {
-        int x, y, keyMask;
-
-        State(int x, int y, int keyMask) {
-            this.x = x;
-            this.y = y;
-            this.keyMask = keyMask;
-        }
-    }
 
     static int N, M;
     static char[][] map;
     static int[] start;
     static int[] dx = {-1, 1, 0, 0};
     static int[] dy = {0, 0, -1, 1};
-    static final int INF = 1_000_000_000;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -43,59 +29,52 @@ public class Main {
             }
         }
 
-        // x,y,keyMask
-        int[][][] dp = new int[N][M][65];
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                Arrays.fill(dp[i][j], INF);
-            }
-        }
+        boolean[][][] visited = new boolean[N][M][64];
+        visited[start[0]][start[1]][0] = true; // 시작점 방문 체크
 
-        Queue<State> queue = new LinkedList<>();
-        queue.add(new State(start[0], start[1], 0));
-        dp[start[0]][start[1]][0] = 0; // 시작점 처리ㅣ
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{start[0], start[1], 0, 0}); // x,y좌표,비트마스킹,이동횟수
 
         while (!queue.isEmpty()) {
-            State cur = queue.poll();
+            int[] cur = queue.poll();
 
-            if (map[cur.x][cur.y] == '1') {
-                System.out.println(dp[cur.x][cur.y][cur.keyMask]);
+            if (map[cur[0]][cur[1]] == '1') {
+                System.out.println(cur[3]);
                 return;
             }
 
             for (int i = 0; i < 4; i++) {
-                int nx = cur.x + dx[i], ny = cur.y + dy[i];
-                if (!(0 <= nx && nx < N && 0 <= ny && ny < M)) {
+                int nx = cur[0] + dx[i], ny = cur[1] + dy[i];
+                if (!(0 <= nx && nx < N && 0 <= ny && ny < M) || map[nx][ny] == '#') {
                     continue;
                 }
 
                 if (map[nx][ny] >= 'a' && map[nx][ny] <= 'z') {
-                    // 비트 키기
-                    int newKeyMask = cur.keyMask | (1 << map[nx][ny] - 'a');
-                    if (dp[nx][ny][newKeyMask] > dp[cur.x][cur.y][cur.keyMask] + 1) {
-                        dp[nx][ny][newKeyMask] = dp[cur.x][cur.y][cur.keyMask] + 1;
-                        queue.add(new State(nx, ny, newKeyMask));
+                    int bitmask = cur[2] | (1 << (map[nx][ny] - 'a'));
+                    if (!visited[nx][ny][bitmask]) {
+                        visited[nx][ny][bitmask] = true;
+                        queue.add(new int[]{nx, ny, bitmask, cur[3] + 1});
                     }
-                } else if (map[nx][ny] >= 'A' && map[nx][ny] <= 'Z') {
-                    // 비트 포함여부 확인
-                    if ((cur.keyMask & (1 << map[nx][ny] - 'A')) != 0) {
-                        if (dp[nx][ny][cur.keyMask] > dp[cur.x][cur.y][cur.keyMask] + 1) {
-                            dp[nx][ny][cur.keyMask] = dp[cur.x][cur.y][cur.keyMask] + 1;
-                            queue.add(new State(nx, ny, cur.keyMask));
-                        }
-                    }
-                } else {
-                    if (map[nx][ny] == '#') {
-                        continue;
-                    }
-
-                    if (dp[nx][ny][cur.keyMask] > dp[cur.x][cur.y][cur.keyMask] + 1) {
-                        dp[nx][ny][cur.keyMask] = dp[cur.x][cur.y][cur.keyMask] + 1;
-                        queue.add(new State(nx, ny, cur.keyMask));
-                    }
+                    continue;
                 }
+
+                if (visited[nx][ny][cur[2]]) {
+                    continue;
+                }
+
+                if (map[nx][ny] >= 'A' && map[nx][ny] <= 'Z') {
+                    if ((cur[2] & (1 << (map[nx][ny] - 'A'))) != 0) {
+                        visited[nx][ny][cur[2]] = true;
+                        queue.add(new int[]{nx, ny, cur[2], cur[3] + 1});
+                    }
+                    continue;
+                }
+
+                visited[nx][ny][cur[2]] = true;
+                queue.add(new int[]{nx, ny, cur[2], cur[3] + 1});
             }
         }
+
         System.out.println(-1);
     }
 }
