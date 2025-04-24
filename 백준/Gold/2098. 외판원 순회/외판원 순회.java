@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -6,55 +7,54 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static long solve(int visited, int current) {
-        // 모든 도시 순회
-        if (visited == (1 << N) - 1) {
-            return W[current][start] == 0 ? INF : W[current][start];
+    static int dfs(int start, int cur, int mask) {
+        if (mask == (1 << N) - 1) {
+            if (cost[cur][start] != 0) {
+                return cost[cur][start];
+            }
+            return INF;
         }
 
-        if (dp[visited][current] != -1) {
-            return dp[visited][current];
+        if (dp[cur][mask] != -1) {
+            return dp[cur][mask];
         }
 
-        long bestCost = INF;
+        dp[cur][mask] = INF;
 
-        for (int next = 0; next < N; next++) {
-            // 다음으로 가는 비용 유무, 방문 도시 여부 확인
-            if (W[current][next] != 0 && (visited & (1 << next)) == 0) {
-                bestCost = Math.min(bestCost, solve(visited | (1 << next), next) + W[current][next]);
+        for (int i = 0; i < N; i++) {
+            if (cost[cur][i] != 0 && ((mask & (1 << i))) == 0) {
+                int next = dfs(start, i, (mask | (1 << i)));
+                dp[cur][mask] = Math.min(dp[cur][mask], next + cost[cur][i]);
             }
         }
 
-        dp[visited][current] = bestCost;
-        return dp[visited][current];
+        return dp[cur][mask];
     }
 
     static int N;
-    static int[][] W;
-    static long[][] dp;
-    static long INF = 1_000_000_000;
-    static int start = 0;
+    static int[][] cost;
+    static int[][] dp;
+    static final int INF = 1_000_000_000;
+    static int minCost = INF;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
-
-        W = new int[N][N];
+        cost = new int[N][N];
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             for (int j = 0; j < N; j++) {
-                W[i][j] = Integer.parseInt(st.nextToken());
+                cost[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
-        // dp[visitedSet][currentNode]: 해당 집합,현재 노드에서의 최단 비용
-        dp = new long[(1 << N)][N];
-        for (int i = 0; i < (1 << N); i++) {
+        // dp[x][mask]: x에서 시작, x까지의 마스크
+        dp = new int[N][(1 << N)];
+        for (int i = 0; i < N; i++) {
             Arrays.fill(dp[i], -1);
         }
 
-        long ans = solve(start | (1 << start), start);
-
-        System.out.println(ans);
+        dfs(0, 0, (1 << 0));
+        System.out.println(dp[0][(1 << 0)]);
     }
 }
