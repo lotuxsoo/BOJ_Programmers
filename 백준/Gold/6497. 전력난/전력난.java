@@ -2,16 +2,17 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.StringTokenizer;
 
 public class Main {
     static class Edge {
-        int a, b, cost;
+        int x, y, cost;
 
-        Edge(int a, int b, int cost) {
-            this.a = a;
-            this.b = b;
+        Edge(int x, int y, int cost) {
+            this.x = x;
+            this.y = y;
             this.cost = cost;
         }
     }
@@ -57,26 +58,28 @@ public class Main {
             }
 
             long total = 0;
-            PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
+            ArrayList<Edge> edges = new ArrayList<>();
+
             for (int i = 0; i < n; i++) {
                 StringTokenizer st = new StringTokenizer(br.readLine());
                 int x = Integer.parseInt(st.nextToken());
                 int y = Integer.parseInt(st.nextToken());
                 int z = Integer.parseInt(st.nextToken());
-                pq.add(new Edge(x, y, z));
+                edges.add(new Edge(x, y, z));
                 total += z;
             }
 
             // MST 만들기
             long minCost = 0;
-            long edgeCount = 0;
-            while (!pq.isEmpty() && edgeCount < m) {
-                Edge cur = pq.poll();
-                if (find(cur.a) != find(cur.b)) {
-                    union(cur.a, cur.b);
-                    minCost += cur.cost;
-                    edgeCount++;
+
+            Collections.sort(edges, (a, b) -> Integer.compare(a.cost, b.cost));
+
+            for (Edge edge : edges) {
+                if (find(edge.x) != find(edge.y)) {
+                    union(edge.x, edge.y);
+                    minCost += edge.cost;
                 }
+
             }
 
             System.out.println(total - minCost);
