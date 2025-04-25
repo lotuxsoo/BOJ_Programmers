@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,61 +8,65 @@ import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Node {
-        int e, v;
+    static class Edge {
+        int to, cost;
 
-        Node(int e, int v) {
-            this.e = e;
-            this.v = v;
+        Edge(int to, int cost) {
+            this.to = to;
+            this.cost = cost;
         }
     }
 
+    static int N, M;
+    static ArrayList<Edge>[] graph;
+    static final int INF = 1_000_000_000;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        M = Integer.parseInt(br.readLine());
 
-        int N = Integer.parseInt(br.readLine()); // 정점의 개수
-        int M = Integer.parseInt(br.readLine()); // 간선의 개수
-
-        ArrayList<Node>[] A = new ArrayList[N + 1];
+        graph = new ArrayList[N + 1];
         for (int i = 0; i < N + 1; i++) {
-            A[i] = new ArrayList<>();
+            graph[i] = new ArrayList<>();
         }
 
-        StringTokenizer st;
         for (int i = 0; i < M; i++) {
-            st = new StringTokenizer(br.readLine());
+            StringTokenizer st = new StringTokenizer(br.readLine());
             int s = Integer.parseInt(st.nextToken());
             int e = Integer.parseInt(st.nextToken());
-            int v = Integer.parseInt(st.nextToken());
-            A[s].add(new Node(e, v));
+            int cost = Integer.parseInt(st.nextToken());
+            graph[s].add(new Edge(e, cost)); // 단방향
         }
-        st = new StringTokenizer(br.readLine());
-        int S = Integer.parseInt(st.nextToken());
-        int E = Integer.parseInt(st.nextToken());
 
-        boolean[] visited = new boolean[N + 1];
-        int[] dist = new int[N + 1];
-        Arrays.fill(dist, Integer.MAX_VALUE);
+        String[] sp = br.readLine().split(" ");
+        int start = Integer.parseInt(sp[0]);
+        int end = Integer.parseInt(sp[1]);
 
-        dist[S] = 0;
-        PriorityQueue<Node> pq = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.v, o2.v));
-        pq.add(new Node(S, 0));
+        PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
+        // 현재 정점, 현재 정점까지 온 거리
+        pq.add(new Edge(start, 0));
+
+        int[] dist = new int[N+1];
+        Arrays.fill(dist, INF);
+        dist[start] = 0;
 
         while (!pq.isEmpty()) {
-            Node cur = pq.poll();
-            if (visited[cur.e]) {
-                continue;
-            }
-            visited[cur.e] = true;
+            Edge cur = pq.poll();
 
-            for (Node next : A[cur.e]) {
-                if (dist[next.e] > cur.v + next.v) {
-                    dist[next.e] = cur.v + next.v;
-                    pq.add(new Node(next.e, dist[next.e]));
+            if (cur.to == end) {
+                System.out.println(dist[cur.to]);
+                return;
+            }
+
+            if (dist[cur.to] < cur.cost) continue;
+
+            for (Edge next : graph[cur.to]) {
+                if (dist[next.to] > dist[cur.to] + next.cost) {
+                    dist[next.to] = dist[cur.to] + next.cost;
+                    pq.add(new Edge(next.to, dist[next.to]));
                 }
             }
         }
-
-        System.out.println(dist[E]);
     }
 }
