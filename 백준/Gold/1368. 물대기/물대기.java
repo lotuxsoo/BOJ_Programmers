@@ -8,15 +8,16 @@ import java.util.StringTokenizer;
 
 public class Main {
     static class Edge {
-        int dest, cost;
+        int to, cost;
 
-        Edge(int dest, int cost) {
-            this.dest = dest;
+        Edge(int to, int cost) {
+            this.to = to;
             this.cost = cost;
         }
     }
 
     static int N;
+    static PriorityQueue<Edge> pq;
     static ArrayList<Edge>[] graph;
 
     public static void main(String[] args) throws IOException {
@@ -28,9 +29,12 @@ public class Main {
             graph[i] = new ArrayList<>();
         }
 
-        for (int i = 1; i <= N; i++) { // 1-index
+        // 비용 작은순 오름차순 정렬
+        pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
+        for (int i = 1; i <= N; i++) {
             int W = Integer.parseInt(br.readLine());
             graph[0].add(new Edge(i, W));
+            pq.add(new Edge(i, W)); // 처음 우물파는 비용 전부 저장
         }
 
         for (int i = 1; i <= N; i++) {
@@ -42,35 +46,31 @@ public class Main {
             }
         }
 
-        PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> Integer.compare(a.cost, b.cost));
-
         boolean[] visited = new boolean[N + 1];
-        visited[0] = true;
-        for (Edge next : graph[0]) {
-            pq.add(next);
-        }
+        long minCost = 0;
+        int connected = 0;
 
-        long result = 0;
-        int edgeCount = 0;
-
-        while (!pq.isEmpty() && edgeCount < N + 1) {
+        while (!pq.isEmpty()) {
             Edge cur = pq.poll();
 
-            if (visited[cur.dest]) {
+            if (visited[cur.to]) {
                 continue;
             }
-            // 방문체크는 큐에서 뺄때
-            visited[cur.dest] = true;
-            result += cur.cost;
-            edgeCount++;
+            visited[cur.to] = true;
+            minCost += cur.cost;
+            connected++;
 
-            for (Edge next : graph[cur.dest]) {
-                if (!visited[next.dest]) {
+            if (connected == N) {
+                break;
+            }
+
+            for (Edge next : graph[cur.to]) {
+                if (!visited[next.to]) {
                     pq.add(next);
                 }
             }
         }
 
-        System.out.println(result);
+        System.out.println(minCost);
     }
 }
