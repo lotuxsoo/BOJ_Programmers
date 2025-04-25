@@ -57,7 +57,6 @@ public class Main {
     static int[] rank, parent;
     static int N, M;
     static Node[] nodes;
-    static ArrayList<Edge> edges;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -89,22 +88,21 @@ public class Main {
             }
         }
 
-        edges = new ArrayList<>();
+        PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> Double.compare(a.cost, b.cost));
         for (int i = 1; i < N; i++) {
             for (int j = i + 1; j <= N; j++) {
                 double dist = getDist(i, j);
-                edges.add(new Edge(i, j, dist));
+                pq.add(new Edge(i, j, dist));
             }
         }
 
-        Collections.sort(edges, (a, b) -> Double.compare(a.cost, b.cost));
-        
         double result = 0;
 
-        for (Edge edge : edges) {
-            if (find(edge.a) != find(edge.b)) {
-                result += edge.cost;
-                union(edge.a, edge.b);
+        while (!pq.isEmpty()) {
+            Edge cur = pq.poll();
+            if (find(cur.a) != find(cur.b)) {
+                union(cur.a, cur.b);
+                result += cur.cost;
             }
         }
 
