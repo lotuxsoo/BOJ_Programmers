@@ -3,7 +3,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.PriorityQueue;
 
 public class Main {
@@ -18,12 +17,11 @@ public class Main {
     }
 
     static class Edge {
-        int a, b;
+        int to;
         double cost;
 
-        Edge(int a, int b, double cost) {
-            this.a = a;
-            this.b = b;
+        Edge(int to, double cost) {
+            this.to = to;
             this.cost = cost;
         }
     }
@@ -31,32 +29,10 @@ public class Main {
     static double getDist(int idx1, int idx2) {
         return Math.sqrt(Math.pow(nodes[idx1].x - nodes[idx2].x, 2) + Math.pow(nodes[idx1].y - nodes[idx2].y, 2));
     }
-
-    static int find(int x) {
-        if (x != parent[x]) {
-            parent[x] = find(parent[x]);
-        }
-        return parent[x];
-    }
-
-    static void union(int x, int y) {
-        int root1 = find(x);
-        int root2 = find(y);
-        if (root1 != root2) {
-            if (rank[root1] < rank[root2]) {
-                parent[root1] = root2;
-            } else if (rank[root1] > rank[root2]) {
-                parent[root2] = root1;
-            } else {
-                parent[root2] = root1;
-                rank[root1]++;
-            }
-        }
-    }
-
-    static int[] rank, parent;
+    
     static int N, M;
     static Node[] nodes;
+    static ArrayList<Edge>[] graph;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -65,6 +41,11 @@ public class Main {
         M = Integer.parseInt(sp[1]);
 
         nodes = new Node[N + 1];
+        graph = new ArrayList[N + 1];
+        for (int i = 0; i < N + 1; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
         for (int i = 1; i <= N; i++) {
             sp = br.readLine().split(" ");
             int x = Integer.parseInt(sp[0]);
@@ -72,37 +53,49 @@ public class Main {
             nodes[i] = new Node(i, x, y);
         }
 
-        rank = new int[N + 1];
-        parent = new int[N + 1];
-        for (int i = 1; i <= N; i++) {
-            parent[i] = i;
+        for (int i = 1; i < N; i++) {
+            for (int j = i + 1; j <= N; j++) {
+                double dist = getDist(i, j);
+                graph[i].add(new Edge(j, dist));
+                graph[j].add(new Edge(i, dist));
+            }
         }
+
+        PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> Double.compare(a.cost, b.cost));
 
         for (int i = 0; i < M; i++) {
             sp = br.readLine().split(" ");
             int x = Integer.parseInt(sp[0]);
             int y = Integer.parseInt(sp[1]);
 
-            if (find(x) != find(y)) {
-                union(x, y);
-            }
+            graph[x].add(new Edge(y, 0));
+            graph[y].add(new Edge(x, 0));
         }
 
-        PriorityQueue<Edge> pq = new PriorityQueue<>((a, b) -> Double.compare(a.cost, b.cost));
-        for (int i = 1; i < N; i++) {
-            for (int j = i + 1; j <= N; j++) {
-                double dist = getDist(i, j);
-                pq.add(new Edge(i, j, dist));
-            }
-        }
-
+        boolean[] visited = new boolean[N + 1];
         double result = 0;
+        int connected = 0;
+        pq.add(new Edge(1, 0));
 
+        // 작은 간선부터 하나씩 꺼냄
         while (!pq.isEmpty()) {
             Edge cur = pq.poll();
-            if (find(cur.a) != find(cur.b)) {
-                union(cur.a, cur.b);
-                result += cur.cost;
+
+            if (visited[cur.to]) {
+                continue;
+            }
+            visited[cur.to] = true;
+            result += cur.cost;
+            connected++;
+
+            if (connected == N) {
+                break;
+            }
+
+            for (Edge next : graph[cur.to]) {
+                if (!visited[next.to]) {
+                    pq.add(next);
+                }
             }
         }
 
