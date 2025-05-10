@@ -1,43 +1,35 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.util.Arrays;
 
 public class Main {
 
+    static int N, M;
+    static int[] arr, dp;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int N = Integer.parseInt(st.nextToken());
-        int M = Integer.parseInt(st.nextToken());
-        int[] arr = new int[N];
-        st = new StringTokenizer(br.readLine());
-        for (int i = 0; i < N; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
+        String[] sp = br.readLine().split(" ");
+        N = Integer.parseInt(sp[0]);
+        M = Integer.parseInt(sp[1]);
+
+        arr = new int[N + 1];
+        dp = new int[N + 1];
+        sp = br.readLine().split(" ");
+        for (int i = 1; i <= N; i++) {
+            arr[i] = Integer.parseInt(sp[i - 1]);
+            dp[i] = dp[i - 1] + arr[i];
         }
-        int[][] arr2 = new int[M][2];
+
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < M; i++) {
-            st = new StringTokenizer(br.readLine());
-            arr2[i][0] = Integer.parseInt(st.nextToken()) - 1;
-            arr2[i][1] = Integer.parseInt(st.nextToken()) - 1;
+            sp = br.readLine().split(" ");
+            int a = Integer.parseInt(sp[0]);
+            int b = Integer.parseInt(sp[1]);
+            sb.append(dp[b] - dp[a - 1]).append("\n");
         }
-
-        // 부분합 구해놓기
-        int[] sum = new int[N];
-        sum[0] = arr[0];
-        for (int i = 1; i < N; i++) {
-            sum[i] = sum[i - 1] + arr[i];
-        }
-
-        // 구간합: S[j] - S[i-1]
-        for (int[] arr1 : arr2) {
-            int x;
-            if (arr1[0] == 0) {
-                x = sum[arr1[1]];
-            } else {
-                x = sum[arr1[1]] - sum[arr1[0] - 1];
-            }
-            System.out.println(x);
-        }
+        System.out.println(sb.toString());
     }
 }
