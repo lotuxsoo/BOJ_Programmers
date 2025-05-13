@@ -6,23 +6,14 @@ import java.util.ArrayList;
 
 public class Main {
 
-    static int N, M;
-    static int[][] map;
-    static ArrayList<int[]> cctvs = new ArrayList<>();
-    static int minArea = Integer.MAX_VALUE;
-    static int[] dx = {0, 1, 0, -1};
-    static int[] dy = {1, 0, -1, 0};
-
     static void find(int x, int y, int dir, int[][] tempMap) {
         int nx = x;
         int ny = y;
 
         while ((0 <= nx && nx < N && 0 <= ny && ny < M) && tempMap[nx][ny] != 6) {
-
             if (tempMap[nx][ny] == 0) {
                 tempMap[nx][ny] = -1;
             }
-
             nx += dx[dir];
             ny += dy[dir];
         }
@@ -34,11 +25,11 @@ public class Main {
             tempMap[i] = map[i].clone();
         }
 
-        for (int[] cc : cctvs) {
-            int x = cc[0];
-            int y = cc[1];
-            int type = cc[2];
-            int dir = cc[3];
+        for (Cctv cctv : cctvs) {
+            int x = cctv.x;
+            int y = cctv.y;
+            int dir = cctv.dir;
+            int type = cctv.type;
 
             switch (type) {
                 case 1:
@@ -74,31 +65,39 @@ public class Main {
                 }
             }
         }
-
         return blind;
     }
 
-    static void dfs(int index) {
+    static void backtrack(int index) {
         if (index == cctvs.size()) {
-            minArea = Math.min(minArea, simulate());
+            result = Math.min(result, simulate());
             return;
         }
 
-        int[] cctv = cctvs.get(index);
-        int x = cctv[0];
-        int y = cctv[1];
-        int type = cctv[2];
+        Cctv cctv = cctvs.get(index);
+        int type = cctv.type;
+        int rotation = 4;
 
         if (type == 5) {
-            dfs(index + 1);
+            backtrack(index + 1);
             return;
         }
+        if (type == 2) {
+            rotation = 2;
+        }
 
-        for (int dir = 0; dir < 4; dir++) {
-            cctv[3] = dir;
-            dfs(index + 1);
+        for (int i = 0; i < rotation; i++) {
+            cctv.dir = i; // 4방향 모두 지정, 조합 만들기
+            backtrack(index + 1);
         }
     }
+
+    static int result = Integer.MAX_VALUE;
+    static int N, M;
+    static int[][] map;
+    static ArrayList<Cctv> cctvs = new ArrayList<>();
+    static int[] dx = {0, 1, 0, -1};
+    static int[] dy = {1, 0, -1, 0};
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -110,15 +109,26 @@ public class Main {
             sp = br.readLine().split(" ");
             for (int j = 0; j < M; j++) {
                 map[i][j] = Integer.parseInt(sp[j]);
-                int type = map[i][j];
-                if (type >= 1 && type <= 5) {
-                    cctvs.add(new int[]{i, j, type, 0});
+                if (map[i][j] >= 1 && map[i][j] <= 5) {
+                    // cctv 좌표, cctv 감시방향, cctv 종료
+                    cctvs.add(new Cctv(i, j, 0, map[i][j]));
                 }
             }
         }
 
-        dfs(0);
+        backtrack(0);
 
-        System.out.println(minArea);
+        System.out.println(result);
+    }
+
+    static class Cctv {
+        int x, y, dir, type;
+
+        Cctv(int x, int y, int dir, int type) {
+            this.x = x;
+            this.y = y;
+            this.dir = dir;
+            this.type = type;
+        }
     }
 }
