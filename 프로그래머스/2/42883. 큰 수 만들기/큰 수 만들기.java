@@ -1,21 +1,32 @@
+import java.util.*;
+
 class Solution {
     public String solution(String number, int k) {
         String answer = "";
-        StringBuilder sb = new StringBuilder();
         
-        for (int i=0; i<number.length(); i++) {
-            char now = number.charAt(i);
-            while (k>0 && sb.length()>0 && sb.charAt(sb.length()-1) < now) {
-                sb.deleteCharAt(sb.length()-1);
+        Deque<Character> stack = new ArrayDeque<>();
+        
+        char[] ch = number.toCharArray();
+        
+        for (int i=0; i<ch.length; i++) {
+            while (!stack.isEmpty() && (stack.peek() < ch[i]) && (k > 0)) {
+                stack.pop();
                 k--;
             }
-            sb.append(now);
+            stack.push(ch[i]);
         }
         
-        while (k-- > 0) {
-            sb.deleteCharAt(sb.length()-1);
+        StringBuilder sb = new StringBuilder();
+        
+        while (!stack.isEmpty()) {
+            sb.insert(0, stack.pop());    
         }
 
+        while (k > 0) {
+            sb.deleteCharAt(sb.length()-1);
+            k--;
+        }
+        
         answer = sb.toString();
         
         return answer;
