@@ -4,33 +4,43 @@ class Solution {
     public int solution(int n, int[] lost, int[] reserve) {
         int answer = 0;
         
-        int[] student = new int[n+1];
-        Arrays.fill(student, 1);
-        
+        HashSet<Integer> lostSet = new HashSet<>();
         for (int x : lost) {
-            student[x]--;
+            lostSet.add(x);
         }
         
+        HashSet<Integer> reserveSet = new HashSet<>();
         for (int x : reserve) {
-            student[x]++;
-        }
-        
-        // 그리디?
-        for (int i=1; i<=n; i++) {
-            if (student[i] == 0) {
-                if (i-1 != 0 && student[i-1] == 2) {
-                    student[i-1]--;
-                    student[i]++;
-                } else if (i+1 <= n && student[i+1] == 2) {
-                    student[i+1]--;
-                    student[i]++;
-                }
+            if (!lostSet.contains(x)) {
+                reserveSet.add(x);  
+            } else {
+                lostSet.remove(x);
             }
         }
         
+        answer = n;
+        
         for (int i=1; i<=n; i++) {
-            if (student[i] > 0) answer++;
+            if (lostSet.contains(i)) {
+                boolean flag = false;
+                
+                if (i-1 >= 1) {
+                    if (reserveSet.contains(i-1)) {
+                        reserveSet.remove(i-1);
+                        flag = true;
+                    }
+                }
+                if ((i+1 <= n) && !flag) {
+                    if (reserveSet.contains(i+1)) {
+                        reserveSet.remove(i+1);
+                        flag = true;
+                    }
+                }
+                
+                if (!flag) answer--;
+            }
         }
+        
         
         return answer;
     }
