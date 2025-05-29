@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.PriorityQueue;
 
 public class Main {
 
-    static List<List<Integer>> list = new ArrayList<>();
+    static ArrayList<Integer>[] graph;
     static int N, M;
     static final int INF = 1_000_000_000;
 
@@ -19,16 +18,17 @@ public class Main {
         N = Integer.parseInt(sp[0]);
         M = Integer.parseInt(sp[1]);
 
+        graph = new ArrayList[N + 1];
         for (int i = 0; i < N + 1; i++) {
-            list.add(new ArrayList<>());
+            graph[i] = new ArrayList<>();
         }
 
         for (int i = 0; i < M; i++) {
             sp = br.readLine().split(" ");
             int a = Integer.parseInt(sp[0]);
             int b = Integer.parseInt(sp[1]);
-            list.get(a).add(b);
-            list.get(b).add(a); // 양방향 그래프
+            graph[a].add(b);
+            graph[b].add(a);
         }
 
         int[] dist = new int[N + 1];
@@ -48,7 +48,7 @@ public class Main {
 
             max = Math.max(max, dist[cur[0]]);
 
-            for (int next : list.get(cur[0])) {
+            for (int next : graph[cur[0]]) {
                 if (dist[next] > dist[cur[0]] + 1) {
                     dist[next] = dist[cur[0]] + 1;
                     pq.add(new int[]{next, dist[next]});
