@@ -3,53 +3,46 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
 
 public class Main {
 
     static int N, K;
-    static int[] dp;
-    static final int INF = 1_000_000_000;
+    static final int MAX = 100000;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String[] input = br.readLine().split(" ");
-        N = Integer.parseInt(input[0]);
-        K = Integer.parseInt(input[1]);
+        String[] sp = br.readLine().split(" ");
+        N = Integer.parseInt(sp[0]);
+        K = Integer.parseInt(sp[1]);
 
-        dp = new int[100001];
-        Arrays.fill(dp, INF);
-        dp[N] = 0;
+        ArrayDeque<int[]> deque = new ArrayDeque<>();
+        deque.add(new int[]{N, 0});
 
-        Deque<Integer> deque = new ArrayDeque<>();
-        deque.add(N);
+        // 방문 여부 체크 필수
+        boolean[] visited = new boolean[MAX + 1];
 
         while (!deque.isEmpty()) {
-            int cur = deque.poll();
+            int[] cur = deque.pollFirst();
 
-            if (cur == K) {
-                System.out.println(dp[cur]);
-                return;
+            if (cur[0] == K) {
+                System.out.println(cur[1]);
+                break;
             }
 
-            if (cur + 1 >= 0 && cur + 1 <= 100000) {
-                if (dp[cur + 1] > dp[cur] + 1) {
-                    dp[cur + 1] = dp[cur] + 1;
-                    deque.addLast(cur + 1);
-                }
+            // 해당 위치에 빨리 도착할때 체크
+            if (visited[cur[0]]) {
+                continue;
             }
-            if (cur - 1 >= 0 && cur - 1 <= 100000) {
-                if (dp[cur - 1] > dp[cur] + 1) {
-                    dp[cur - 1] = dp[cur] + 1;
-                    deque.addLast(cur - 1);
-                }
+            visited[cur[0]] = true;
+
+            if (cur[0] - 1 >= 0 && !visited[cur[0] - 1]) {
+                deque.addLast(new int[]{cur[0] - 1, cur[1] + 1});
             }
-            if (cur * 2 >= 0 && cur * 2 <= 100000) {
-                if (dp[cur * 2] > dp[cur]) {
-                    dp[cur * 2] = dp[cur];
-                    deque.addFirst(cur * 2);
-                }
+            if (cur[0] + 1 <= MAX && !visited[cur[0] + 1]) {
+                deque.addLast(new int[]{cur[0] + 1, cur[1] + 1});
+            }
+            if (cur[0] * 2 <= MAX && !visited[cur[0] * 2]) {
+                deque.addFirst(new int[]{cur[0] * 2, cur[1]});
             }
         }
 
