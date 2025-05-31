@@ -8,11 +8,11 @@ import java.util.Deque;
 
 public class Main {
 
-    static int[][] map;
     static int N, M;
+    static int[][] map;
+    static final int INF = 1_000_000_000;
     static int[] dx = {-1, 1, 0, 0};
     static int[] dy = {0, 0, -1, 1};
-    static final int INF = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -27,16 +27,15 @@ public class Main {
             }
         }
 
-        Deque<int[]> deque = new ArrayDeque<>();
-        deque.addFirst(new int[]{0, 0});
-
         int[][] dp = new int[N][M];
         for (int i = 0; i < N; i++) {
             Arrays.fill(dp[i], INF);
         }
         dp[0][0] = 0;
 
-        int result = INF;
+        // 0-1 bfs
+        Deque<int[]> deque = new ArrayDeque<>();
+        deque.add(new int[]{0, 0});
 
         while (!deque.isEmpty()) {
             int[] cur = deque.pollFirst();
