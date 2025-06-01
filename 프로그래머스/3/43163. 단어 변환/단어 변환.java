@@ -1,28 +1,24 @@
 import java.util.*;
 
 class Solution {
-    static class Info {
-        int cnt;
-        String word;
-        Info(int cnt, String word) {
-            this.cnt = cnt;
-            this.word = word;
-        }
-    }
+    
+    static int n;
+    static ArrayList<String> wordList = new ArrayList<>();
+    static final int INF = 1_000_000_000;
+    static Map<String, Integer> map = new HashMap<>();
     
     static int bfs(String begin, String target) {
-        Queue<Info> queue = new LinkedList<>();
-        queue.add(new Info(0, begin));
+        Queue<String> queue = new LinkedList<>();
+        queue.add(begin);
  
         boolean[] visited = new boolean[n];
-        
         int answer = 0;
         
         while (!queue.isEmpty()) {
-            Info info = queue.poll();
+            String cur = queue.poll();
             
-            if (info.word.equals(target)) {
-                answer = info.cnt;
+            if (cur.equals(target)) {
+                answer = map.getOrDefault(cur, 0);
                 break;
             }
             
@@ -30,26 +26,26 @@ class Solution {
                 if (visited[i]) {
                     continue;
                 }
-                String cur = wordList.get(i);
+                
+                String word = wordList.get(i);
                 int diff = 0;
-                for (int j=0; j<cur.length(); j++) {
-                    if (cur.charAt(j) != info.word.charAt(j)) {
+                for (int j=0; j<word.length(); j++) {
+                    if (word.charAt(j) != cur.charAt(j)) {
                         diff++;
                     }
                 }
+                
                 if (diff == 1) {
                     visited[i] = true;
-                    queue.add(new Info(info.cnt+1, cur));
+                    // cur까지의 depth+1
+                    map.put(word, map.getOrDefault(cur, 0)+1);
+                    queue.add(word);
                 }
             }
         }
         
         return answer;
     }
-    
-    static int n;
-    static ArrayList<String> wordList = new ArrayList<>();
-    static final int INF = 1_000_000_000;
     
     public int solution(String begin, String target, String[] words) {
         int answer = 0;
