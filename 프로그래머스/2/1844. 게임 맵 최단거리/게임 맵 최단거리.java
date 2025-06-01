@@ -2,57 +2,55 @@ import java.util.*;
 
 class Solution {
     
+    static int[] dx = {-1,1,0,0};
+    static int[] dy = {0,0,-1,1};
+    static int[][] dp;
+    static int n,m;
+    static final int INF = 1_000_000_000;
+    
     static int bfs(int[][] maps) {
+        int answer = -1;
+        
         Queue<int[]> queue = new LinkedList<>();
         queue.add(new int[]{0,0});
-        
-        // **초기화 필수**
-        dist[0][0] = 1;
+        dp[0][0] = 1; // 중요!
         
         while (!queue.isEmpty()) {
             int[] cur = queue.poll();
-            int x = cur[0], y = cur[1];
             
-            if (x==N-1 && y==M-1) {
-                return dist[x][y];
+            if (cur[0] == n-1 && cur[1] == m-1) {
+                answer = dp[n-1][m-1];
+                break;
             }
             
             for (int i=0; i<4; i++) {
-                int nx = x+dx[i];
-                int ny = y+dy[i];
-                if (!(0<=nx&&nx<N&&0<=ny&&ny<M)) continue;
-                if (maps[nx][ny] == 0) continue;
-                  
-                if (dist[nx][ny] > dist[x][y] + 1) {
-                    // 거리 갱신, 큐에 추가
-                    dist[nx][ny] = dist[x][y] + 1;
-                    queue.add(new int[]{nx, ny});
+                int nx = cur[0] + dx[i], ny = cur[1] + dy[i];
+                if (!(0<=nx&&nx<n && 0<=ny&&ny<m)) continue;
+                if (maps[nx][ny] == 1) {
+                    if (dp[nx][ny] > dp[cur[0]][cur[1]] + 1) {
+                        dp[nx][ny] = dp[cur[0]][cur[1]] + 1;
+                        queue.add(new int[]{nx,ny});
+                    }
                 }
             }
         }
-        
-        return -1;
-    }
     
-    static int[][] dist;
-    static int N,M;
-    static final int INF = 1_000_000_000;
-    static int[] dx = {-1,1,0,0};
-    static int[] dy = {0,0,-1,1};
+        return answer;
+    }
     
     public int solution(int[][] maps) {
         int answer = 0;
         
-        N = maps.length;
-        M = maps[0].length;
+        n = maps.length;
+        m = maps[0].length;
         
-        dist = new int[N][M];
-        for(int i=0; i<N; i++) {
-            Arrays.fill(dist[i], INF);
+        dp = new int[n][m];
+        for (int i=0; i<n; i++) {
+            Arrays.fill(dp[i], INF);
         }
         
         answer = bfs(maps);
-
+        
         return answer;
     }
 }
