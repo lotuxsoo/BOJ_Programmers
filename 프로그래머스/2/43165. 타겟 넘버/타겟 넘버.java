@@ -1,30 +1,30 @@
 import java.util.*;
 
 class Solution {
-    static int cnt = 0;
-    static int[] numbers;
-    static int target;
     
-    static void DFS(int start, int sum) {
-        if (start == numbers.length) {
+    static int n;
+    static int result = 0;
+    
+    static void dfs(int index, int sum, int[] numbers, int target) {
+        if (index == n) {
             if (sum == target) {
-                cnt++;
+                result++;
             }
             return;
         }
         
-        DFS(start+1, sum + numbers[start]);
-        DFS(start+1, sum - numbers[start]);
+        dfs(index+1, sum+numbers[index], numbers, target);
+        dfs(index+1, sum-numbers[index], numbers, target);
     }
     
     public int solution(int[] numbers, int target) {
         int answer = 0;
-        this.numbers = numbers;
-        this.target = target;
         
-        DFS(0, 0);
+        n = numbers.length;
         
-        answer = cnt;
+        dfs(0, 0, numbers, target);
+        
+        answer = result;
         
         return answer;
     }
