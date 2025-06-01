@@ -1,59 +1,50 @@
 import java.util.*;
 
 class Solution {
-    static String[] words;
-    static boolean[] visited;
     
-    static boolean canAdd(String to, String from) {
-        if (from.length() != to.length()) return false;
-        
-        int cnt = 0;
-        for (int i=0; i<from.length(); i++) {
-            if (from.charAt(i) != to.charAt(i)) cnt++;
+    static void dfs(int depth, String cur, String target) { 
+        if (cur.equals(target)) {
+            minVal = Math.min(minVal, depth);
+            return;
         }
-
-        return cnt == 1;
-    }
-    
-    static int BFS(String begin, String target) {
-        int cnt = 0;
-        Queue<String[]> queue = new LinkedList<>();
-        queue.add(new String[]{begin,"0"});
         
-        while (!queue.isEmpty()) {
-            String[] current = queue.poll();
-            String now = current[0];
-            int level = Integer.parseInt(current[1]);
-
-            if (now.equals(target)) return level;
-            
-            for (int i=0; i<words.length; i++) {
-                if (!visited[i] && canAdd(words[i], now)) {
+        for (int i=0; i<n; i++) {
+            if (!visited[i]) {
+                String word = wordList.get(i);
+                int cnt = 0;
+                for (int j=0; j<word.length(); j++) {
+                    if (word.charAt(j) != cur.charAt(j)) cnt++;
+                }
+                if (cnt == 1) {
                     visited[i] = true;
-                    queue.add(new String[]{words[i], String.valueOf(level + 1)});
+                    dfs(depth+1, word, target);
+                    visited[i] = false;
                 }
             }
-        }
-        return 0;
+        } 
     }
     
+    static int n;
+    static ArrayList<String> wordList = new ArrayList<>();
+    static boolean[] visited;
+    static int minVal = 1_000_000_000;
     
     public int solution(String begin, String target, String[] words) {
         int answer = 0;
-        this.words = words;
         
-        boolean flag = false;
         for (String word : words) {
-            if (word.equals(target)) {
-                flag = true;
-                break;
-            }
+            wordList.add(word);
         }
-        if (!flag) return 0;
         
-        visited = new boolean[words.length];
-            
-        answer = BFS(begin, target);
+        if (!wordList.contains(target)) {
+            return 0;
+        }
+        
+        n = words.length;
+        visited = new boolean[n];
+        dfs(0, begin, target);
+        
+        answer = minVal;
         
         return answer;
     }
