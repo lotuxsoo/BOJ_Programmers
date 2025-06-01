@@ -1,33 +1,55 @@
 import java.util.*;
 
 class Solution {
-    
-    static void dfs(int depth, String cur, String target) { 
-        if (cur.equals(target)) {
-            minVal = Math.min(minVal, depth);
-            return;
+    static class Info {
+        int cnt;
+        String word;
+        Info(int cnt, String word) {
+            this.cnt = cnt;
+            this.word = word;
         }
+    }
+    
+    static int bfs(String begin, String target) {
+        Queue<Info> queue = new LinkedList<>();
+        queue.add(new Info(0, begin));
+ 
+        boolean[] visited = new boolean[n];
         
-        for (int i=0; i<n; i++) {
-            if (!visited[i]) {
-                String word = wordList.get(i);
-                int cnt = 0;
-                for (int j=0; j<word.length(); j++) {
-                    if (word.charAt(j) != cur.charAt(j)) cnt++;
+        int answer = 0;
+        
+        while (!queue.isEmpty()) {
+            Info info = queue.poll();
+            
+            if (info.word.equals(target)) {
+                answer = info.cnt;
+                break;
+            }
+            
+            for (int i=0; i<n; i++) {
+                if (visited[i]) {
+                    continue;
                 }
-                if (cnt == 1) {
+                String cur = wordList.get(i);
+                int diff = 0;
+                for (int j=0; j<cur.length(); j++) {
+                    if (cur.charAt(j) != info.word.charAt(j)) {
+                        diff++;
+                    }
+                }
+                if (diff == 1) {
                     visited[i] = true;
-                    dfs(depth+1, word, target);
-                    visited[i] = false;
+                    queue.add(new Info(info.cnt+1, cur));
                 }
             }
-        } 
+        }
+        
+        return answer;
     }
     
     static int n;
     static ArrayList<String> wordList = new ArrayList<>();
-    static boolean[] visited;
-    static int minVal = 1_000_000_000;
+    static final int INF = 1_000_000_000;
     
     public int solution(String begin, String target, String[] words) {
         int answer = 0;
@@ -41,10 +63,8 @@ class Solution {
         }
         
         n = words.length;
-        visited = new boolean[n];
-        dfs(0, begin, target);
-        
-        answer = minVal;
+
+        answer = bfs(begin, target);
         
         return answer;
     }
