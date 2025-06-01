@@ -2,15 +2,18 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.StringTokenizer;
 
 public class Main {
+
     static void dfs(int x, int y) {
+        map[x][y] = -1;
 
         for (int i = 0; i < 4; i++) {
             int nx = x + dx[i], ny = y + dy[i];
-            if ((0 <= nx && nx < M && 0 <= ny && ny < N) && map[nx][ny] == 1) {
-                map[nx][ny] = 2;
+            if (!(0 <= nx && nx < N && 0 <= ny && ny < M)) {
+                continue;
+            }
+            if (map[nx][ny] == 1) {
                 dfs(nx, ny);
             }
         }
@@ -25,29 +28,32 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int T = Integer.parseInt(br.readLine());
         while (T-- > 0) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            M = Integer.parseInt(st.nextToken());
-            N = Integer.parseInt(st.nextToken());
-            K = Integer.parseInt(st.nextToken());
-            map = new int[M][N];
+            String[] sp = br.readLine().split(" ");
+            M = Integer.parseInt(sp[0]);
+            N = Integer.parseInt(sp[1]);
+            K = Integer.parseInt(sp[2]);
+
+            map = new int[N][M];
 
             for (int i = 0; i < K; i++) {
-                st = new StringTokenizer(br.readLine());
-                int x = Integer.parseInt(st.nextToken());
-                int y = Integer.parseInt(st.nextToken());
-                map[x][y] = 1;
+                sp = br.readLine().split(" ");
+                int x = Integer.parseInt(sp[0]);
+                int y = Integer.parseInt(sp[1]);
+                map[y][x] = 1;
             }
 
-            int cnt = 0;
-            for (int i = 0; i < M; i++) {
-                for (int j = 0; j < N; j++) {
+            int answer = 0;
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
                     if (map[i][j] == 1) {
+                        answer++;
                         dfs(i, j);
-                        cnt++;
                     }
                 }
             }
-            System.out.println(cnt);
+
+            System.out.println(answer);
         }
     }
 }
