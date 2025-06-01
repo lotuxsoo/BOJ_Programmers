@@ -8,34 +8,26 @@ class Solution {
         {3,3,1,1,2,2,4,4,5,5}
     };
     
-    static int n;
-    static int[] scores;
-    
-    static int dfs(int depth, int[] pattern, int[] answers) {
-        if (depth == n) {
+    static int solve(int depth, int[] p, int[] answers) {
+        if (depth == answers.length) {
             return 0;
         }
         
-        int idx = depth % pattern.length;
-        
-        int score = pattern[idx] == answers[depth] ? 1 : 0;
-        
-        score += dfs(depth+1, pattern, answers);
-        
+        int idx = depth % p.length;
+        int score = p[idx] == answers[depth] ? 1 : 0;
+        score += solve(depth+1, p, answers);
         return score;
     }
     
-    
     public int[] solution(int[] answers) {
         int[] answer = {};
-        n = answers.length;
+        int n = answers.length;
         
         int[] scores = new int[3];
-        
         int max = 0;
         
         for (int i=0; i<3; i++) {
-            scores[i] = dfs(0, pattern[i], answers);
+            scores[i] = solve(0, pattern[i], answers);
             max = Math.max(max, scores[i]);
         }
         
@@ -47,7 +39,6 @@ class Solution {
             }
         }
         
-        Collections.sort(list);
         answer = new int[list.size()];
         for (int i=0; i<list.size(); i++) {
             answer[i] = list.get(i);
