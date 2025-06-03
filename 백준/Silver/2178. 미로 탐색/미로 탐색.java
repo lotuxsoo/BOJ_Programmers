@@ -1,68 +1,56 @@
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.StringTokenizer;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Main {
-    static int N, M; // 세로,가로
-    static int[][] graph;
-    static boolean[][] visited;
-    // 동,서,남,북
-    static int[] dx = {0, 0, 1, -1}; // 수직 이동
-    static int[] dy = {1, -1, 0, 0}; // 수평 이동
 
-    static class Node {
-        int x, y, distance;
+    static int bfs() {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{0, 0, 1});
 
-        Node(int x, int y, int distance) {
-            this.x = x;
-            this.y = y;
-            this.distance = distance;
-        }
-    }
-
-    static boolean canGo(int x, int y) {
-        return 0 <= x && x <= N - 1 && 0 <= y && y <= M - 1;
-    }
-
-    static int BFS(int x, int y) {
-        ArrayDeque<Node> queue = new ArrayDeque<>();
-        visited[x][y] = true;
-        queue.offer(new Node(x, y, 1));
+        boolean[][] visited = new boolean[rows][cols];
+        visited[0][0] = true;
 
         while (!queue.isEmpty()) {
-            Node current = queue.poll();
-            if (current.x == N - 1 && current.y == M - 1) {
-                return current.distance;
+            int[] cur = queue.poll();
+
+            if (cur[0] == rows - 1 && cur[1] == cols - 1) {
+                return cur[2];
             }
 
             for (int i = 0; i < 4; i++) {
-                int newX = current.x + dx[i];
-                int newY = current.y + dy[i];
-                if (canGo(newX, newY) && graph[newX][newY] == 1 && !visited[newX][newY]) {
-                    visited[newX][newY] = true;
-                    queue.offer(new Node(newX, newY, current.distance + 1));
+                int nx = cur[0] + dx[i], ny = cur[1] + dy[i];
+                if ((nx >= 0 && nx < rows && ny >= 0 && ny < cols) && map[nx][ny] == 1 && !visited[nx][ny]) {
+                    visited[nx][ny] = true;
+                    queue.add(new int[]{nx, ny, cur[2] + 1});
                 }
             }
         }
-        return -1;
+
+        return 0;
     }
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        graph = new int[N][M];
-        visited = new boolean[N][M];
+    static int rows, cols;
+    static int[][] map;
+    static int[] dx = {-1, 1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
 
-        for (int i = 0; i < N; i++) {
-            String[] split = br.readLine().split("");
-            for (int j = 0; j < M; j++) {
-                graph[i][j] = Integer.parseInt(split[j]);
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] sp = br.readLine().split(" ");
+        rows = Integer.parseInt(sp[0]);
+        cols = Integer.parseInt(sp[1]);
+        map = new int[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            char[] ch = br.readLine().toCharArray();
+            for (int j = 0; j < cols; j++) {
+                map[i][j] = ch[j] - '0'; // 문자숫자 -> 정수숫자
             }
         }
 
-        System.out.println(BFS(0, 0));
+        System.out.println(bfs());
     }
 }
