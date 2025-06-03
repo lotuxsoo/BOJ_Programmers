@@ -2,21 +2,19 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 public class Main {
 
     static void dfs(int x) {
         visited[x] = true;
 
-        for (int next : graph[x]) {
-            if (!visited[next]) {
-                dfs(next);
-            }
+        int next = arr[x];
+        if (!visited[next]) {
+            dfs(next);
         }
     }
 
-    static ArrayList<Integer>[] graph;
+    static int[] arr;
     static boolean[] visited;
 
     public static void main(String[] args) throws IOException {
@@ -25,14 +23,11 @@ public class Main {
 
         while (T-- > 0) {
             int N = Integer.parseInt(br.readLine());
-            graph = new ArrayList[N + 1];
-            for (int i = 0; i < N + 1; i++) {
-                graph[i] = new ArrayList<>();
-            }
+            arr = new int[N + 1];
+
             String[] sp = br.readLine().split(" ");
             for (int i = 0; i < N; i++) {
-                int x = Integer.parseInt(sp[i]);
-                graph[i + 1].add(x); // 단방향 그래프
+                arr[i + 1] = Integer.parseInt(sp[i]);
             }
 
             // 순열 사이클 dfs로 구하기
