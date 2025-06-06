@@ -1,26 +1,51 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
+        int n = Integer.parseInt(br.readLine());
 
-        int[] D = new int[N + 1]; // D[i]: i를 만들기 위한 연산 횟수 최솟값
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{n, 0});
 
-        D[1] = 0;
-        for (int i = 2; i <= N; i++) {
-            D[i] = D[i - 1] + 1;
-            if (i % 2 == 0) {
-                D[i] = Math.min(D[i / 2] + 1, D[i]);
+        boolean[] visited = new boolean[n + 1];
+        visited[n] = true;
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+
+            if (cur[0] == 1) {
+                System.out.println(cur[1]);
+                break;
             }
-            if (i % 3 == 0) {
-                D[i] = Math.min(D[i / 3] + 1, D[i]);
+
+            if (cur[0] % 3 == 0) {
+                int x = cur[0] / 3;
+                if (!visited[x]) {
+                    visited[x] = true;
+                    queue.add(new int[]{x, cur[1] + 1});
+                }
+            }
+            if (cur[0] % 2 == 0) {
+                int x = cur[0] / 2;
+                if (!visited[x]) {
+                    visited[x] = true;
+                    queue.add(new int[]{x, cur[1] + 1});
+                }
+            }
+            if (cur[0] - 1 >= 1) {
+                int x = cur[0] - 1;
+                if (!visited[x]) {
+                    visited[x] = true;
+                    queue.add(new int[]{x, cur[1] + 1});
+                }
             }
         }
-
-        System.out.println(D[N]);
     }
 }
