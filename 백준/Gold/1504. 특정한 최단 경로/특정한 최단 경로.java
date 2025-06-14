@@ -5,28 +5,58 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.PriorityQueue;
-import java.util.StringTokenizer;
 
 public class Main {
+
     static class Node {
-        int dest;
+        int to;
         long cost;
 
-        Node(int dest, long cost) {
-            this.dest = dest;
+        Node(int to, long cost) {
+            this.to = to;
             this.cost = cost;
         }
     }
 
+    static long solve(int from, int to) {
+        Arrays.fill(dp, INF);
+        dp[from] = 0;
+
+        PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> Long.compare(a.cost, b.cost));
+        pq.add(new Node(from, 0));
+
+        while (!pq.isEmpty()) {
+            Node cur = pq.poll();
+
+            if (cur.cost > dp[cur.to]) {
+                continue;
+            }
+
+            if (cur.to == to) {
+                break;
+            }
+
+            for (Node next : graph[cur.to]) {
+                if (dp[next.to] > dp[cur.to] + next.cost) {
+                    dp[next.to] = dp[cur.to] + next.cost;
+                    pq.add(new Node(next.to, dp[next.to]));
+                }
+            }
+        }
+
+        return dp[to];
+    }
+
     static int N, E;
     static ArrayList<Node>[] graph;
-    static final long INF = 1_000_000_000_000L;
+    static long[] dp;
+    static final long INF = 1_000_000_000_000_000_000L;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        E = Integer.parseInt(st.nextToken());
+        String[] sp = br.readLine().split(" ");
+        N = Integer.parseInt(sp[0]);
+        E = Integer.parseInt(sp[1]);
 
         graph = new ArrayList[N + 1];
         for (int i = 0; i < N + 1; i++) {
@@ -34,95 +64,29 @@ public class Main {
         }
 
         for (int i = 0; i < E; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
+            sp = br.readLine().split(" ");
+            int a = Integer.parseInt(sp[0]);
+            int b = Integer.parseInt(sp[1]);
+            int c = Integer.parseInt(sp[2]);
             graph[a].add(new Node(b, c));
             graph[b].add(new Node(a, c));
         }
-        st = new StringTokenizer(br.readLine());
-        int V1 = Integer.parseInt(st.nextToken());
-        int V2 = Integer.parseInt(st.nextToken());
 
-        PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> Long.compare(a.cost, b.cost));
+        sp = br.readLine().split(" ");
+        int v1 = Integer.parseInt(sp[0]);
+        int v2 = Integer.parseInt(sp[1]);
 
-        // 1-> 모든 정점까지의 최단거리
-        long[] dist1 = new long[N + 1];
-        Arrays.fill(dist1, INF);
-        dist1[1] = 0;
-        pq.add(new Node(1, 0));
+        long sum1 = 0, sum2 = 0;
 
-        while (!pq.isEmpty()) {
-            Node cur = pq.poll();
+        dp = new long[N + 1];
 
-            if (dist1[cur.dest] < cur.cost) {
-                continue;
-            }
+        sum1 += solve(1, v1) + solve(v1, v2) + solve(v2, N);
+        sum2 += solve(1, v2) + solve(v2, v1) + solve(v1, N);
 
-            for (Node next : graph[cur.dest]) {
-                if (dist1[next.dest] > next.cost + cur.cost) {
-                    dist1[next.dest] = next.cost + cur.cost;
-                    pq.add(new Node(next.dest, dist1[next.dest]));
-                }
-            }
+        if (sum1 >= INF && sum2 >= INF) {
+            System.out.println(-1);
+        } else {
+            System.out.println(Math.min(sum1, sum2));
         }
-
-        pq.clear();
-        long[] dist2 = new long[N + 1];
-        Arrays.fill(dist2, INF);
-        dist2[V1] = 0;
-        pq.add(new Node(V1, 0));
-        // V1 -> 모든 정점까지의 최단거리
-        while (!pq.isEmpty()) {
-            Node cur = pq.poll();
-
-            if (dist2[cur.dest] < cur.cost) {
-                continue;
-            }
-
-            for (Node next : graph[cur.dest]) {
-                if (dist2[next.dest] > next.cost + cur.cost) {
-                    dist2[next.dest] = next.cost + cur.cost;
-                    pq.add(new Node(next.dest, dist2[next.dest]));
-                }
-            }
-        }
-
-        // V2 -> 모든 정점까지의 최단거리
-        pq.clear();
-        long[] dist3 = new long[N + 1];
-        Arrays.fill(dist3, INF);
-        dist3[V2] = 0;
-        pq.add(new Node(V2, 0));
-        // V1 -> 모든 정점까지의 최단거리
-        while (!pq.isEmpty()) {
-            Node cur = pq.poll();
-
-            if (dist3[cur.dest] < cur.cost) {
-                continue;
-            }
-
-            for (Node next : graph[cur.dest]) {
-                if (dist3[next.dest] > next.cost + cur.cost) {
-                    dist3[next.dest] = next.cost + cur.cost;
-                    pq.add(new Node(next.dest, dist3[next.dest]));
-                }
-            }
-        }
-
-        long path1 = dist1[V1] + dist2[V2] + dist3[N];
-        long path2 = dist1[V2] + dist3[V1] + dist2[N];
-
-        if (dist1[V1] == INF || dist2[V2] == INF || dist3[N] == INF) {
-            path1 = INF;
-        }
-        if (dist1[V2] == INF || dist3[V1] == INF || dist2[N] == INF) {
-            path2 = INF;
-        }
-
-        long result = Math.min(path1, path2);
-
-        System.out.println(result == INF ? -1 : result);
     }
 }
