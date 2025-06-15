@@ -2,53 +2,49 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
 
 public class Main {
 
-    static int N;
-    static int[][] cost;
     static final int INF = 1_000_000_000;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-        cost = new int[N][3];
+        int N = Integer.parseInt(br.readLine());
+        int[][] map = new int[N][3];
         for (int i = 0; i < N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
+            String[] sp = br.readLine().split(" ");
             for (int j = 0; j < 3; j++) {
-                cost[i][j] = Integer.parseInt(st.nextToken());
+                map[i][j] = Integer.parseInt(sp[j]);
             }
         }
 
-        int[][] dp = new int[N][3];
-        int result = INF;
+        int answer = INF;
 
-        for (int firstColor = 0; firstColor < 3; firstColor++) {
-            for (int i = 0; i < N; i++) {
-                Arrays.fill(dp[i], INF);
-            }
+        for (int first = 0; first < 3; first++) {
+            int[][] dp = new int[N][3];
 
-            for (int k = 0; k < 3; k++) {
-                if (firstColor == k) {
-                    dp[0][k] = cost[0][k];
+            for (int i = 0; i < 3; i++) {
+                if (i != first) {
+                    dp[0][i] = map[0][i];
+                } else {
+                    dp[0][first] = INF;
                 }
             }
 
-            for (int i = 1; i < N; i++) {
-                dp[i][0] = Math.min(dp[i - 1][1], dp[i - 1][2]) + cost[i][0];
-                dp[i][1] = Math.min(dp[i - 1][0], dp[i - 1][2]) + cost[i][1];
-                dp[i][2] = Math.min(dp[i - 1][0], dp[i - 1][1]) + cost[i][2];
+            for (int j = 1; j < N; j++) {
+                dp[j][0] = Math.min(dp[j - 1][1], dp[j - 1][2]) + map[j][0];
+                dp[j][1] = Math.min(dp[j - 1][0], dp[j - 1][2]) + map[j][1];
+                dp[j][2] = Math.min(dp[j - 1][0], dp[j - 1][1]) + map[j][2];
             }
 
-            for (int k = 0; k < 3; k++) {
-                if (firstColor != k) {
-                    result = Math.min(result, dp[N - 1][k]);
-                }
-            }
+            answer = Math.min(answer, dp[N - 1][first]);
+//            for (int i = 0; i < 3; i++) {
+//                if (i == first) {
+//                    answer = Math.min(answer, dp[N - 1][i]);
+//                }
+//            }
         }
 
-        System.out.println(result);
+        System.out.println(answer);
     }
 }
