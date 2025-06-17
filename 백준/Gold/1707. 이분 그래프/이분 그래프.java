@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -6,35 +7,31 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static void DFS(int x, int nowColor) {
-        if (found) {
-            return;
+    static boolean dfs(int x, boolean flag) {
+        if (!flag) {
+            return false;
         }
-
-        color[x] = nowColor;
 
         for (int next : graph[x]) {
-            if (color[next] == 0) {
-                DFS(next, -nowColor);
-            } else {
-                if (color[next] == color[x]) {
-                    found = true;
-                    return;
-                }
+            if (checked[next] == 0) {
+                checked[next] = -checked[x];
+                flag = dfs(next, flag);
+            } else if (checked[next] == checked[x]) {
+                return false;
             }
         }
+
+        return flag;
     }
 
     static ArrayList<Integer>[] graph;
-    static int[] color;
-    static boolean found; // 이분그래프 아닌걸 찾음
+    static int[] checked;
     static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-        int K = Integer.parseInt(br.readLine());
-        while (K-- > 0) {
+        int T = Integer.parseInt(br.readLine());
+        while (T-- > 0) {
             StringTokenizer st = new StringTokenizer(br.readLine());
             int V = Integer.parseInt(st.nextToken());
             int E = Integer.parseInt(st.nextToken());
@@ -52,21 +49,20 @@ public class Main {
                 graph[v].add(u);
             }
 
-            color = new int[V + 1]; // 각 정점의 색을 구분
-            found = false;
-
+            checked = new int[V + 1];
+            boolean flag = true;
             for (int i = 1; i <= V; i++) {
-                if (found) {
-                    break;
-                }
-                if (color[i] == 0) {
-                    DFS(i, 1);
+                if (checked[i] == 0) {
+                    checked[i] = 1;
+                    flag = dfs(i, true); // 이분그래프 아니면 false
+                    if (!flag) {
+                        sb.append("NO\n");
+                        break;
+                    }
                 }
             }
 
-            if (found) {
-                sb.append("NO\n");
-            } else {
+            if (flag) {
                 sb.append("YES\n");
             }
         }
