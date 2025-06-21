@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Main {
 
@@ -20,42 +21,40 @@ public class Main {
     }
 
     static int N, M, W;
-    static List<Edge> edges;
     static final long INF = 1_000_000_000_000_000_000L;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int TC = Integer.parseInt(br.readLine());
-        StringBuilder sb = new StringBuilder();
         while (TC-- > 0) {
             String[] sp = br.readLine().split(" ");
             N = Integer.parseInt(sp[0]);
             M = Integer.parseInt(sp[1]);
             W = Integer.parseInt(sp[2]);
 
-            edges = new ArrayList<>();
+            ArrayList<Edge> edgeList = new ArrayList<>();
+
+            // 무방향 양수 간선 추가
             for (int i = 0; i < M; i++) {
                 sp = br.readLine().split(" ");
-                int from = Integer.parseInt(sp[0]);
-                int to = Integer.parseInt(sp[1]);
-                long cost = Long.parseLong(sp[2]);
-                // 도로는 방향이 없음
-                edges.add(new Edge(from, to, cost));
-                edges.add(new Edge(to, from, cost));
+                int S = Integer.parseInt(sp[0]);
+                int E = Integer.parseInt(sp[1]);
+                int T = Integer.parseInt(sp[2]);
+                edgeList.add(new Edge(S, E, T));
+                edgeList.add(new Edge(E, S, T));
             }
-
+            // 방향 음수 간선 추가
             for (int i = 0; i < W; i++) {
                 sp = br.readLine().split(" ");
-                int from = Integer.parseInt(sp[0]);
-                int to = Integer.parseInt(sp[1]);
-                long cost = Long.parseLong(sp[2]);
-                // 웜홀은 방향이 있음
-                edges.add(new Edge(from, to, -cost));
+                int S = Integer.parseInt(sp[0]);
+                int E = Integer.parseInt(sp[1]);
+                int T = Integer.parseInt(sp[2]);
+                edgeList.add(new Edge(S, E, -T));
             }
 
-            // 정점 0번과 모두 연결
+            boolean hasNegativeCycle = false;
             for (int i = 1; i <= N; i++) {
-                edges.add(new Edge(0, i, 0));
+                edgeList.add(new Edge(0, i, 0));
             }
 
             long[] dist = new long[N + 1];
@@ -63,23 +62,27 @@ public class Main {
             dist[0] = 0;
 
             for (int i = 0; i < N; i++) {
-                for (Edge edge : edges) {
-                    if (dist[edge.from] != INF && (dist[edge.to] > dist[edge.from] + edge.cost)) {
+                for (int j = 0; j < edgeList.size(); j++) {
+                    Edge edge = edgeList.get(j);
+                    if (dist[edge.from] != INF && dist[edge.to] > dist[edge.from] + edge.cost) {
                         dist[edge.to] = dist[edge.from] + edge.cost;
                     }
                 }
             }
 
-            boolean flag = false;
-            for (Edge edge : edges) {
-                if (dist[edge.from] != INF && (dist[edge.to] > dist[edge.from] + edge.cost)) {
-                    flag = true;
+            for (int j = 0; j < edgeList.size(); j++) {
+                Edge edge = edgeList.get(j);
+                if (dist[edge.from] != INF && dist[edge.to] > dist[edge.from] + edge.cost) {
+                    hasNegativeCycle = true;
                     break;
                 }
             }
 
-            sb.append(flag ? "YES\n" : "NO\n");
+            if (!hasNegativeCycle) {
+                System.out.println("NO");
+            } else {
+                System.out.println("YES");
+            }
         }
-        System.out.println(sb.toString());
     }
 }
