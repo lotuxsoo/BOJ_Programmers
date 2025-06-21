@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Main {
-
     static class Edge {
         int from, to;
         long cost;
@@ -18,9 +17,8 @@ public class Main {
         }
     }
 
-    static ArrayList<Edge> edges = new ArrayList<>();
     static int N, M;
-    static final long INF = 1_000_000_000_000_000_000L;
+    static final int INF = 1_000_000_000;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -28,41 +26,46 @@ public class Main {
         N = Integer.parseInt(sp[0]);
         M = Integer.parseInt(sp[1]);
 
+        ArrayList<Edge> edgeList = new ArrayList<>();
         for (int i = 0; i < M; i++) {
             sp = br.readLine().split(" ");
-            int a = Integer.parseInt(sp[0]);
-            int b = Integer.parseInt(sp[1]);
-            long c = Long.parseLong(sp[2]);
-            edges.add(new Edge(a, b, c));
+            int A = Integer.parseInt(sp[0]);
+            int B = Integer.parseInt(sp[1]);
+            long C = Long.parseLong(sp[2]);
+            edgeList.add(new Edge(A, B, C));
         }
 
         long[] dist = new long[N + 1];
         Arrays.fill(dist, INF);
         dist[1] = 0;
 
-        // 최단 경로는 최대 N-1개의 간선 이용
         for (int i = 0; i < N - 1; i++) {
-            for (Edge edge : edges) {
-                if ((dist[edge.from] != INF) && (dist[edge.to] > dist[edge.from] + edge.cost)) {
+            for (int j = 0; j < M; j++) {
+                Edge edge = edgeList.get(j);
+                if (dist[edge.from] != INF && dist[edge.to] > dist[edge.from] + edge.cost) {
                     dist[edge.to] = dist[edge.from] + edge.cost;
                 }
             }
         }
 
-        // 음수 사이클 확인
-        for (Edge edge : edges) {
-            if ((dist[edge.from] != INF) && dist[edge.to] > dist[edge.from] + edge.cost) {
-                System.out.println(-1);
-                return;
+        boolean hasNegativeCycle = false;
+
+        for (int i = 0; i < M; i++) {
+            Edge edge = edgeList.get(i);
+            if (dist[edge.from] != INF && dist[edge.to] > dist[edge.from] + edge.cost) {
+                hasNegativeCycle = true;
+                break;
             }
         }
 
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 2; i <= N; i++) {
-            sb.append(dist[i] == INF ? -1 : dist[i]).append("\n");
+        if (hasNegativeCycle) {
+            System.out.println(-1);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 2; i <= N; i++) {
+                sb.append(dist[i] == INF ? -1 : dist[i]).append("\n");
+            }
+            System.out.println(sb.toString().trim());
         }
-
-        System.out.println(sb.toString());
     }
 }
